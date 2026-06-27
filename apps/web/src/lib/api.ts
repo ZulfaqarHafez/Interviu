@@ -1,4 +1,4 @@
-import type { AgentResearch, AgentSpec, AgentSpecFileExport, CandidateConfig, Connector, ConnectorProbe, DatabaseHealth, ExamPack, ExamPackExport, ExamPackFileExport, JobScope, ProductReview, ProofBundle, RoleAnalysis, RunEvent, RunRecord, Scorecard, TracePayload } from "@/types/interviu";
+import type { AgentResearch, AgentSpec, AgentSpecFileExport, CandidateConfig, CandidateProgress, Connector, ConnectorProbe, DatabaseHealth, DiagnosticLesson, ExamPack, ExamPackExport, ExamPackFileExport, JobScope, ProductReview, ProofBundle, RoleAnalysis, RunComparison, RunEvent, RunRecord, Scorecard, TracePayload } from "@/types/interviu";
 
 function apiBaseUrl() {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
@@ -75,5 +75,16 @@ export const interviuApi = {
       method: "POST",
       body: JSON.stringify({ raw_text: rawText, extract, override_pack_id: overridePackId })
     }),
-  runRoleAnalysis: (runId: string) => request<RoleAnalysis>(`/runs/${runId}/role-analysis`)
+  runRoleAnalysis: (runId: string) => request<RoleAnalysis>(`/runs/${runId}/role-analysis`),
+  candidateProgress: (candidateId: string) =>
+    request<CandidateProgress>(`/candidates/${candidateId}/progress`),
+  candidateLessons: (candidateId: string, examPackId?: string) =>
+    request<DiagnosticLesson[]>(
+      `/candidates/${candidateId}/lessons${examPackId ? `?exam_pack_id=${encodeURIComponent(examPackId)}` : ""}`
+    ),
+  runComparison: (runId: string, baseline?: string) =>
+    request<RunComparison>(
+      `/runs/${runId}/comparison${baseline ? `?baseline=${encodeURIComponent(baseline)}` : ""}`
+    ),
+  runLessonsApplied: (runId: string) => request<DiagnosticLesson[]>(`/runs/${runId}/lessons-applied`)
 };

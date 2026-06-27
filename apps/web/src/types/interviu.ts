@@ -129,6 +129,8 @@ export type Scorecard = {
   trace_audit: TraceAuditSummary;
   failure_reasons: string[];
   created_at: string;
+  lessons_applied: string[];
+  prior_run_id: string | null;
 };
 
 export type ProductReviewer = {
@@ -296,4 +298,82 @@ export type ProofBundle = {
   agent_spec: AgentSpec | null;
   role_analysis?: RoleAnalysis | null;
   product_review?: ProductReview | null;
+};
+
+// --- Phase 0: closed learning loop (diagnostic library + progress) ---
+
+export type LessonOutcome = "pending" | "improved" | "regressed" | "unchanged" | "still_failing";
+
+export type DiagnosticLesson = {
+  id: string;
+  candidate_id: string;
+  exam_pack_id: string;
+  competency: string;
+  text: string;
+  origin_run_id: string;
+  origin_score: number;
+  origin_variant: string;
+  created_at: string;
+  updated_at: string;
+  applied_run_ids: string[];
+  last_applied_at?: string | null;
+  latest_outcome: LessonOutcome;
+  latest_outcome_score?: number | null;
+  active: boolean;
+};
+
+export type CompetencyTrendPoint = {
+  run_id: string;
+  created_at: string;
+  held_out_score: number;
+  passed: boolean;
+  transfer_gap: number;
+  lessons_applied: number;
+};
+
+export type CompetencyProgress = {
+  competency: string;
+  label: string;
+  points: CompetencyTrendPoint[];
+  first_score: number;
+  latest_score: number;
+  delta: number;
+  trend: "up" | "down" | "flat";
+  active_lessons: number;
+};
+
+export type CandidateProgress = {
+  schema: "interviu.candidate_progress.v1";
+  candidate_id: string;
+  candidate_name: string;
+  run_count: number;
+  pass_rate: number;
+  competencies: CompetencyProgress[];
+  runs: RunRecord[];
+  active_lessons: number;
+};
+
+export type ComparisonOutcome = "improved" | "regressed" | "unchanged" | "new" | "dropped";
+
+export type CompetencyComparison = {
+  competency: string;
+  label: string;
+  baseline_score: number;
+  current_score: number;
+  delta: number;
+  outcome: ComparisonOutcome;
+  baseline_passed: boolean;
+  current_passed: boolean;
+};
+
+export type RunComparison = {
+  schema: "interviu.run_comparison.v1";
+  run_id: string;
+  baseline_run_id: string | null;
+  candidate_id: string;
+  competencies: CompetencyComparison[];
+  improved: number;
+  regressed: number;
+  unchanged: number;
+  certified_changed: boolean;
 };

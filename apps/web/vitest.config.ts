@@ -5,6 +5,11 @@ import { fileURLToPath } from "node:url";
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  // Match Next.js: use the automatic JSX runtime so components that rely on the
+  // implicit runtime (named React imports only) render without `React` in scope.
+  esbuild: {
+    jsx: "automatic"
+  },
   resolve: {
     alias: {
       "@": path.resolve(dirname, "src")

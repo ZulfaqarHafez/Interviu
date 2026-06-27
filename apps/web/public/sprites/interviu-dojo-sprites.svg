@@ -1,277 +1,333 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="288" height="160" viewBox="0 0 288 160" shape-rendering="crispEdges">
-  <rect width="288" height="160" fill="#fbfaf7"/>
   <defs>
     <style>
-      .k{fill:#2b2724}.w{fill:#fff}.t{fill:#1f9e9a}.g{fill:#76a84f}.r{fill:#e25b45}.y{fill:#e8ae2e}.v{fill:#725ac1}.m{fill:#6e6760}.b{fill:#4f86d9}
+      .k{fill:#1c1a17}.k2{fill:#0f0e0c}.ke{fill:#4a463f}.w{fill:#ffffff}
+      .t{fill:#0f6b5f}.t2{fill:#0a4f47}.t3{fill:#2a9183}
+      .g{fill:#1f7a52}.g2{fill:#155c3d}.g3{fill:#389e6e}
+      .r{fill:#b5392f}.r2{fill:#8c2a22}.r3{fill:#d15a4a}
+      .y{fill:#a25e10}.y2{fill:#7d480b}.y3{fill:#c47e28}
+      .v{fill:#3a6ea5}.m{fill:#6b6760}.b{fill:#3a6ea5}
     </style>
   </defs>
 
   <!-- candidate -->
   <g transform="translate(0 0)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="k" x="9" y="2" width="2" height="8"/><rect class="k" x="21" y="2" width="2" height="8"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="k" x="6" y="11" width="2" height="11"/><rect class="k" x="24" y="11" width="2" height="11"/>
-    <rect class="r" x="3" y="13" width="4" height="10"/><rect class="v" x="25" y="13" width="4" height="10"/>
-    <rect class="k" x="9" y="24" width="6" height="6"/><rect class="k" x="17" y="24" width="6" height="6"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/><rect class="y2" x="11" y="8" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t3" x="8" y="10" width="2" height="9"/><rect class="t2" x="20" y="12" width="4" height="10"/><rect class="t2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="5" y="12" width="3" height="11"/><rect class="t" x="6" y="13" width="2" height="9"/><rect class="k" x="24" y="12" width="3" height="11"/><rect class="t2" x="25" y="13" width="2" height="9"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate thinking -->
   <g transform="translate(32 0)">
-    <rect class="y" x="12" y="1" width="10" height="8"/><rect class="k" x="11" y="0" width="12" height="2"/><rect class="k" x="11" y="8" width="12" height="2"/><rect class="k" x="10" y="2" width="2" height="7"/><rect class="k" x="22" y="2" width="2" height="7"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="k" x="6" y="11" width="2" height="11"/><rect class="k" x="24" y="11" width="2" height="11"/>
-    <rect class="r" x="3" y="14" width="4" height="9"/><rect class="v" x="25" y="12" width="4" height="11"/>
-    <rect class="k" x="9" y="24" width="6" height="6"/><rect class="k" x="17" y="24" width="6" height="6"/><rect class="b" x="25" y="3" width="2" height="2"/><rect class="b" x="28" y="1" width="2" height="2"/>
+    <rect class="k" x="11" y="0" width="12" height="9"/><rect class="y" x="12" y="1" width="10" height="7"/><rect class="y3" x="12" y="1" width="9" height="2"/><rect class="y2" x="12" y="7" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t3" x="8" y="10" width="2" height="9"/><rect class="t2" x="20" y="12" width="4" height="10"/><rect class="t2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="5" y="13" width="3" height="10"/><rect class="t" x="6" y="14" width="2" height="8"/><rect class="k" x="24" y="11" width="3" height="12"/><rect class="t2" x="25" y="12" width="2" height="10"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
+    <rect class="v" x="25" y="3" width="2" height="2"/><rect class="v" x="28" y="1" width="2" height="2"/>
   </g>
 
   <!-- candidate pass -->
   <g transform="translate(64 0)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="k" x="9" y="2" width="2" height="8"/><rect class="k" x="21" y="2" width="2" height="8"/>
-    <rect class="g" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="k" x="6" y="11" width="2" height="11"/><rect class="k" x="24" y="11" width="2" height="11"/>
-    <rect class="g" x="3" y="12" width="4" height="11"/><rect class="g" x="25" y="12" width="4" height="11"/><rect class="k" x="9" y="24" width="6" height="6"/><rect class="k" x="17" y="24" width="6" height="6"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/><rect class="y2" x="11" y="8" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="g" x="8" y="10" width="16" height="12"/><rect class="g3" x="8" y="10" width="14" height="2"/><rect class="g3" x="8" y="10" width="2" height="9"/><rect class="g2" x="20" y="12" width="4" height="10"/><rect class="g2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="5" y="11" width="3" height="12"/><rect class="g3" x="6" y="12" width="2" height="10"/><rect class="k" x="24" y="11" width="3" height="12"/><rect class="g2" x="25" y="12" width="2" height="10"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate fail -->
   <g transform="translate(96 0)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="k" x="9" y="2" width="2" height="8"/><rect class="k" x="21" y="2" width="2" height="8"/>
-    <rect class="r" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="k" x="6" y="11" width="2" height="11"/><rect class="k" x="24" y="11" width="2" height="11"/>
-    <rect class="m" x="3" y="14" width="4" height="9"/><rect class="m" x="25" y="14" width="4" height="9"/><rect class="k" x="9" y="24" width="6" height="6"/><rect class="k" x="17" y="24" width="6" height="6"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/><rect class="y2" x="11" y="8" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="r" x="8" y="10" width="16" height="12"/><rect class="r3" x="8" y="10" width="14" height="2"/><rect class="r3" x="8" y="10" width="2" height="9"/><rect class="r2" x="20" y="12" width="4" height="10"/><rect class="r2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="5" y="14" width="3" height="9"/><rect class="m" x="6" y="15" width="2" height="7"/><rect class="k" x="24" y="14" width="3" height="9"/><rect class="m" x="25" y="15" width="2" height="7"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- domain examiner -->
   <g transform="translate(128 0)">
-    <rect class="r" x="7" y="5" width="18" height="18"/><rect class="k" x="5" y="3" width="22" height="2"/><rect class="k" x="5" y="23" width="22" height="2"/><rect class="k" x="5" y="5" width="2" height="18"/><rect class="k" x="25" y="5" width="2" height="18"/><rect class="w" x="11" y="10" width="10" height="2"/><rect class="w" x="11" y="15" width="10" height="2"/>
+    <rect class="k" x="5" y="3" width="22" height="22"/><rect class="r" x="7" y="5" width="18" height="18"/><rect class="r3" x="7" y="5" width="18" height="2"/><rect class="r3" x="7" y="5" width="2" height="16"/><rect class="r2" x="23" y="7" width="2" height="16"/><rect class="r2" x="7" y="21" width="18" height="2"/>
+    <rect class="w" x="11" y="10" width="10" height="2"/><rect class="w" x="11" y="15" width="8" height="2"/>
   </g>
 
   <!-- edge-case examiner -->
   <g transform="translate(160 0)">
-    <rect class="y" x="7" y="5" width="18" height="18"/><rect class="k" x="5" y="3" width="22" height="2"/><rect class="k" x="5" y="23" width="22" height="2"/><rect class="k" x="5" y="5" width="2" height="18"/><rect class="k" x="25" y="5" width="2" height="18"/><rect class="k" x="11" y="10" width="3" height="3"/><rect class="k" x="18" y="10" width="3" height="3"/><rect class="k" x="14" y="17" width="4" height="2"/>
+    <rect class="k" x="5" y="3" width="22" height="22"/><rect class="y" x="7" y="5" width="18" height="18"/><rect class="y3" x="7" y="5" width="18" height="2"/><rect class="y3" x="7" y="5" width="2" height="16"/><rect class="y2" x="23" y="7" width="2" height="16"/><rect class="y2" x="7" y="21" width="18" height="2"/>
+    <rect class="k" x="11" y="10" width="3" height="3"/><rect class="k" x="18" y="10" width="3" height="3"/><rect class="k" x="14" y="17" width="4" height="2"/>
   </g>
 
   <!-- judge panel -->
   <g transform="translate(192 0)">
-    <rect class="v" x="4" y="8" width="7" height="13"/><rect class="t" x="13" y="5" width="7" height="16"/><rect class="y" x="22" y="8" width="6" height="13"/><rect class="k" x="3" y="7" width="9" height="15"/><rect class="k" x="12" y="4" width="9" height="18"/><rect class="k" x="21" y="7" width="8" height="15"/><rect class="w" x="6" y="24" width="21" height="4"/><rect class="k" x="5" y="23" width="23" height="6"/>
+    <rect class="k" x="3" y="7" width="9" height="15"/><rect class="v" x="4" y="8" width="7" height="13"/>
+    <rect class="k" x="12" y="4" width="9" height="18"/><rect class="t" x="13" y="5" width="7" height="16"/><rect class="t3" x="13" y="5" width="7" height="2"/>
+    <rect class="k" x="21" y="7" width="8" height="15"/><rect class="y" x="22" y="8" width="6" height="13"/>
+    <rect class="k" x="5" y="23" width="23" height="6"/><rect class="w" x="6" y="24" width="21" height="3"/><rect class="m" x="6" y="27" width="21" height="1"/>
   </g>
 
   <!-- simulator console -->
   <g transform="translate(224 0)">
-    <rect class="t" x="5" y="7" width="22" height="15"/><rect class="k" x="3" y="5" width="26" height="19"/><rect class="t" x="6" y="8" width="20" height="13"/><rect class="k" x="8" y="26" width="16" height="3"/><rect class="w" x="10" y="12" width="3" height="2"/><rect class="w" x="15" y="12" width="7" height="2"/><rect class="g" x="10" y="17" width="10" height="2"/>
+    <rect class="k" x="3" y="5" width="26" height="19"/><rect class="t" x="6" y="8" width="20" height="13"/><rect class="t3" x="6" y="8" width="20" height="2"/><rect class="t2" x="6" y="19" width="20" height="2"/>
+    <rect class="k" x="8" y="26" width="16" height="3"/>
+    <rect class="w" x="10" y="12" width="3" height="2"/><rect class="w" x="15" y="12" width="7" height="2"/><rect class="g3" x="10" y="17" width="10" height="2"/>
   </g>
 
   <!-- TraceRazor crystal -->
   <g transform="translate(256 0)">
-    <rect class="b" x="13" y="3" width="6" height="4"/><rect class="t" x="9" y="7" width="14" height="15"/><rect class="k" x="12" y="1" width="8" height="2"/><rect class="k" x="8" y="5" width="16" height="2"/><rect class="k" x="7" y="7" width="2" height="15"/><rect class="k" x="23" y="7" width="2" height="15"/><rect class="k" x="10" y="22" width="12" height="2"/><rect class="w" x="12" y="10" width="3" height="2"/><rect class="w" x="16" y="13" width="5" height="2"/>
+    <rect class="k" x="12" y="1" width="8" height="2"/><rect class="b" x="13" y="3" width="6" height="4"/>
+    <rect class="k" x="8" y="5" width="16" height="2"/><rect class="k" x="7" y="7" width="2" height="15"/><rect class="k" x="23" y="7" width="2" height="15"/><rect class="k" x="10" y="22" width="12" height="2"/>
+    <rect class="t" x="9" y="7" width="14" height="15"/><rect class="t3" x="9" y="7" width="8" height="2"/><rect class="t3" x="9" y="7" width="2" height="9"/><rect class="t2" x="19" y="9" width="4" height="13"/>
+    <rect class="w" x="12" y="10" width="3" height="2"/><rect class="w" x="16" y="13" width="4" height="2"/>
   </g>
 
   <!-- Supabase database -->
   <g transform="translate(0 32)">
-    <rect class="g" x="8" y="6" width="16" height="19"/><rect class="k" x="7" y="5" width="18" height="3"/><rect class="k" x="7" y="24" width="18" height="3"/><rect class="k" x="6" y="8" width="2" height="16"/><rect class="k" x="24" y="8" width="2" height="16"/><rect class="w" x="11" y="10" width="10" height="2"/><rect class="w" x="11" y="16" width="10" height="2"/>
+    <rect class="k" x="6" y="5" width="20" height="22"/><rect class="g" x="8" y="6" width="16" height="19"/><rect class="g3" x="8" y="6" width="16" height="2"/><rect class="g2" x="8" y="22" width="16" height="3"/>
+    <rect class="w" x="11" y="10" width="10" height="2"/><rect class="w" x="11" y="16" width="8" height="2"/>
   </g>
 
   <!-- Hugging Face model card -->
   <g transform="translate(32 32)">
-    <rect class="y" x="5" y="7" width="22" height="18"/><rect class="k" x="4" y="6" width="24" height="20"/><rect class="y" x="6" y="8" width="20" height="16"/><rect class="k" x="10" y="12" width="3" height="3"/><rect class="k" x="19" y="12" width="3" height="3"/><rect class="r" x="13" y="17" width="6" height="3"/><rect class="w" x="8" y="23" width="16" height="2"/>
+    <rect class="k" x="4" y="6" width="24" height="20"/><rect class="y" x="6" y="8" width="20" height="16"/><rect class="y3" x="6" y="8" width="20" height="2"/><rect class="y2" x="6" y="22" width="20" height="2"/>
+    <rect class="k" x="10" y="12" width="3" height="3"/><rect class="k" x="19" y="12" width="3" height="3"/><rect class="r" x="13" y="17" width="6" height="3"/><rect class="r3" x="13" y="17" width="6" height="1"/>
   </g>
 
   <!-- Vercel deployment gate -->
   <g transform="translate(64 32)">
-    <rect class="k" x="15" y="5" width="2" height="2"/><rect class="k" x="13" y="7" width="6" height="2"/><rect class="k" x="11" y="9" width="10" height="2"/><rect class="k" x="9" y="11" width="14" height="2"/><rect class="k" x="7" y="13" width="18" height="2"/><rect class="k" x="5" y="15" width="22" height="2"/><rect class="k" x="3" y="17" width="26" height="2"/><rect class="w" x="9" y="20" width="14" height="4"/><rect class="k" x="8" y="19" width="16" height="6"/>
+    <rect class="k" x="15" y="5" width="2" height="2"/><rect class="k" x="13" y="7" width="6" height="2"/><rect class="k" x="11" y="9" width="10" height="2"/><rect class="k" x="9" y="11" width="14" height="2"/><rect class="k" x="7" y="13" width="18" height="2"/><rect class="k" x="5" y="15" width="22" height="2"/><rect class="k" x="3" y="17" width="26" height="2"/>
+    <rect class="m" x="14" y="9" width="4" height="8"/>
+    <rect class="k" x="8" y="19" width="16" height="6"/><rect class="w" x="9" y="20" width="14" height="3"/><rect class="m" x="9" y="23" width="14" height="1"/>
   </g>
 
   <!-- pass badge -->
   <g transform="translate(96 32)">
-    <rect class="g" x="5" y="7" width="22" height="18"/><rect class="k" x="4" y="6" width="24" height="20"/><rect class="g" x="6" y="8" width="20" height="16"/><rect class="w" x="10" y="15" width="4" height="4"/><rect class="w" x="14" y="18" width="3" height="3"/><rect class="w" x="17" y="12" width="6" height="3"/>
+    <rect class="k" x="4" y="6" width="24" height="20"/><rect class="g" x="6" y="8" width="20" height="16"/><rect class="g3" x="6" y="8" width="20" height="2"/><rect class="g2" x="6" y="22" width="20" height="2"/>
+    <rect class="w" x="10" y="15" width="4" height="4"/><rect class="w" x="13" y="17" width="3" height="3"/><rect class="w" x="16" y="14" width="3" height="3"/><rect class="w" x="19" y="11" width="4" height="4"/>
   </g>
 
   <!-- fail badge -->
   <g transform="translate(128 32)">
-    <rect class="r" x="5" y="7" width="22" height="18"/><rect class="k" x="4" y="6" width="24" height="20"/><rect class="r" x="6" y="8" width="20" height="16"/><rect class="w" x="10" y="12" width="4" height="4"/><rect class="w" x="18" y="12" width="4" height="4"/><rect class="w" x="14" y="16" width="4" height="4"/><rect class="w" x="10" y="20" width="4" height="2"/><rect class="w" x="18" y="20" width="4" height="2"/>
+    <rect class="k" x="4" y="6" width="24" height="20"/><rect class="r" x="6" y="8" width="20" height="16"/><rect class="r3" x="6" y="8" width="20" height="2"/><rect class="r2" x="6" y="22" width="20" height="2"/>
+    <rect class="w" x="10" y="12" width="3" height="3"/><rect class="w" x="19" y="12" width="3" height="3"/><rect class="w" x="14" y="15" width="4" height="3"/><rect class="w" x="10" y="19" width="3" height="3"/><rect class="w" x="19" y="19" width="3" height="3"/>
   </g>
 
   <!-- prompt injection scroll -->
   <g transform="translate(0 64)">
-    <rect class="w" x="7" y="5" width="18" height="22"/><rect class="k" x="6" y="4" width="20" height="2"/><rect class="k" x="6" y="26" width="20" height="2"/><rect class="k" x="5" y="6" width="2" height="20"/><rect class="k" x="25" y="6" width="2" height="20"/>
+    <rect class="k" x="5" y="4" width="22" height="24"/><rect class="w" x="7" y="6" width="18" height="20"/><rect class="m" x="7" y="24" width="18" height="2"/>
     <rect class="r" x="10" y="9" width="12" height="2"/><rect class="r" x="10" y="13" width="8" height="2"/><rect class="m" x="10" y="18" width="12" height="2"/><rect class="m" x="10" y="22" width="6" height="2"/>
   </g>
 
   <!-- tool output trap -->
   <g transform="translate(32 64)">
-    <rect class="t" x="5" y="7" width="22" height="15"/><rect class="k" x="3" y="5" width="26" height="19"/><rect class="t" x="6" y="8" width="20" height="13"/>
+    <rect class="k" x="3" y="5" width="26" height="19"/><rect class="t" x="6" y="8" width="20" height="13"/><rect class="t3" x="6" y="8" width="20" height="2"/><rect class="t2" x="6" y="19" width="20" height="2"/>
     <rect class="r" x="9" y="11" width="4" height="4"/><rect class="y" x="15" y="11" width="8" height="2"/><rect class="w" x="9" y="17" width="11" height="2"/><rect class="k" x="12" y="25" width="8" height="3"/>
   </g>
 
   <!-- privacy vault -->
   <g transform="translate(64 64)">
-    <rect class="b" x="7" y="12" width="18" height="13"/><rect class="k" x="5" y="10" width="22" height="17"/><rect class="b" x="8" y="13" width="16" height="11"/>
-    <rect class="k" x="10" y="7" width="2" height="5"/><rect class="k" x="20" y="7" width="2" height="5"/><rect class="k" x="12" y="5" width="8" height="2"/><rect class="w" x="15" y="17" width="3" height="5"/>
+    <rect class="k" x="12" y="5" width="8" height="2"/><rect class="k" x="10" y="7" width="2" height="5"/><rect class="k" x="20" y="7" width="2" height="5"/>
+    <rect class="k" x="5" y="10" width="22" height="17"/><rect class="b" x="8" y="13" width="16" height="11"/><rect class="b" x="8" y="13" width="16" height="2" opacity="0.55"/>
+    <rect class="w" x="15" y="17" width="3" height="5"/>
   </g>
 
   <!-- dataset crate -->
   <g transform="translate(96 64)">
-    <rect class="y" x="5" y="9" width="22" height="16"/><rect class="k" x="4" y="8" width="24" height="18"/><rect class="y" x="6" y="10" width="20" height="14"/>
+    <rect class="k" x="4" y="8" width="24" height="18"/><rect class="y" x="6" y="10" width="20" height="14"/><rect class="y3" x="6" y="10" width="20" height="2"/><rect class="y2" x="6" y="22" width="20" height="2"/>
     <rect class="k" x="15" y="10" width="2" height="14"/><rect class="w" x="9" y="14" width="4" height="2"/><rect class="w" x="19" y="18" width="4" height="2"/>
   </g>
 
   <!-- MCP plug -->
   <g transform="translate(128 64)">
-    <rect class="v" x="8" y="9" width="14" height="12"/><rect class="k" x="6" y="7" width="18" height="16"/><rect class="v" x="9" y="10" width="12" height="10"/>
+    <rect class="k" x="6" y="7" width="18" height="16"/><rect class="v" x="9" y="10" width="12" height="10"/>
     <rect class="k" x="24" y="11" width="4" height="3"/><rect class="k" x="24" y="17" width="4" height="3"/><rect class="w" x="11" y="13" width="8" height="2"/>
   </g>
 
   <!-- model chip -->
   <g transform="translate(160 64)">
-    <rect class="t" x="8" y="8" width="16" height="16"/><rect class="k" x="6" y="6" width="20" height="20"/><rect class="t" x="9" y="9" width="14" height="14"/>
-    <rect class="w" x="12" y="12" width="3" height="3"/><rect class="w" x="17" y="17" width="3" height="3"/><rect class="k" x="10" y="3" width="2" height="3"/><rect class="k" x="20" y="3" width="2" height="3"/><rect class="k" x="10" y="26" width="2" height="3"/><rect class="k" x="20" y="26" width="2" height="3"/>
+    <rect class="k" x="6" y="6" width="20" height="20"/><rect class="t" x="9" y="9" width="14" height="14"/><rect class="t3" x="9" y="9" width="14" height="2"/><rect class="t3" x="9" y="9" width="2" height="12"/><rect class="t2" x="21" y="11" width="2" height="12"/><rect class="t2" x="9" y="21" width="14" height="2"/>
+    <rect class="w" x="12" y="12" width="3" height="3"/>
+    <rect class="k" x="10" y="3" width="2" height="3"/><rect class="k" x="20" y="3" width="2" height="3"/><rect class="k" x="10" y="26" width="2" height="3"/><rect class="k" x="20" y="26" width="2" height="3"/>
   </g>
 
   <!-- HTTP antenna -->
   <g transform="translate(192 64)">
-    <rect class="b" x="8" y="14" width="16" height="10"/><rect class="k" x="6" y="12" width="20" height="14"/><rect class="b" x="9" y="15" width="14" height="8"/>
-    <rect class="k" x="15" y="5" width="2" height="7"/><rect class="y" x="13" y="3" width="6" height="3"/><rect class="w" x="11" y="18" width="10" height="2"/>
+    <rect class="k" x="15" y="5" width="2" height="7"/><rect class="y" x="13" y="3" width="6" height="3"/><rect class="y3" x="13" y="3" width="6" height="1"/>
+    <rect class="k" x="6" y="12" width="20" height="14"/><rect class="b" x="9" y="15" width="14" height="8"/><rect class="b" x="9" y="15" width="14" height="2" opacity="0.55"/>
+    <rect class="w" x="11" y="18" width="10" height="2"/>
   </g>
 
   <!-- local command terminal -->
   <g transform="translate(224 64)">
-    <rect class="m" x="5" y="8" width="22" height="17"/><rect class="k" x="3" y="6" width="26" height="21"/><rect class="m" x="6" y="9" width="20" height="15"/>
-    <rect class="g" x="9" y="13" width="3" height="2"/><rect class="g" x="12" y="15" width="3" height="2"/><rect class="w" x="17" y="17" width="6" height="2"/>
+    <rect class="k" x="3" y="6" width="26" height="21"/><rect class="m" x="6" y="9" width="20" height="15"/>
+    <rect class="g3" x="9" y="13" width="3" height="2"/><rect class="g3" x="12" y="15" width="3" height="2"/><rect class="w" x="17" y="17" width="6" height="2"/>
   </g>
 
   <!-- audit shard -->
   <g transform="translate(256 64)">
-    <rect class="g" x="12" y="4" width="8" height="4"/><rect class="t" x="8" y="8" width="16" height="15"/><rect class="k" x="11" y="2" width="10" height="2"/><rect class="k" x="7" y="6" width="18" height="2"/><rect class="k" x="6" y="8" width="2" height="15"/><rect class="k" x="24" y="8" width="2" height="15"/><rect class="k" x="9" y="23" width="14" height="2"/>
-    <rect class="w" x="11" y="13" width="4" height="4"/><rect class="w" x="15" y="17" width="3" height="3"/><rect class="w" x="18" y="11" width="5" height="3"/>
+    <rect class="g" x="12" y="4" width="8" height="4"/><rect class="g3" x="12" y="4" width="8" height="1"/>
+    <rect class="k" x="11" y="2" width="10" height="2"/><rect class="k" x="7" y="6" width="18" height="2"/><rect class="k" x="6" y="8" width="2" height="15"/><rect class="k" x="24" y="8" width="2" height="15"/><rect class="k" x="9" y="23" width="14" height="2"/>
+    <rect class="t" x="8" y="8" width="16" height="15"/><rect class="t3" x="8" y="8" width="8" height="2"/><rect class="t3" x="8" y="8" width="2" height="9"/><rect class="t2" x="20" y="10" width="4" height="13"/>
+    <rect class="w" x="11" y="13" width="4" height="4"/><rect class="w" x="15" y="17" width="3" height="3"/>
   </g>
 
   <!-- candidate walk left -->
   <g transform="translate(0 96)">
-    <rect class="y" x="10" y="2" width="10" height="8"/><rect class="k" x="9" y="1" width="12" height="2"/><rect class="k" x="9" y="9" width="12" height="2"/><rect class="k" x="8" y="2" width="2" height="8"/><rect class="k" x="20" y="2" width="2" height="8"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="r" x="3" y="13" width="4" height="9"/><rect class="v" x="24" y="11" width="4" height="9"/>
-    <rect class="k" x="6" y="24" width="7" height="4"/><rect class="k" x="17" y="24" width="8" height="6"/>
+    <rect class="k" x="9" y="1" width="12" height="9"/><rect class="y" x="10" y="2" width="10" height="7"/><rect class="y3" x="10" y="2" width="9" height="2"/><rect class="y2" x="10" y="8" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t3" x="8" y="10" width="2" height="9"/><rect class="t2" x="20" y="12" width="4" height="10"/><rect class="t2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="4" y="12" width="3" height="11"/><rect class="t" x="5" y="13" width="2" height="9"/><rect class="k" x="24" y="11" width="3" height="9"/><rect class="t2" x="25" y="12" width="2" height="7"/>
+    <rect class="k" x="6" y="23" width="7" height="5"/><rect class="k" x="17" y="23" width="8" height="6"/><rect class="ke" x="6" y="23" width="7" height="1"/><rect class="ke" x="17" y="23" width="8" height="1"/>
   </g>
 
   <!-- candidate walk right -->
   <g transform="translate(32 96)">
-    <rect class="y" x="12" y="2" width="10" height="8"/><rect class="k" x="11" y="1" width="12" height="2"/><rect class="k" x="11" y="9" width="12" height="2"/><rect class="k" x="10" y="2" width="2" height="8"/><rect class="k" x="22" y="2" width="2" height="8"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="r" x="4" y="11" width="4" height="9"/><rect class="v" x="25" y="13" width="4" height="9"/>
-    <rect class="k" x="7" y="24" width="8" height="6"/><rect class="k" x="19" y="24" width="7" height="4"/>
+    <rect class="k" x="11" y="1" width="12" height="9"/><rect class="y" x="12" y="2" width="10" height="7"/><rect class="y3" x="12" y="2" width="9" height="2"/><rect class="y2" x="12" y="8" width="10" height="1"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t3" x="8" y="10" width="2" height="9"/><rect class="t2" x="20" y="12" width="4" height="10"/><rect class="t2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="5" y="11" width="3" height="9"/><rect class="t3" x="6" y="12" width="2" height="7"/><rect class="k" x="25" y="12" width="3" height="11"/><rect class="t2" x="26" y="13" width="2" height="9"/>
+    <rect class="k" x="7" y="23" width="8" height="6"/><rect class="k" x="19" y="23" width="7" height="5"/><rect class="ke" x="7" y="23" width="8" height="1"/><rect class="ke" x="19" y="23" width="7" height="1"/>
   </g>
 
   <!-- candidate shield -->
   <g transform="translate(64 96)">
-    <rect class="y" x="13" y="2" width="9" height="8"/><rect class="k" x="12" y="1" width="11" height="2"/><rect class="k" x="12" y="9" width="11" height="2"/><rect class="t" x="11" y="10" width="14" height="13"/><rect class="k" x="10" y="9" width="16" height="2"/><rect class="k" x="10" y="22" width="16" height="2"/>
-    <rect class="b" x="2" y="10" width="10" height="15"/><rect class="k" x="1" y="9" width="12" height="17"/><rect class="b" x="3" y="11" width="8" height="13"/><rect class="w" x="6" y="15" width="3" height="5"/><rect class="w" x="4" y="17" width="7" height="2"/>
-    <rect class="v" x="25" y="13" width="4" height="9"/><rect class="k" x="12" y="24" width="5" height="5"/><rect class="k" x="20" y="24" width="5" height="5"/>
+    <rect class="k" x="12" y="1" width="11" height="9"/><rect class="y" x="13" y="2" width="9" height="7"/><rect class="y3" x="13" y="2" width="8" height="2"/>
+    <rect class="k" x="10" y="9" width="16" height="14"/><rect class="t" x="11" y="10" width="14" height="12"/><rect class="t3" x="11" y="10" width="13" height="2"/><rect class="t2" x="22" y="12" width="3" height="10"/>
+    <rect class="k" x="1" y="9" width="12" height="17"/><rect class="b" x="3" y="11" width="8" height="13"/><rect class="b" x="3" y="11" width="8" height="2" opacity="0.55"/><rect class="w" x="6" y="15" width="3" height="5"/><rect class="w" x="4" y="17" width="7" height="2"/>
+    <rect class="k" x="24" y="13" width="3" height="9"/><rect class="t2" x="25" y="14" width="2" height="7"/>
+    <rect class="k" x="12" y="23" width="5" height="6"/><rect class="k" x="20" y="23" width="5" height="6"/><rect class="ke" x="12" y="23" width="5" height="1"/><rect class="ke" x="20" y="23" width="5" height="1"/>
   </g>
 
   <!-- candidate document -->
   <g transform="translate(96 96)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="w" x="11" y="12" width="10" height="13"/><rect class="k" x="10" y="11" width="12" height="15"/><rect class="w" x="12" y="13" width="8" height="11"/><rect class="t" x="14" y="15" width="4" height="2"/><rect class="m" x="14" y="19" width="5" height="2"/>
-    <rect class="r" x="4" y="13" width="4" height="9"/><rect class="v" x="24" y="13" width="4" height="9"/><rect class="k" x="9" y="25" width="6" height="4"/><rect class="k" x="18" y="25" width="6" height="4"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="10" y="11" width="12" height="15"/><rect class="w" x="11" y="12" width="10" height="13"/><rect class="t" x="13" y="15" width="6" height="2"/><rect class="m" x="13" y="19" width="5" height="2"/>
+    <rect class="k" x="4" y="13" width="3" height="9"/><rect class="t" x="5" y="14" width="2" height="7"/><rect class="k" x="24" y="13" width="3" height="9"/><rect class="t2" x="25" y="14" width="2" height="7"/>
+    <rect class="k" x="9" y="25" width="6" height="4"/><rect class="k" x="18" y="25" width="6" height="4"/>
   </g>
 
   <!-- candidate audit crystal -->
   <g transform="translate(128 96)">
-    <rect class="y" x="10" y="2" width="10" height="8"/><rect class="k" x="9" y="1" width="12" height="2"/><rect class="k" x="9" y="9" width="12" height="2"/><rect class="t" x="7" y="10" width="16" height="13"/><rect class="k" x="6" y="9" width="18" height="2"/><rect class="k" x="6" y="22" width="18" height="2"/><rect class="r" x="3" y="13" width="4" height="9"/>
-    <rect class="b" x="25" y="9" width="4" height="4"/><rect class="t" x="23" y="13" width="8" height="9"/><rect class="k" x="24" y="7" width="6" height="2"/><rect class="k" x="22" y="11" width="10" height="2"/><rect class="k" x="22" y="22" width="10" height="2"/><rect class="w" x="25" y="15" width="3" height="2"/>
-    <rect class="k" x="8" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="9" y="1" width="12" height="9"/><rect class="y" x="10" y="2" width="10" height="7"/><rect class="y3" x="10" y="2" width="9" height="2"/>
+    <rect class="k" x="6" y="9" width="18" height="14"/><rect class="t" x="7" y="10" width="16" height="12"/><rect class="t3" x="7" y="10" width="14" height="2"/><rect class="t2" x="19" y="12" width="4" height="10"/>
+    <rect class="k" x="3" y="13" width="3" height="9"/><rect class="t" x="4" y="14" width="2" height="7"/>
+    <rect class="b" x="25" y="9" width="4" height="4"/><rect class="k" x="24" y="7" width="6" height="2"/><rect class="k" x="22" y="11" width="10" height="2"/><rect class="k" x="22" y="22" width="10" height="2"/><rect class="k" x="22" y="13" width="2" height="9"/><rect class="k" x="30" y="13" width="2" height="9"/><rect class="t" x="24" y="13" width="6" height="9"/><rect class="t3" x="24" y="13" width="6" height="2"/><rect class="w" x="25" y="16" width="3" height="2"/>
+    <rect class="k" x="8" y="23" width="6" height="6"/><rect class="k" x="16" y="23" width="6" height="6"/><rect class="ke" x="8" y="23" width="6" height="1"/><rect class="ke" x="16" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate celebrate -->
   <g transform="translate(160 96)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="t" x="8" y="11" width="16" height="12"/><rect class="k" x="7" y="10" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="r" x="3" y="6" width="4" height="12"/><rect class="v" x="25" y="6" width="4" height="12"/><rect class="y" x="2" y="3" width="3" height="3"/><rect class="y" x="27" y="3" width="3" height="3"/><rect class="t" x="5" y="2" width="2" height="2"/><rect class="t" x="25" y="2" width="2" height="2"/>
-    <rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="10" width="18" height="13"/><rect class="t" x="8" y="11" width="16" height="11"/><rect class="t3" x="8" y="11" width="14" height="2"/><rect class="t2" x="20" y="13" width="4" height="9"/>
+    <rect class="k" x="3" y="6" width="3" height="12"/><rect class="t3" x="4" y="7" width="2" height="10"/><rect class="k" x="26" y="6" width="3" height="12"/><rect class="t2" x="27" y="7" width="2" height="10"/>
+    <rect class="y3" x="2" y="3" width="3" height="3"/><rect class="y3" x="27" y="3" width="3" height="3"/><rect class="t3" x="5" y="2" width="2" height="2"/><rect class="t3" x="25" y="2" width="2" height="2"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate tired -->
   <g transform="translate(192 96)">
-    <rect class="y" x="11" y="4" width="10" height="7"/><rect class="k" x="10" y="3" width="12" height="2"/><rect class="k" x="10" y="10" width="12" height="2"/><rect class="m" x="12" y="7" width="3" height="2"/><rect class="m" x="18" y="7" width="3" height="2"/>
-    <rect class="t" x="8" y="12" width="16" height="11"/><rect class="k" x="7" y="11" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/><rect class="r" x="4" y="14" width="4" height="10"/><rect class="v" x="24" y="14" width="4" height="10"/>
-    <rect class="m" x="23" y="1" width="5" height="2"/><rect class="m" x="25" y="4" width="3" height="2"/><rect class="k" x="9" y="24" width="6" height="4"/><rect class="k" x="17" y="24" width="6" height="4"/>
+    <rect class="k" x="10" y="3" width="12" height="9"/><rect class="y" x="11" y="4" width="10" height="7"/><rect class="y2" x="11" y="9" width="10" height="2"/>
+    <rect class="m" x="12" y="7" width="3" height="2"/><rect class="m" x="18" y="7" width="3" height="2"/>
+    <rect class="k" x="7" y="11" width="18" height="13"/><rect class="t" x="8" y="12" width="16" height="11"/><rect class="t2" x="8" y="12" width="16" height="2"/><rect class="t2" x="20" y="14" width="4" height="9"/>
+    <rect class="k" x="4" y="14" width="3" height="10"/><rect class="t2" x="5" y="15" width="2" height="8"/><rect class="k" x="24" y="14" width="3" height="10"/><rect class="t2" x="25" y="15" width="2" height="8"/>
+    <rect class="m" x="23" y="1" width="5" height="2"/><rect class="m" x="25" y="4" width="3" height="2"/>
+    <rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
   </g>
 
   <!-- candidate terminal -->
   <g transform="translate(224 96)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="t" x="8" y="10" width="16" height="9"/><rect class="k" x="7" y="9" width="18" height="2"/>
-    <rect class="m" x="4" y="17" width="24" height="10"/><rect class="k" x="3" y="15" width="26" height="13"/><rect class="m" x="5" y="18" width="22" height="8"/><rect class="t" x="14" y="20" width="4" height="3"/><rect class="r" x="4" y="12" width="4" height="8"/><rect class="v" x="24" y="12" width="4" height="8"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="11"/><rect class="t" x="8" y="10" width="16" height="9"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="7"/>
+    <rect class="k" x="3" y="15" width="26" height="13"/><rect class="m" x="5" y="18" width="22" height="8"/>
+    <rect class="g3" x="14" y="20" width="4" height="3"/><rect class="k" x="4" y="12" width="3" height="8"/><rect class="t" x="5" y="13" width="2" height="6"/><rect class="k" x="24" y="12" width="3" height="8"/><rect class="t2" x="25" y="13" width="2" height="6"/>
     <rect class="k" x="9" y="28" width="14" height="2"/>
   </g>
 
   <!-- candidate privacy lock -->
   <g transform="translate(256 96)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/><rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="b" x="11" y="15" width="10" height="10"/><rect class="k" x="10" y="14" width="12" height="12"/><rect class="b" x="12" y="16" width="8" height="8"/><rect class="k" x="12" y="11" width="2" height="4"/><rect class="k" x="18" y="11" width="2" height="4"/><rect class="k" x="14" y="9" width="4" height="2"/><rect class="w" x="15" y="19" width="2" height="3"/>
-    <rect class="r" x="4" y="13" width="4" height="9"/><rect class="v" x="24" y="13" width="4" height="9"/><rect class="k" x="8" y="25" width="6" height="4"/><rect class="k" x="18" y="25" width="6" height="4"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="14" y="9" width="4" height="2"/><rect class="k" x="12" y="11" width="2" height="4"/><rect class="k" x="18" y="11" width="2" height="4"/>
+    <rect class="k" x="10" y="14" width="12" height="12"/><rect class="b" x="12" y="16" width="8" height="8"/><rect class="b" x="12" y="16" width="8" height="2" opacity="0.55"/><rect class="w" x="15" y="19" width="2" height="3"/>
+    <rect class="k" x="4" y="13" width="3" height="9"/><rect class="t" x="5" y="14" width="2" height="7"/><rect class="k" x="24" y="13" width="3" height="9"/><rect class="t2" x="25" y="14" width="2" height="7"/>
+    <rect class="k" x="8" y="25" width="6" height="4"/><rect class="k" x="18" y="25" width="6" height="4"/>
   </g>
 
   <!-- candidate ready -->
   <g transform="translate(0 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="w" x="13" y="13" width="6" height="4"/><rect class="k" x="12" y="12" width="8" height="6"/><rect class="w" x="14" y="14" width="4" height="2"/>
-    <rect class="r" x="4" y="13" width="4" height="9"/><rect class="v" x="24" y="13" width="4" height="9"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t3" x="8" y="10" width="2" height="9"/><rect class="t2" x="20" y="12" width="4" height="10"/><rect class="t2" x="8" y="20" width="16" height="2"/>
+    <rect class="k" x="12" y="12" width="8" height="6"/><rect class="w" x="13" y="13" width="6" height="4"/><rect class="t3" x="14" y="14" width="4" height="2"/>
+    <rect class="k" x="4" y="13" width="3" height="9"/><rect class="t" x="5" y="14" width="2" height="7"/><rect class="k" x="24" y="13" width="3" height="9"/><rect class="t2" x="25" y="14" width="2" height="7"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate question -->
   <g transform="translate(32 128)">
-    <rect class="y" x="11" y="3" width="10" height="7"/><rect class="k" x="10" y="2" width="12" height="2"/><rect class="k" x="10" y="10" width="12" height="2"/>
-    <rect class="t" x="8" y="12" width="16" height="11"/><rect class="k" x="7" y="11" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="y" x="24" y="2" width="4" height="4"/><rect class="k" x="23" y="1" width="6" height="2"/><rect class="k" x="27" y="3" width="2" height="5"/><rect class="k" x="25" y="8" width="3" height="2"/><rect class="k" x="25" y="12" width="2" height="2"/>
-    <rect class="r" x="4" y="14" width="4" height="9"/><rect class="v" x="24" y="15" width="4" height="8"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="2" width="12" height="9"/><rect class="y" x="11" y="3" width="10" height="7"/><rect class="y3" x="11" y="3" width="9" height="2"/>
+    <rect class="k" x="7" y="11" width="18" height="13"/><rect class="t" x="8" y="12" width="16" height="11"/><rect class="t3" x="8" y="12" width="14" height="2"/><rect class="t2" x="20" y="14" width="4" height="9"/>
+    <rect class="y" x="24" y="2" width="4" height="4"/><rect class="y3" x="24" y="2" width="4" height="1"/><rect class="k" x="23" y="1" width="6" height="2"/><rect class="k" x="27" y="3" width="2" height="5"/><rect class="k" x="25" y="8" width="3" height="2"/><rect class="k" x="25" y="12" width="2" height="2"/>
+    <rect class="k" x="4" y="14" width="3" height="9"/><rect class="t" x="5" y="15" width="2" height="7"/><rect class="k" x="24" y="15" width="3" height="8"/><rect class="t2" x="25" y="16" width="2" height="6"/>
+    <rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
   </g>
 
   <!-- candidate evidence -->
   <g transform="translate(64 128)">
-    <rect class="y" x="10" y="2" width="10" height="8"/><rect class="k" x="9" y="1" width="12" height="2"/><rect class="k" x="9" y="9" width="12" height="2"/>
-    <rect class="t" x="7" y="10" width="15" height="13"/><rect class="k" x="6" y="9" width="17" height="2"/><rect class="k" x="6" y="22" width="17" height="2"/>
-    <rect class="w" x="22" y="8" width="7" height="14"/><rect class="k" x="21" y="7" width="9" height="16"/><rect class="w" x="23" y="9" width="5" height="12"/><rect class="g" x="24" y="12" width="3" height="2"/><rect class="m" x="24" y="16" width="3" height="2"/>
-    <rect class="r" x="3" y="13" width="4" height="9"/><rect class="k" x="8" y="24" width="6" height="5"/><rect class="k" x="16" y="24" width="6" height="5"/>
+    <rect class="k" x="9" y="1" width="12" height="9"/><rect class="y" x="10" y="2" width="10" height="7"/><rect class="y3" x="10" y="2" width="9" height="2"/>
+    <rect class="k" x="6" y="9" width="17" height="14"/><rect class="t" x="7" y="10" width="15" height="12"/><rect class="t3" x="7" y="10" width="13" height="2"/><rect class="t2" x="18" y="12" width="4" height="10"/>
+    <rect class="k" x="21" y="7" width="9" height="16"/><rect class="w" x="22" y="8" width="7" height="14"/><rect class="g" x="23" y="12" width="4" height="2"/><rect class="m" x="23" y="16" width="4" height="2"/>
+    <rect class="k" x="3" y="13" width="3" height="9"/><rect class="t" x="4" y="14" width="2" height="7"/>
+    <rect class="k" x="8" y="23" width="6" height="6"/><rect class="k" x="16" y="23" width="6" height="6"/><rect class="ke" x="8" y="23" width="6" height="1"/><rect class="ke" x="16" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate review -->
   <g transform="translate(96 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="b" x="23" y="7" width="5" height="5"/><rect class="k" x="22" y="6" width="7" height="7"/><rect class="b" x="24" y="8" width="3" height="3"/><rect class="k" x="27" y="12" width="3" height="3"/>
-    <rect class="r" x="4" y="12" width="4" height="10"/><rect class="v" x="24" y="15" width="4" height="8"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="22" y="6" width="7" height="7"/><rect class="b" x="24" y="8" width="3" height="3"/><rect class="k" x="27" y="12" width="3" height="3"/>
+    <rect class="k" x="4" y="12" width="3" height="10"/><rect class="t" x="5" y="13" width="2" height="8"/><rect class="k" x="24" y="15" width="3" height="8"/><rect class="t2" x="25" y="16" width="2" height="6"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate approved -->
   <g transform="translate(128 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="g" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="g" x="8" y="10" width="16" height="12"/><rect class="g3" x="8" y="10" width="14" height="2"/><rect class="g3" x="8" y="10" width="2" height="9"/><rect class="g2" x="20" y="12" width="4" height="10"/><rect class="g2" x="8" y="20" width="16" height="2"/>
     <rect class="w" x="12" y="15" width="4" height="4"/><rect class="w" x="16" y="18" width="3" height="3"/><rect class="w" x="19" y="12" width="5" height="3"/>
-    <rect class="g" x="3" y="11" width="4" height="11"/><rect class="g" x="25" y="11" width="4" height="11"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="4" y="11" width="3" height="11"/><rect class="g3" x="5" y="12" width="2" height="9"/><rect class="k" x="24" y="11" width="3" height="11"/><rect class="g2" x="25" y="12" width="2" height="9"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate alert -->
   <g transform="translate(160 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="r" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="y" x="24" y="3" width="5" height="12"/><rect class="k" x="23" y="2" width="7" height="14"/><rect class="y" x="25" y="4" width="3" height="10"/><rect class="k" x="26" y="6" width="1" height="5"/><rect class="k" x="26" y="13" width="1" height="1"/>
-    <rect class="m" x="4" y="13" width="4" height="10"/><rect class="m" x="24" y="16" width="4" height="7"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="r" x="8" y="10" width="16" height="12"/><rect class="r3" x="8" y="10" width="14" height="2"/><rect class="r2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="23" y="2" width="7" height="14"/><rect class="y" x="25" y="4" width="3" height="8"/><rect class="y3" x="25" y="4" width="3" height="2"/><rect class="k" x="26" y="13" width="1" height="2"/>
+    <rect class="k" x="4" y="13" width="3" height="9"/><rect class="m" x="5" y="14" width="2" height="7"/><rect class="k" x="24" y="16" width="3" height="7"/><rect class="m" x="25" y="17" width="2" height="5"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate export -->
   <g transform="translate(192 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="y" x="22" y="14" width="8" height="8"/><rect class="k" x="21" y="13" width="10" height="10"/><rect class="y" x="23" y="15" width="6" height="6"/><rect class="k" x="24" y="18" width="4" height="2"/>
-    <rect class="r" x="4" y="13" width="4" height="9"/><rect class="v" x="24" y="11" width="4" height="7"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="21" y="13" width="10" height="10"/><rect class="y" x="23" y="15" width="6" height="6"/><rect class="y3" x="23" y="15" width="6" height="1"/><rect class="k" x="24" y="18" width="4" height="2"/>
+    <rect class="k" x="4" y="13" width="3" height="9"/><rect class="t" x="5" y="14" width="2" height="7"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate proof -->
   <g transform="translate(224 128)">
-    <rect class="y" x="11" y="2" width="10" height="8"/><rect class="k" x="10" y="1" width="12" height="2"/><rect class="k" x="10" y="9" width="12" height="2"/>
-    <rect class="t" x="8" y="10" width="16" height="13"/><rect class="k" x="7" y="9" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="b" x="3" y="9" width="8" height="14"/><rect class="k" x="2" y="8" width="10" height="16"/><rect class="b" x="4" y="10" width="6" height="12"/><rect class="w" x="6" y="13" width="2" height="5"/>
-    <rect class="g" x="24" y="12" width="5" height="8"/><rect class="k" x="23" y="11" width="7" height="10"/><rect class="g" x="25" y="13" width="3" height="6"/><rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
+    <rect class="k" x="10" y="1" width="12" height="9"/><rect class="y" x="11" y="2" width="10" height="7"/><rect class="y3" x="11" y="2" width="9" height="2"/>
+    <rect class="k" x="7" y="9" width="18" height="14"/><rect class="t" x="8" y="10" width="16" height="12"/><rect class="t3" x="8" y="10" width="14" height="2"/><rect class="t2" x="20" y="12" width="4" height="10"/>
+    <rect class="k" x="2" y="8" width="10" height="16"/><rect class="b" x="4" y="10" width="6" height="12"/><rect class="b" x="4" y="10" width="6" height="2" opacity="0.55"/><rect class="w" x="6" y="13" width="2" height="5"/>
+    <rect class="k" x="23" y="11" width="7" height="10"/><rect class="g" x="25" y="13" width="3" height="6"/><rect class="g3" x="25" y="13" width="3" height="2"/>
+    <rect class="k" x="9" y="23" width="6" height="6"/><rect class="k" x="17" y="23" width="6" height="6"/><rect class="ke" x="9" y="23" width="6" height="1"/><rect class="ke" x="17" y="23" width="6" height="1"/>
   </g>
 
   <!-- candidate calm -->
   <g transform="translate(256 128)">
-    <rect class="y" x="11" y="3" width="10" height="7"/><rect class="k" x="10" y="2" width="12" height="2"/><rect class="k" x="10" y="10" width="12" height="2"/><rect class="m" x="12" y="7" width="3" height="1"/><rect class="m" x="18" y="7" width="3" height="1"/>
-    <rect class="t" x="8" y="12" width="16" height="11"/><rect class="k" x="7" y="11" width="18" height="2"/><rect class="k" x="7" y="22" width="18" height="2"/>
-    <rect class="g" x="3" y="9" width="4" height="3"/><rect class="g" x="25" y="9" width="4" height="3"/><rect class="r" x="4" y="14" width="4" height="9"/><rect class="v" x="24" y="14" width="4" height="9"/>
+    <rect class="k" x="10" y="2" width="12" height="9"/><rect class="y" x="11" y="3" width="10" height="7"/><rect class="y3" x="11" y="3" width="9" height="2"/>
+    <rect class="m" x="12" y="7" width="3" height="1"/><rect class="m" x="18" y="7" width="3" height="1"/>
+    <rect class="k" x="7" y="11" width="18" height="13"/><rect class="t" x="8" y="12" width="16" height="11"/><rect class="t3" x="8" y="12" width="14" height="2"/><rect class="t2" x="20" y="14" width="4" height="9"/>
+    <rect class="g3" x="3" y="9" width="4" height="3"/><rect class="g3" x="25" y="9" width="4" height="3"/>
+    <rect class="k" x="4" y="14" width="3" height="9"/><rect class="t" x="5" y="15" width="2" height="7"/><rect class="k" x="24" y="14" width="3" height="9"/><rect class="t2" x="25" y="15" width="2" height="7"/>
     <rect class="k" x="9" y="24" width="6" height="5"/><rect class="k" x="17" y="24" width="6" height="5"/>
   </g>
 </svg>

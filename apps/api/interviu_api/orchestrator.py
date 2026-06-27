@@ -5,9 +5,26 @@ from statistics import mean
 from typing import Any
 
 from .adapters import CandidateAdapterError, adapter_for
-from .database import save_event, save_run, save_scorecard
+from .database import (
+    list_lessons_for_candidate,
+    list_runs_for_candidate,
+    save_event,
+    save_lesson,
+    save_run,
+    save_scorecard,
+)
 from .exam_packs import get_exam_pack
-from .models import CandidateConfig, CandidateResponse, RunEvent, RunRecord, Scorecard, TraceAuditSummary
+from .models import (
+    CandidateConfig,
+    CandidateResponse,
+    DiagnosticLesson,
+    LessonOutcome,
+    RunEvent,
+    RunRecord,
+    Scorecard,
+    TraceAuditSummary,
+    utc_now,
+)
 from .scoring import GradeResult, grade_response, panel_disagreement
 from .trace_audit import TraceAuditService
 
@@ -23,13 +40,33 @@ class RunOrchestrator:
         save_run(run)
         pack = get_exam_pack(run.exam_pack_id)
         adapter = adapter_for(candidate)
-        lessons: list[str] = []
+        # Closed learning loop: seed this run with diagnostics retained from the
+        # candidate's prior runs on this pack, so prior lessons are applied from
+        # the very first question. Within-run lessons still accumulate on top.
+        lessons, prior_by_comp, prior_run_id = self._load_prior_diagnostics(run, candidate, pack)
+        applied_lesson_ids = [lesson.id for group in prior_by_comp.values() for lesson in group]
+        lesson_feedback: dict[str, str] = {}
         seen_scores: dict[str, list[float]] = defaultdict(list)
         held_scores: dict[str, list[float]] = defaultdict(list)
         panel_results: list[dict[str, float]] = []
 
         try:
             self._event(run.id, "system", "run_started", {"candidate": candidate.name, "exam_pack": pack.id})
+            if applied_lesson_ids:
+                self._event(
+                    run.id,
+                    "lesson_library",
+                    "lesson_applied",
+                    {
+                        "count": len(applied_lesson_ids),
+                        "prior_run_id": prior_run_id,
+                        "lessons": [
+                            {"id": lesson.id, "competency": lesson.competency, "text": lesson.text}
+                            for group in prior_by_comp.values()
+                            for lesson in group
+                        ],
+                    },
+                )
             if run.job_scope is not None:
                 from .role_intelligence import analyze_job_scope
 
@@ -57,6 +94,7 @@ class RunOrchestrator:
                     if not seen_grade.passed:
                         lesson = f"{item.competency}: {seen_grade.feedback}"
                         lessons.append(lesson)
+                        lesson_feedback.setdefault(item.competency, seen_grade.feedback)
                         self._event(run.id, "lesson_library", "lesson_added", {"competency": item.competency, "lesson": lesson})
 
                     held_response = await self._ask_candidate(
@@ -75,9 +113,15 @@ class RunOrchestrator:
                     if not held_grade.passed:
                         lesson = f"{item.competency}: {held_grade.feedback}"
                         lessons.append(lesson)
+                        # Held-out feedback is the stronger signal; let it win.
+                        lesson_feedback[item.competency] = held_grade.feedback
                         self._event(run.id, "lesson_library", "lesson_added", {"competency": item.competency, "lesson": lesson})
 
             scorecard = self._scorecard(run, candidate, pack.simulator_model, seen_scores, held_scores, panel_results)
+            scorecard.lessons_applied = applied_lesson_ids
+            scorecard.prior_run_id = prior_run_id
+            self._record_lesson_outcomes(run, prior_by_comp, scorecard)
+            self._persist_new_lessons(run, candidate, pack, scorecard, lesson_feedback)
             save_scorecard(scorecard)
             run.status = "completed"
             save_run(run)
@@ -91,6 +135,125 @@ class RunOrchestrator:
             raise
         finally:
             await adapter.aclose()
+
+    # --- Diagnostic library (closed learning loop) -------------------------
+
+    def _load_prior_diagnostics(
+        self,
+        run: RunRecord,
+        candidate: CandidateConfig,
+        pack: Any,
+    ) -> tuple[list[str], dict[str, list[DiagnosticLesson]], str | None]:
+        """Seed the run with active lessons retained from this candidate's
+        prior runs on the same pack, grouped by competency for outcome tracking.
+        """
+        competencies = sorted({item.competency for item in pack.items})
+        prior = list_lessons_for_candidate(candidate.id, pack.id, competencies, active_only=True)
+        by_comp: dict[str, list[DiagnosticLesson]] = defaultdict(list)
+        for lesson in prior:
+            by_comp[lesson.competency].append(lesson)
+        seed = [f"{lesson.competency}: {lesson.text}" for lesson in prior]
+        return seed, by_comp, self._prior_run_id(run, candidate)
+
+    @staticmethod
+    def _prior_run_id(run: RunRecord, candidate: CandidateConfig) -> str | None:
+        """Most recent prior completed run for this candidate on the same pack."""
+        prior_runs = [
+            record
+            for record in list_runs_for_candidate(candidate.id)
+            if record.id != run.id
+            and record.exam_pack_id == run.exam_pack_id
+            and record.status == "completed"
+        ]
+        return prior_runs[-1].id if prior_runs else None
+
+    def _record_lesson_outcomes(
+        self,
+        run: RunRecord,
+        prior_by_comp: dict[str, list[DiagnosticLesson]],
+        scorecard: Scorecard,
+    ) -> None:
+        """Record whether each applied lesson's competency improved this run."""
+        for competency, lessons_list in prior_by_comp.items():
+            score = scorecard.held_out_scores.get(competency)
+            if score is None:
+                continue
+            passed = scorecard.pass_at_k.get(competency, False)
+            for lesson in lessons_list:
+                if run.id not in lesson.applied_run_ids:
+                    lesson.applied_run_ids.append(run.id)
+                lesson.last_applied_at = utc_now()
+                lesson.latest_outcome_score = score
+                lesson.latest_outcome = self._classify_outcome(passed, [lesson], score)
+                if passed:
+                    # Competency now clears the gate; retire the diagnostic.
+                    lesson.active = False
+                save_lesson(lesson)
+                self._event(
+                    run.id,
+                    "lesson_library",
+                    "lesson_outcome",
+                    {
+                        "lesson_id": lesson.id,
+                        "competency": competency,
+                        "outcome": lesson.latest_outcome,
+                        "score": score,
+                        "origin_score": lesson.origin_score,
+                        "retired": not lesson.active,
+                    },
+                )
+
+    @staticmethod
+    def _classify_outcome(
+        passed: bool,
+        lessons_list: list[DiagnosticLesson],
+        current_score: float,
+    ) -> LessonOutcome:
+        if not passed:
+            return "still_failing"
+        origin = max((lesson.origin_score for lesson in lessons_list), default=0.0)
+        if current_score >= origin + 0.05:
+            return "improved"
+        if current_score <= origin - 0.05:
+            return "regressed"
+        return "unchanged"
+
+    def _persist_new_lessons(
+        self,
+        run: RunRecord,
+        candidate: CandidateConfig,
+        pack: Any,
+        scorecard: Scorecard,
+        lesson_feedback: dict[str, str],
+    ) -> None:
+        """Persist one diagnostic per competency that failed this run, deduped by
+        (competency, text) against the candidate's existing library so re-runs do
+        not multiply rows."""
+        existing = list_lessons_for_candidate(candidate.id, pack.id, active_only=False)
+        existing_keys = {(lesson.competency, lesson.text) for lesson in existing}
+        for competency, passed in scorecard.pass_at_k.items():
+            if passed:
+                continue
+            text = lesson_feedback.get(competency)
+            if not text or (competency, text) in existing_keys:
+                continue
+            lesson = DiagnosticLesson(
+                candidate_id=candidate.id,
+                exam_pack_id=pack.id,
+                competency=competency,
+                text=text,
+                origin_run_id=run.id,
+                origin_score=scorecard.held_out_scores.get(competency, 0.0),
+                origin_variant="held_out",
+            )
+            save_lesson(lesson)
+            existing_keys.add((competency, text))
+            self._event(
+                run.id,
+                "lesson_library",
+                "lesson_persisted",
+                {"lesson_id": lesson.id, "competency": competency, "text": text},
+            )
 
     async def _ask_candidate(
         self,

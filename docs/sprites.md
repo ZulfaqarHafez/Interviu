@@ -8,6 +8,63 @@ Interviu now has two sprite assets:
 
 The app renders from the SVG sheet so browser output is stable and testable. The generated PNG is kept as a creative reference for future richer sprite passes.
 
+## Premium duotone palette (light + dark)
+
+The sheets were restyled from the original saturated "candy" look to a premium,
+editorial, **duotone-tinted-by-state** treatment. Each of the four sheets ships
+**two variants**:
+
+- `interviu-<sheet>-sprites.svg` — the **light** sheet (Muted Editorial palette).
+- `interviu-<sheet>-sprites-dark.svg` — the **dark** sheet (Premium Terminal
+  palette). Geometry and tile coordinates are byte-identical to the light file;
+  only the `<defs><style>` palette block differs.
+
+Sheets: `dojo`, `judging`, `lessons`, `runs` → 8 SVGs total.
+
+Both variants are **background-transparent** (the old baked
+`<rect fill="#fbfaf7"/>` was removed) so tiles composite onto the app surface in
+either theme.
+
+### Palette classes
+
+The class **names are stable** (`.k .w .t .g .r .y .v .m .b`) so existing tile
+classes and the JSON manifests keep working unchanged — only the hex values
+change between variants. Each main material also exposes a **3-step ramp** added
+to the palette block for selout shading (light source is always **top-left**):
+`.t2/.g2/.r2/.y2` = cooler/darker shadow, `.t3/.g3/.r3/.y3` = warmer/lighter
+highlight; `.k2` = deeper ink, `.ke` = broken-outline selout edge. Semantics are
+unchanged: grass `.g` = pass/approve, coral `.r` = fail/reject, gold `.y` =
+queued/caution, teal/accent `.t` = active/running, violet/info `.v` = meta/marker.
+
+| Class | Light (Muted Editorial) | Dark (Premium Terminal) |
+| --- | --- | --- |
+| `.k` ink outline | `#1c1a17` | `#0a0f15` |
+| `.k2` deep ink | `#0f0e0c` | `#050709` |
+| `.ke` selout edge | `#4a463f` | `#2a3340` |
+| `.w` glint | `#ffffff` | `#ffffff` |
+| `.t` teal/accent | `#0f6b5f` | `#3b9eff` |
+| `.g` pass | `#1f7a52` | `#3dd68c` |
+| `.r` fail | `#b5392f` | `#ff9592` |
+| `.y` warn | `#a25e10` | `#ffca16` |
+| `.v` meta/info | `#3a6ea5` | `#70b8ff` |
+| `.m` neutral | `#6b6760` | `#8a93a0` |
+| `.b` blue | `#3a6ea5` | `#70b8ff` |
+
+(`.t/.g/.r/.y` each have matching `…2` shadow and `…3` highlight steps in the
+`<defs><style>` block of every sheet.)
+
+### Theme wiring
+
+The JSON manifests do **not** change — they always point at the light SVG. The
+dark variant is swapped in by CSS: under `.dark`, `apps/web/src/app/globals.css`
+re-points each sheet's `--sprite-sheet-url` at the `…-dark.svg` file. Dark
+filenames for the CSS wiring:
+
+- `/sprites/interviu-dojo-sprites-dark.svg`
+- `/sprites/interviu-judging-sprites-dark.svg`
+- `/sprites/interviu-lessons-sprites-dark.svg`
+- `/sprites/interviu-runs-sprites-dark.svg`
+
 ## Sprite Manifest
 
 `apps/web/public/sprites/interviu-dojo-sprites.json` defines the tile coordinates. Each tile is 32px, and CSS scales hero sprites to 96px with `image-rendering: pixelated`.
@@ -117,3 +174,8 @@ add tiles, add a whole new sheet, or regenerate a sheet. It documents the SVG
 conventions, the palette classes, the manifest shape, and the four-step wiring
 (SVG cell → JSON manifest → `.sheet-*` rows bump if needed → `.sprite-*` tile
 class), and reminds you to keep this doc updated.
+
+When editing geometry, apply the change to **both** the light
+`interviu-<sheet>-sprites.svg` and the dark `interviu-<sheet>-sprites-dark.svg`
+so the two stay coordinate-identical (only their `<defs><style>` palette blocks
+differ — see the palette table above). Keep both variants background-transparent.

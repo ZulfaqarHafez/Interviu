@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="32" viewBox="0 0 288 32" shape-rendering="crispEdges">
+  <defs>
+    <style>
+      .k{fill:#0a0f15}.k2{fill:#050709}.ke{fill:#2a3340}.w{fill:#ffffff}
+      .t{fill:#3b9eff}.t2{fill:#2a72c4}.t3{fill:#6fbcff}
+      .g{fill:#3dd68c}.g2{fill:#29a76a}.g3{fill:#6fe6aa}
+      .r{fill:#ff9592}.r2{fill:#d96a6a}.r3{fill:#ffb6b3}
+      .y{fill:#ffca16}.y2{fill:#d6a40f}.y3{fill:#ffdc5e}
+      .v{fill:#70b8ff}.m{fill:#8a93a0}.b{fill:#70b8ff}
+    </style>
+  </defs>
+
+  <!-- lessonScroll -->
+  <g transform="translate(0 0)">
+    <rect class="k" x="8" y="5" width="16" height="22"/><rect class="w" x="9" y="6" width="14" height="20"/><rect class="m" x="9" y="24" width="14" height="2"/>
+    <rect class="k" x="4" y="3" width="6" height="26"/><rect class="m" x="5" y="4" width="4" height="24"/><rect class="ke" x="5" y="4" width="2" height="24"/>
+    <rect class="k" x="22" y="3" width="6" height="26"/><rect class="m" x="23" y="4" width="4" height="24"/><rect class="ke" x="23" y="4" width="2" height="24"/>
+    <rect class="t" x="11" y="10" width="10" height="2"/><rect class="t" x="11" y="14" width="10" height="2"/><rect class="m" x="11" y="18" width="6" height="2"/>
+    <rect class="w" x="10" y="7" width="2" height="2"/>
+  </g>
+
+  <!-- lessonBook -->
+  <g transform="translate(32 0)">
+    <rect class="k" x="6" y="3" width="20" height="26"/><rect class="t" x="8" y="5" width="16" height="22"/><rect class="t3" x="8" y="5" width="16" height="2"/><rect class="t2" x="8" y="25" width="16" height="2"/>
+    <rect class="y" x="8" y="5" width="3" height="22"/><rect class="y3" x="8" y="5" width="3" height="2"/><rect class="k" x="11" y="5" width="2" height="22"/>
+    <rect class="k" x="27" y="6" width="2" height="20"/><rect class="w" x="24" y="6" width="3" height="20"/>
+    <rect class="w" x="15" y="9" width="2" height="2"/>
+  </g>
+
+  <!-- newLessonStamp -->
+  <g transform="translate(64 0)">
+    <rect class="k" x="10" y="6" width="12" height="2"/><rect class="k" x="9" y="7" width="2" height="2"/><rect class="k" x="21" y="7" width="2" height="2"/>
+    <rect class="k" x="6" y="10" width="2" height="2"/><rect class="k" x="24" y="10" width="2" height="2"/><rect class="k" x="6" y="12" width="2" height="8"/><rect class="k" x="24" y="12" width="2" height="8"/>
+    <rect class="k" x="6" y="20" width="2" height="2"/><rect class="k" x="24" y="20" width="2" height="2"/><rect class="k" x="9" y="22" width="2" height="2"/><rect class="k" x="21" y="22" width="2" height="2"/><rect class="k" x="10" y="24" width="12" height="2"/>
+    <rect class="r" x="9" y="9" width="14" height="14"/><rect class="r3" x="9" y="9" width="14" height="2"/><rect class="r2" x="9" y="21" width="14" height="2"/>
+    <rect class="w" x="11" y="14" width="10" height="4"/>
+    <rect class="w" x="11" y="9" width="2" height="2"/>
+  </g>
+
+  <!-- libraryEmpty -->
+  <g transform="translate(96 0)">
+    <rect class="k" x="5" y="21" width="22" height="6"/><rect class="m" x="6" y="22" width="20" height="3"/><rect class="ke" x="6" y="22" width="20" height="1"/>
+    <rect class="m" x="5" y="6" width="2" height="15"/>
+    <rect class="m" x="9" y="10" width="2" height="2"/><rect class="m" x="13" y="10" width="2" height="2"/><rect class="m" x="17" y="10" width="2" height="2"/><rect class="m" x="21" y="10" width="2" height="2"/>
+    <rect class="m" x="9" y="15" width="2" height="2"/><rect class="m" x="13" y="15" width="2" height="2"/><rect class="m" x="17" y="15" width="2" height="2"/><rect class="m" x="21" y="15" width="2" height="2"/>
+  </g>
+
+  <!-- libraryFew -->
+  <g transform="translate(128 0)">
+    <rect class="k" x="5" y="21" width="22" height="6"/><rect class="m" x="6" y="22" width="20" height="3"/><rect class="ke" x="6" y="22" width="20" height="1"/>
+    <rect class="k" x="8" y="8" width="7" height="13"/><rect class="t" x="9" y="9" width="5" height="12"/><rect class="t3" x="9" y="9" width="2" height="12"/>
+    <rect class="k" x="17" y="10" width="7" height="11"/><rect class="y" x="18" y="11" width="5" height="10"/><rect class="y3" x="18" y="11" width="2" height="10"/>
+    <rect class="w" x="10" y="11" width="2" height="2"/>
+  </g>
+
+  <!-- libraryMany -->
+  <g transform="translate(160 0)">
+    <rect class="k" x="5" y="13" width="22" height="2"/><rect class="m" x="6" y="14" width="20" height="1"/>
+    <rect class="k" x="5" y="24" width="22" height="4"/><rect class="m" x="6" y="25" width="20" height="2"/><rect class="ke" x="6" y="25" width="20" height="1"/>
+    <rect class="k" x="6" y="5" width="2" height="8"/><rect class="t" x="7" y="5" width="3" height="8"/><rect class="t3" x="7" y="5" width="3" height="2"/>
+    <rect class="k" x="10" y="5" width="2" height="8"/><rect class="y" x="11" y="5" width="3" height="8"/><rect class="y3" x="11" y="5" width="3" height="2"/>
+    <rect class="k" x="14" y="5" width="2" height="8"/><rect class="g" x="15" y="5" width="3" height="8"/><rect class="g3" x="15" y="5" width="3" height="2"/>
+    <rect class="k" x="18" y="5" width="2" height="8"/><rect class="v" x="19" y="5" width="3" height="8"/><rect class="k" x="22" y="5" width="2" height="8"/>
+    <rect class="k" x="6" y="16" width="2" height="8"/><rect class="v" x="7" y="16" width="3" height="8"/>
+    <rect class="k" x="10" y="16" width="2" height="8"/><rect class="g" x="11" y="16" width="3" height="8"/><rect class="g3" x="11" y="16" width="3" height="2"/>
+    <rect class="k" x="14" y="16" width="2" height="8"/><rect class="t" x="15" y="16" width="3" height="8"/><rect class="t3" x="15" y="16" width="3" height="2"/>
+    <rect class="k" x="18" y="16" width="2" height="8"/><rect class="y" x="19" y="16" width="3" height="8"/><rect class="y3" x="19" y="16" width="3" height="2"/><rect class="k" x="22" y="16" width="2" height="8"/>
+    <rect class="w" x="8" y="7" width="2" height="2"/>
+  </g>
+
+  <!-- lessonApplied -->
+  <g transform="translate(192 0)">
+    <rect class="k" x="3" y="12" width="26" height="15"/><rect class="w" x="5" y="13" width="22" height="12"/><rect class="k" x="15" y="13" width="2" height="12"/>
+    <rect class="m" x="7" y="16" width="6" height="2"/><rect class="m" x="7" y="20" width="6" height="2"/><rect class="m" x="19" y="16" width="6" height="2"/><rect class="m" x="19" y="20" width="6" height="2"/>
+    <rect class="k" x="17" y="5" width="2" height="5"/><rect class="k" x="20" y="8" width="2" height="2"/>
+    <rect class="g" x="18" y="6" width="3" height="3"/><rect class="g" x="21" y="9" width="3" height="3"/><rect class="g" x="24" y="3" width="4" height="3"/><rect class="g3" x="24" y="3" width="4" height="1"/>
+    <rect class="y3" x="9" y="4" width="3" height="3"/>
+    <rect class="w" x="9" y="14" width="2" height="2"/>
+  </g>
+
+  <!-- lessonPinned -->
+  <g transform="translate(224 0)">
+    <rect class="k" x="7" y="7" width="18" height="22"/><rect class="w" x="8" y="8" width="16" height="20"/><rect class="m" x="8" y="26" width="16" height="2"/>
+    <rect class="m" x="11" y="13" width="10" height="2"/><rect class="m" x="11" y="17" width="10" height="2"/><rect class="m" x="11" y="21" width="6" height="2"/>
+    <rect class="k" x="12" y="2" width="8" height="9"/><rect class="r" x="13" y="3" width="6" height="6"/><rect class="r3" x="13" y="3" width="6" height="2"/><rect class="r2" x="13" y="7" width="6" height="2"/>
+    <rect class="k" x="15" y="11" width="2" height="3"/>
+    <rect class="w" x="14" y="4" width="2" height="2"/>
+  </g>
+
+</svg>

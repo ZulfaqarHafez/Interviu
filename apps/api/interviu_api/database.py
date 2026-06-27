@@ -8,7 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from .models import CandidateConfig, RunEvent, RunRecord, Scorecard, utc_now
+from .models import CandidateConfig, DiagnosticLesson, RunEvent, RunRecord, Scorecard, utc_now
 
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "data" / "interviu.db"
@@ -65,6 +65,28 @@ class DataStore(ABC):
     def get_scorecard(self, run_id: str) -> Scorecard | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def list_runs_for_candidate(self, candidate_id: str) -> list[RunRecord]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def save_lesson(self, lesson: DiagnosticLesson) -> DiagnosticLesson:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_lessons_for_candidate(
+        self,
+        candidate_id: str,
+        exam_pack_id: str | None = None,
+        competencies: list[str] | None = None,
+        active_only: bool = True,
+    ) -> list[DiagnosticLesson]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_lesson(self, lesson_id: str) -> DiagnosticLesson | None:
+        raise NotImplementedError
+
 
 class SQLiteStore(DataStore):
     name = "sqlite"
@@ -113,6 +135,20 @@ class SQLiteStore(DataStore):
                     payload TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS lessons (
+                    id TEXT PRIMARY KEY,
+                    candidate_id TEXT NOT NULL,
+                    exam_pack_id TEXT NOT NULL,
+                    competency TEXT NOT NULL,
+                    active INTEGER NOT NULL DEFAULT 1,
+                    payload TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_lessons_candidate
+                ON lessons(candidate_id, exam_pack_id, competency, active);
                 """
             )
 
@@ -218,6 +254,64 @@ class SQLiteStore(DataStore):
             row = conn.execute("SELECT payload FROM scorecards WHERE run_id = ?", (run_id,)).fetchone()
         return Scorecard.model_validate_json(row["payload"]) if row else None
 
+    def list_runs_for_candidate(self, candidate_id: str) -> list[RunRecord]:
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT payload FROM runs WHERE candidate_id = ? ORDER BY created_at ASC",
+                (candidate_id,),
+            ).fetchall()
+        return [RunRecord.model_validate_json(row["payload"]) for row in rows]
+
+    def save_lesson(self, lesson: DiagnosticLesson) -> DiagnosticLesson:
+        lesson.updated_at = utc_now()
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO lessons
+                (id, candidate_id, exam_pack_id, competency, active, payload, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    lesson.id,
+                    lesson.candidate_id,
+                    lesson.exam_pack_id,
+                    lesson.competency,
+                    1 if lesson.active else 0,
+                    _dump_model(lesson),
+                    lesson.created_at.isoformat(),
+                    lesson.updated_at.isoformat(),
+                ),
+            )
+        return lesson
+
+    def list_lessons_for_candidate(
+        self,
+        candidate_id: str,
+        exam_pack_id: str | None = None,
+        competencies: list[str] | None = None,
+        active_only: bool = True,
+    ) -> list[DiagnosticLesson]:
+        clauses = ["candidate_id = ?"]
+        params: list[Any] = [candidate_id]
+        if exam_pack_id is not None:
+            clauses.append("exam_pack_id = ?")
+            params.append(exam_pack_id)
+        if competencies:
+            placeholders = ", ".join("?" for _ in competencies)
+            clauses.append(f"competency IN ({placeholders})")
+            params.extend(competencies)
+        if active_only:
+            clauses.append("active = 1")
+        query = f"SELECT payload FROM lessons WHERE {' AND '.join(clauses)} ORDER BY created_at DESC"
+        with self.connect() as conn:
+            rows = conn.execute(query, tuple(params)).fetchall()
+        return [DiagnosticLesson.model_validate_json(row["payload"]) for row in rows]
+
+    def get_lesson(self, lesson_id: str) -> DiagnosticLesson | None:
+        with self.connect() as conn:
+            row = conn.execute("SELECT payload FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
+        return DiagnosticLesson.model_validate_json(row["payload"]) if row else None
+
 
 class SupabaseStore(DataStore):
     name = "supabase"
@@ -227,6 +321,7 @@ class SupabaseStore(DataStore):
         "runs": "interviu_runs",
         "events": "interviu_events",
         "scorecards": "interviu_scorecards",
+        "lessons": "interviu_lessons",
     }
 
     def __init__(self, url: str, key: str):
@@ -339,6 +434,59 @@ class SupabaseStore(DataStore):
         row = self._single(self.tables["scorecards"], "run_id", run_id)
         return Scorecard.model_validate(row["payload"]) if row else None
 
+    def list_runs_for_candidate(self, candidate_id: str) -> list[RunRecord]:
+        response = (
+            self.client.table(self.tables["runs"])
+            .select("payload")
+            .eq("candidate_id", candidate_id)
+            .order("created_at")
+            .execute()
+        )
+        return [RunRecord.model_validate(row["payload"]) for row in response.data or []]
+
+    def save_lesson(self, lesson: DiagnosticLesson) -> DiagnosticLesson:
+        lesson.updated_at = utc_now()
+        self._upsert(
+            self.tables["lessons"],
+            {
+                "id": lesson.id,
+                "candidate_id": lesson.candidate_id,
+                "exam_pack_id": lesson.exam_pack_id,
+                "competency": lesson.competency,
+                "active": lesson.active,
+                "payload": lesson.model_dump(mode="json"),
+                "created_at": lesson.created_at.isoformat(),
+                "updated_at": lesson.updated_at.isoformat(),
+            },
+            "id",
+        )
+        return lesson
+
+    def list_lessons_for_candidate(
+        self,
+        candidate_id: str,
+        exam_pack_id: str | None = None,
+        competencies: list[str] | None = None,
+        active_only: bool = True,
+    ) -> list[DiagnosticLesson]:
+        query = (
+            self.client.table(self.tables["lessons"])
+            .select("payload")
+            .eq("candidate_id", candidate_id)
+        )
+        if exam_pack_id is not None:
+            query = query.eq("exam_pack_id", exam_pack_id)
+        if competencies:
+            query = query.in_("competency", competencies)
+        if active_only:
+            query = query.eq("active", True)
+        response = query.order("created_at", desc=True).execute()
+        return [DiagnosticLesson.model_validate(row["payload"]) for row in response.data or []]
+
+    def get_lesson(self, lesson_id: str) -> DiagnosticLesson | None:
+        row = self._single(self.tables["lessons"], "id", lesson_id)
+        return DiagnosticLesson.model_validate(row["payload"]) if row else None
+
     def _upsert(self, table: str, row: dict[str, Any], on_conflict: str) -> None:
         self.client.table(table).upsert(row, on_conflict=on_conflict).execute()
 
@@ -414,6 +562,27 @@ def save_scorecard(scorecard: Scorecard) -> Scorecard:
 
 def get_scorecard(run_id: str) -> Scorecard | None:
     return store().get_scorecard(run_id)
+
+
+def list_runs_for_candidate(candidate_id: str) -> list[RunRecord]:
+    return store().list_runs_for_candidate(candidate_id)
+
+
+def save_lesson(lesson: DiagnosticLesson) -> DiagnosticLesson:
+    return store().save_lesson(lesson)
+
+
+def list_lessons_for_candidate(
+    candidate_id: str,
+    exam_pack_id: str | None = None,
+    competencies: list[str] | None = None,
+    active_only: bool = True,
+) -> list[DiagnosticLesson]:
+    return store().list_lessons_for_candidate(candidate_id, exam_pack_id, competencies, active_only)
+
+
+def get_lesson(lesson_id: str) -> DiagnosticLesson | None:
+    return store().get_lesson(lesson_id)
 
 
 def trace_payload(run_id: str) -> dict[str, Any]:

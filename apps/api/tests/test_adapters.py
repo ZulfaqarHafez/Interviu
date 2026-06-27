@@ -57,3 +57,74 @@ async def test_http_adapter_reports_http_errors() -> None:
     with pytest.raises(CandidateAdapterError):
         await adapter.ask(context="ctx", question="q")
     await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_http_adapter_raises_on_timeout() -> None:
+    """A timed-out request is surfaced as a CandidateAdapterError, not a leak."""
+
+    async def handler(_: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("read timed out", request=None)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://candidate.test")
+    config = CandidateConfig(name="HTTP", adapter_type="http", endpoint_url="http://candidate.test/ask")
+    adapter = HttpCandidateAdapter(config, client=client)
+
+    with pytest.raises(CandidateAdapterError):
+        await adapter.ask(context="ctx", question="q")
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_http_adapter_rejects_oversize_response(monkeypatch) -> None:
+    monkeypatch.setenv("INTERVIU_HTTP_CANDIDATE_MAX_BYTES", "64")
+    big_answer = "x" * 4096
+
+    async def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"answer": big_answer, "reasoning": "ok"})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://candidate.test")
+    config = CandidateConfig(name="HTTP", adapter_type="http", endpoint_url="http://candidate.test/ask")
+    adapter = HttpCandidateAdapter(config, client=client)
+
+    with pytest.raises(CandidateAdapterError) as excinfo:
+        await adapter.ask(context="ctx", question="q")
+    assert "limit" in str(excinfo.value)
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_http_adapter_rejects_non_object_json() -> None:
+    async def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=["not", "an", "object"])
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://candidate.test")
+    config = CandidateConfig(name="HTTP", adapter_type="http", endpoint_url="http://candidate.test/ask")
+    adapter = HttpCandidateAdapter(config, client=client)
+
+    with pytest.raises(CandidateAdapterError):
+        await adapter.ask(context="ctx", question="q")
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_http_adapter_rejects_invalid_response_shape() -> None:
+    """Malformed tool_calls/tokens are rejected with a CandidateAdapterError."""
+
+    async def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "answer": "ok",
+                "tokens": {"input": "not-a-number"},
+                "tool_calls": [{"params": {}}],  # missing required "name"
+            },
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://candidate.test")
+    config = CandidateConfig(name="HTTP", adapter_type="http", endpoint_url="http://candidate.test/ask")
+    adapter = HttpCandidateAdapter(config, client=client)
+
+    with pytest.raises(CandidateAdapterError):
+        await adapter.ask(context="ctx", question="q")
+    await client.aclose()

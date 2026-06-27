@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import os
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-
 from .connectors import connector_probes, connector_registry
 from .database import (
     database_health,
     database_backend_name,
     get_candidate,
+    get_lesson,
     get_run,
     get_scorecard,
     init_db,
@@ -22,6 +24,7 @@ from .database import (
     save_run,
     trace_payload,
 )
+from .progress import candidate_progress, lesson_library, run_comparison
 from .agent_refinery import agent_spec_payload
 from .agent_research import load_local_env, research_agent_spec
 from .exam_packs import exam_pack_export, get_exam_pack, list_exam_packs, register_exam_pack
@@ -36,8 +39,34 @@ from .role_intelligence import (
     role_analysis_payload,
 )
 from .trace_audit import _load_tracerazor_client
+from .logging_config import (
+    REQUEST_ID_HEADER,
+    RequestContextMiddleware,
+    configure_logging,
+    current_request_id,
+)
+from .rate_limit import limiter, rate_limit
+from .security import require_api_key
 
 _MAX_ROLE_SCOPE_CHARS = 8000
+
+_DEFAULT_CORS_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+
+def _cors_origins() -> list[str]:
+    """Resolve the CORS allowlist from ``INTERVIU_CORS_ORIGINS`` (comma-separated).
+
+    Defaults to the local dev origins so the web app keeps working when unset.
+    """
+
+    raw = os.environ.get("INTERVIU_CORS_ORIGINS", "").strip()
+    if not raw:
+        return list(_DEFAULT_CORS_ORIGINS)
+    origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
+    return origins or list(_DEFAULT_CORS_ORIGINS)
+
+
+logger = configure_logging()
 
 class RoleAnalysisRequest(BaseModel):
     raw_text: str = Field(default="", max_length=_MAX_ROLE_SCOPE_CHARS)
@@ -45,16 +74,52 @@ class RoleAnalysisRequest(BaseModel):
     override_pack_id: str | None = None
 
 
-app = FastAPI(title="Interviu API", version="0.1.0")
+# Auth is applied globally (opt-in via INTERVIU_API_KEYS). /health and
+# /health/database are exempted below so probes never require a key.
+app = FastAPI(
+    title="Interviu API",
+    version="0.1.0",
+    dependencies=[Depends(require_api_key)],
+)
+
+app.state.limiter = limiter
+
+app.add_middleware(RequestContextMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):30\d{2}",
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def _unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Return a safe envelope for unexpected errors.
+
+    Intentional ``HTTPException`` responses (400/404/409/422/503) are handled by
+    FastAPI's built-in handler and never reach here. For anything else we log the
+    full traceback server-side and return a generic message plus the request id,
+    so internal details / ``str(exc)`` are not leaked to clients.
+    """
+
+    request_id = getattr(request.state, "request_id", None) or current_request_id()
+    logger.exception(
+        "unhandled exception",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+        },
+    )
+    headers = {REQUEST_ID_HEADER: request_id} if request_id else None
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "request_id": request_id},
+        headers=headers,
+    )
 
 
 @app.on_event("startup")
@@ -120,7 +185,7 @@ def export_exam_pack_files(pack_id: str) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.post("/role-analysis")
+@app.post("/role-analysis", dependencies=[Depends(rate_limit("role_analysis"))])
 def role_analysis(request: RoleAnalysisRequest) -> dict:
     raw_text = (request.raw_text or "")[:_MAX_ROLE_SCOPE_CHARS]
     if request.override_pack_id is not None:
@@ -163,12 +228,27 @@ def create_candidate(candidate: CandidateConfig) -> dict:
     return save_candidate(candidate).model_dump(mode="json")
 
 
+@app.get("/candidates/{candidate_id}/progress")
+def candidate_progress_endpoint(candidate_id: str) -> dict:
+    payload = candidate_progress(candidate_id)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    return payload.model_dump(mode="json")
+
+
+@app.get("/candidates/{candidate_id}/lessons")
+def candidate_lessons(candidate_id: str, exam_pack_id: str | None = None) -> list[dict]:
+    if get_candidate(candidate_id) is None:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    return [lesson.model_dump(mode="json") for lesson in lesson_library(candidate_id, exam_pack_id)]
+
+
 @app.get("/runs")
 def runs() -> list[dict]:
     return [run.model_dump(mode="json") for run in list_runs()]
 
 
-@app.post("/runs")
+@app.post("/runs", dependencies=[Depends(rate_limit("create_run"))])
 def create_run(payload: RunCreate) -> dict:
     if get_candidate(payload.candidate_id) is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
@@ -195,7 +275,7 @@ def create_run(payload: RunCreate) -> dict:
     return save_run(run).model_dump(mode="json")
 
 
-@app.post("/runs/{run_id}/start")
+@app.post("/runs/{run_id}/start", dependencies=[Depends(rate_limit("start_run"))])
 async def start_run(run_id: str) -> dict:
     run = get_run(run_id)
     if run is None:
@@ -256,6 +336,27 @@ def run_trace(run_id: str) -> dict:
     return trace_payload(run_id)
 
 
+@app.get("/runs/{run_id}/comparison")
+def run_comparison_endpoint(run_id: str, baseline: str | None = None) -> dict:
+    if get_run(run_id) is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    payload = run_comparison(run_id, baseline)
+    if payload is None:
+        raise HTTPException(status_code=409, detail="Run has no scorecard yet; start the run first")
+    return payload.model_dump(mode="json")
+
+
+@app.get("/runs/{run_id}/lessons-applied")
+def run_lessons_applied(run_id: str) -> list[dict]:
+    if get_run(run_id) is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    scorecard = get_scorecard(run_id)
+    if scorecard is None:
+        return []
+    resolved = [get_lesson(lesson_id) for lesson_id in scorecard.lessons_applied]
+    return [lesson.model_dump(mode="json") for lesson in resolved if lesson is not None]
+
+
 @app.get("/runs/{run_id}/agent-spec")
 def run_agent_spec(run_id: str) -> dict:
     if get_run(run_id) is None:
@@ -282,7 +383,10 @@ def export_agent_spec_files(run_id: str) -> dict:
     return export.model_dump(mode="json")
 
 
-@app.post("/runs/{run_id}/agent-spec/research")
+@app.post(
+    "/runs/{run_id}/agent-spec/research",
+    dependencies=[Depends(rate_limit("agent_research"))],
+)
 def run_agent_research(run_id: str, mode: str = "fast") -> dict:
     if mode not in ("fast", "deep"):
         raise HTTPException(status_code=422, detail="mode must be 'fast' or 'deep'")
@@ -314,10 +418,21 @@ def run_proof_bundle(run_id: str) -> dict:
         role_analysis_bundle = role_analysis_for_run(run_id)
     except Exception:
         role_analysis_bundle = None
+    run_record = get_run(run_id)
+    progress_bundle = None
+    diagnostic_library: list[dict] = []
+    if run_record is not None:
+        progress_payload = candidate_progress(run_record.candidate_id)
+        progress_bundle = progress_payload.model_dump(mode="json") if progress_payload else None
+        diagnostic_library = [
+            lesson.model_dump(mode="json") for lesson in lesson_library(run_record.candidate_id)
+        ]
     return bundle | {
         "database": db_health,
         "connectors": connector_registry(),
         "connector_probes": connector_probes(),
         "agent_spec": agent_spec,
         "role_analysis": role_analysis_bundle,
+        "candidate_progress": progress_bundle,
+        "diagnostic_library": diagnostic_library,
     }

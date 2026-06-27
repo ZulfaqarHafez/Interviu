@@ -4,23 +4,200 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Design tokens.
+ *
+ * Tailwind approach: KEPT Tailwind v3 (no v4 upgrade). The token system is a
+ * CSS-first :root layer plus a .dark variant, NOT @theme — this avoids a risky
+ * v4 migration of the ~1840-line stylesheet while still giving downstream agents
+ * a semantic token API and dark mode. All existing raw tokens keep their exact
+ * hex values; semantic tokens alias them. Toggle dark mode by adding class="dark"
+ * (or data-theme="dark") to <html> or any wrapper.
+ */
 :root {
-  --ink: #101915;
-  --paper: #f6f7f4;
+  /* Raw palette — light theme: "Muted Editorial".
+     One restrained teal accent; coral/gold/grass/blue kept ONLY as semantic
+     status colours (pass/warn/fail/info), no longer decorative. Desaturated,
+     editorial tones replace the former candy palette. */
+  --ink: #1c1a17;
+  --paper: #f7f6f3;
   --panel: #ffffff;
-  --line: #dfe4dc;
-  --muted: #65716a;
-  --teal: #155e54;
-  --coral: #b84a3a;
-  --gold: #b7832b;
-  --grass: #2f7d55;
-  --violet: #5f5a9a;
-  --soft: #edf1eb;
-  --surface: #fbfcf8;
-  --review-bg: #fff7ed;
-  --pass-bg: #eef7f0;
+  --line: #e4e1da;
+  --muted: #6b6760;
+  --teal: #0f6b5f;
+  --coral: #b5392f;
+  --gold: #a25e10;
+  --grass: #1f7a52;
+  --violet: #3a6ea5;
+  --soft: #efece6;
+  --surface: #fbfaf8;
+  --review-bg: #fbf0dd;
+  --pass-bg: #e8f3ec;
   --shadow: 0 18px 55px rgba(20, 31, 27, 0.07);
   --shadow-soft: 0 8px 24px rgba(20, 31, 27, 0.05);
+
+  /* Semantic tokens (alias the raw palette; light theme) */
+  --color-bg: var(--paper);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-border: var(--line);
+  --color-fg: var(--ink);
+  --color-fg-muted: var(--muted);
+  --color-accent: var(--teal);
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #0c5a50;
+  --color-accent-subtle: #e7f1ee;
+  --color-pass: var(--grass);
+  --color-pass-bg: var(--pass-bg);
+  --color-warn: var(--gold);
+  --color-warn-bg: var(--review-bg);
+  --color-fail: var(--coral);
+  --color-fail-bg: #fbeae7;
+  --color-info: var(--violet);
+  --color-soft: var(--soft);
+  --color-overlay: rgba(20, 31, 27, 0.42);
+  --shadow-card: var(--shadow);
+  --shadow-card-soft: var(--shadow-soft);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+}
+
+/* Dark palette. Activated by .dark or [data-theme="dark"] on any ancestor. */
+.dark,
+[data-theme="dark"] {
+  /* Dark theme: "Premium Terminal" — near-black surfaces (never #000), a single
+     cool blue accent, elevation via lightness, semantic-only status colours
+     (Radix-derived). */
+  --ink: #e6edf3;
+  --paper: #0d1117;
+  --panel: #1b222c;
+  --line: #2c333d;
+  --muted: #9198a1;
+  --teal: #3b9eff;
+  --coral: #ff9592;
+  --gold: #ffca16;
+  --grass: #3dd68c;
+  --violet: #70b8ff;
+  --soft: #1c232e;
+  --surface: #151b23;
+  --review-bg: #302008;
+  --pass-bg: #132d21;
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  --color-bg: var(--paper);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-border: var(--line);
+  --color-fg: var(--ink);
+  --color-fg-muted: var(--muted);
+  --color-accent: var(--teal);
+  --color-accent-fg: #0b1722;
+  --color-accent-hover: #70b8ff;
+  --color-accent-subtle: #0d2847;
+  --color-pass: var(--grass);
+  --color-pass-bg: var(--pass-bg);
+  --color-warn: var(--gold);
+  --color-warn-bg: var(--review-bg);
+  --color-fail: var(--coral);
+  --color-fail-bg: #3b1219;
+  --color-info: var(--violet);
+  --color-soft: var(--soft);
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --shadow-card: var(--shadow);
+  --shadow-card-soft: var(--shadow-soft);
+}
+
+/* Dark-theme sprite sheets (baked palettes; background-image SVGs can't read
+   CSS vars, so the dark variants are swapped in by URL). These must out-specify
+   the single-class .sprite-sheet / .sheet-* base rules. */
+.dark .sprite-sheet,
+[data-theme="dark"] .sprite-sheet { --sprite-sheet-url: url("/sprites/interviu-dojo-sprites-dark.svg"); }
+.dark .sheet-judging,
+[data-theme="dark"] .sheet-judging { --sprite-sheet-url: url("/sprites/interviu-judging-sprites-dark.svg"); }
+.dark .sheet-lessons,
+[data-theme="dark"] .sheet-lessons { --sprite-sheet-url: url("/sprites/interviu-lessons-sprites-dark.svg"); }
+.dark .sheet-runs,
+[data-theme="dark"] .sheet-runs { --sprite-sheet-url: url("/sprites/interviu-runs-sprites-dark.svg"); }
+
+/* Screen-reader-only utility for the ARIA live regions in the announcer. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Route-level error boundary surface (app/error.tsx). */
+.app-error {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.app-error-card {
+  max-width: 460px;
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  padding: 32px 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  box-shadow: var(--shadow-card);
+}
+
+.app-error-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-pill);
+  background: var(--color-warn-bg);
+  color: var(--color-warn);
+}
+
+.app-error-card h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.app-error-card p {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.app-error-detail {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  text-align: left;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--color-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.app-error-digest {
+  color: var(--color-fg-muted);
+  font-size: 12px;
 }
 
 * {
@@ -35,13 +212,16 @@ body {
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, #fbfcf9 0%, var(--paper) 260px),
+    linear-gradient(180deg, var(--color-surface) 0%, var(--paper) 260px),
     var(--paper);
   color: var(--ink);
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Tabular figures so scores, IDs, latencies, and counts read like an
+     instrument and don't jitter as values update. */
+  font-variant-numeric: tabular-nums;
 }
 
 body > div:first-child:empty {
@@ -83,7 +263,7 @@ select {
 .side-panel,
 .drawer {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--color-panel);
   box-shadow: var(--shadow-soft);
   border-radius: 8px;
 }
@@ -112,9 +292,9 @@ select {
 .metric-deck,
 .evidence-panel,
 .focus-panel {
-  border: 1px solid #dce4da;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--color-panel);
   box-shadow: var(--shadow-soft);
 }
 
@@ -137,7 +317,7 @@ select {
   font-size: clamp(36px, 5vw, 64px);
   line-height: 0.95;
   letter-spacing: 0;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .run-brief p {
@@ -161,10 +341,10 @@ select {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0 10px;
-  background: #f7faf6;
-  color: #52615a;
+  background: var(--color-soft);
+  color: var(--color-fg-muted);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .metric-deck {
@@ -180,7 +360,7 @@ select {
   min-height: 104px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-panel);
   padding: 14px;
   display: grid;
   align-content: space-between;
@@ -190,7 +370,7 @@ select {
 .focus-panel span {
   color: var(--muted);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -201,12 +381,12 @@ select {
 }
 
 .metric-tile.pass {
-  border-color: #bed8c4;
+  border-color: var(--color-pass);
   background: var(--pass-bg);
 }
 
 .metric-tile.warn {
-  border-color: #e7caa7;
+  border-color: var(--color-warn);
   background: var(--review-bg);
 }
 
@@ -257,7 +437,7 @@ select {
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   padding: 10px;
 }
 
@@ -298,7 +478,7 @@ select {
   line-height: 1;
   margin: 0;
   letter-spacing: 0;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .brand p {
@@ -318,9 +498,9 @@ select {
 .icon-button,
 .command-button {
   min-height: 40px;
-  border: 1px solid #d7ded5;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   color: var(--ink);
   display: inline-flex;
   align-items: center;
@@ -342,9 +522,9 @@ select {
 }
 
 .command-button.primary {
-  background: #155e54;
-  color: #fff;
-  border-color: #155e54;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: var(--color-accent);
   box-shadow: 0 8px 20px rgba(21, 94, 84, 0.18);
 }
 
@@ -355,14 +535,14 @@ select {
 
 .icon-button:hover,
 .command-button:hover:not(:disabled) {
-  background: #f7faf6;
-  border-color: #aeb9b1;
+  background: var(--color-soft);
+  border-color: var(--color-border);
   transform: translateY(-1px);
 }
 
 .command-button.primary:hover:not(:disabled) {
-  background: #20655c;
-  color: #fff;
+  background: var(--color-accent-hover);
+  color: var(--color-accent-fg);
 }
 
 :where(button, a, input, select, textarea, summary, .ledger-row):focus-visible {
@@ -384,11 +564,11 @@ select {
 .arena {
   position: relative;
   overflow: hidden;
-  border: 1px solid #dce4da;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   min-height: 430px;
   background:
-    linear-gradient(180deg, #ffffff 0%, #f4f7f2 100%);
+    linear-gradient(180deg, var(--color-panel) 0%, var(--color-surface) 100%);
   display: grid;
   place-items: center;
   padding: 34px;
@@ -416,7 +596,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 0 10px;
-  background: #fff;
+  background: var(--color-panel);
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -427,7 +607,7 @@ select {
   font-size: 44px;
   line-height: 1;
   letter-spacing: 0;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .room-copy p {
@@ -440,12 +620,12 @@ select {
 .candidate-zone {
   width: 150px;
   height: 150px;
-  border: 1px solid #dfe6dd;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-panel);
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 8px #f6f8f4, 0 10px 28px rgba(20, 31, 27, 0.06);
+  box-shadow: inset 0 0 0 8px var(--color-surface), 0 10px 28px var(--color-overlay);
 }
 
 .candidate-zone.compact {
@@ -583,7 +763,7 @@ select {
 .sprite-timeline-node { --sprite-x: 8; --sprite-y: 0; }
 
 .hero-sprite.thinking {
-  animation: bob 900ms steps(2) infinite;
+  animation: bob 1600ms ease-in-out infinite;
 }
 
 .arena-inner {
@@ -606,7 +786,7 @@ select {
   gap: 6px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -619,9 +799,9 @@ select {
 
 .workflow-card {
   min-width: 0;
-  border: 1px solid #dfe6dd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   padding: 10px;
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
@@ -631,16 +811,16 @@ select {
 
 .workflow-card.active {
   border-color: var(--teal);
-  background: #f0f8f6;
+  background: var(--color-accent-subtle);
 }
 
 .workflow-card.done {
-  border-color: #b8d3c0;
+  border-color: var(--color-pass);
   background: var(--pass-bg);
 }
 
 .workflow-card.attention {
-  border-color: #e3bd91;
+  border-color: var(--color-warn);
   background: var(--review-bg);
 }
 
@@ -682,9 +862,9 @@ select {
 
 .roster-agent {
   min-width: 0;
-  border: 1px solid #dfe6dd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   padding: 10px 6px;
   display: grid;
   justify-items: center;
@@ -699,11 +879,11 @@ select {
 
 .roster-agent.active {
   border-color: var(--teal);
-  background: #f0f8f6;
+  background: var(--color-accent-subtle);
 }
 
 .roster-agent.done {
-  border-color: #bed8c4;
+  border-color: var(--color-pass);
   background: var(--pass-bg);
 }
 
@@ -713,7 +893,7 @@ select {
 
 .roster-name {
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 
@@ -735,7 +915,7 @@ select {
   margin: 10px 0;
   font-size: 12px;
   line-height: 1.4;
-  color: #34302d;
+  color: var(--color-fg);
 }
 
 .refinery-stats {
@@ -745,7 +925,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .refinery-empty {
@@ -770,7 +950,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px;
-  background: #fff;
+  background: var(--color-panel);
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: center;
@@ -810,14 +990,14 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .refinery-actions {
   margin: 8px 0;
   padding-left: 18px;
   font-size: 12px;
-  color: #34302d;
+  color: var(--color-fg);
   line-height: 1.4;
 }
 
@@ -832,7 +1012,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  background: #fff;
+  background: var(--color-panel);
   display: grid;
   gap: 8px;
 }
@@ -864,7 +1044,7 @@ select {
 .subagent-card p {
   margin: 0;
   font-size: 11px;
-  color: #34302d;
+  color: var(--color-fg);
   line-height: 1.35;
 }
 
@@ -889,7 +1069,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .drawer-research {
@@ -897,7 +1077,7 @@ select {
   border-radius: 8px;
   padding: 12px;
   margin: 12px 0;
-  background: #f8f6fc;
+  background: var(--color-soft);
 }
 
 .refinery-note {
@@ -923,7 +1103,7 @@ select {
   min-height: 64px;
   border: 1px solid rgba(31, 35, 32, 0.2);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   color: var(--ink);
   padding: 8px;
   text-transform: none;
@@ -937,7 +1117,7 @@ select {
   border-radius: 8px;
   padding: 10px;
   margin: 8px 0;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .decision-head {
@@ -954,7 +1134,7 @@ select {
 .decision-row p {
   margin: 6px 0;
   font-size: 11px;
-  color: #34302d;
+  color: var(--color-fg);
   line-height: 1.35;
 }
 
@@ -994,7 +1174,7 @@ select {
   width: 130px;
   min-height: 54px;
   border: 2px solid var(--line);
-  background: #fff;
+  background: var(--color-panel);
   padding: 8px;
   font-size: 12px;
   font-weight: 700;
@@ -1033,23 +1213,23 @@ select {
 .badge {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   min-width: 34px;
   height: 28px;
   display: grid;
   place-items: center;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .badge.pass {
   background: var(--grass);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .badge.fail {
   background: var(--coral);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .status-strip {
@@ -1069,7 +1249,7 @@ select {
   color: var(--muted);
   font-size: 11px;
   text-transform: uppercase;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .metric strong {
@@ -1086,7 +1266,7 @@ select {
   box-shadow: none;
   padding: 22px 20px;
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--color-panel);
   backdrop-filter: blur(10px);
 }
 
@@ -1102,8 +1282,8 @@ select {
 .section-title {
   margin: 0 0 10px;
   font-size: 13px;
-  color: #52615a;
-  font-weight: 800;
+  color: var(--color-fg-muted);
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1119,7 +1299,7 @@ select {
 .bar-track {
   height: 10px;
   border-radius: 999px;
-  background: #ece7de;
+  background: var(--color-soft);
   overflow: hidden;
 }
 
@@ -1136,7 +1316,7 @@ select {
   border-radius: 8px;
   padding: 11px;
   margin: 8px 0;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .connector-row {
@@ -1150,7 +1330,7 @@ select {
   border-radius: 8px;
   padding: 11px;
   margin: 8px 0;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .connector-card-main {
@@ -1187,7 +1367,7 @@ select {
   grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: start;
   gap: 8px;
-  background: #fff;
+  background: var(--color-panel);
   box-shadow: var(--shadow-soft);
 }
 
@@ -1214,19 +1394,19 @@ select {
   border-radius: 999px;
   padding: 3px 8px;
   font-size: 10px;
-  font-weight: 800;
-  background: #fff;
+  font-weight: 600;
+  background: var(--color-panel);
   white-space: nowrap;
 }
 
 .pill.ready {
   background: var(--grass);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .pill.connected {
   background: var(--teal);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .pill.planned {
@@ -1235,12 +1415,12 @@ select {
 
 .pill.unavailable {
   background: var(--coral);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .pill.pass {
   background: var(--grass);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .pill.warn {
@@ -1249,7 +1429,7 @@ select {
 
 .pill.fail {
   background: var(--coral);
-  color: #fff;
+  color: var(--color-accent-fg);
 }
 
 .probe-line {
@@ -1293,7 +1473,7 @@ select {
 }
 
 .proof-card {
-  background: #f8fcf7;
+  background: var(--color-pass-bg);
 }
 
 .ledger-row {
@@ -1303,7 +1483,7 @@ select {
   border-radius: 8px;
   padding: 11px;
   margin: 8px 0;
-  background: #fff;
+  background: var(--color-panel);
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -1345,7 +1525,7 @@ select {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  background: #f7fff8;
+  background: var(--color-pass-bg);
 }
 
 .drawer-actions {
@@ -1360,7 +1540,7 @@ select {
   margin: 8px 0;
   color: var(--muted);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1370,7 +1550,7 @@ select {
   min-height: 40px;
   border: 1px solid rgba(31, 35, 32, 0.16);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-panel);
   color: var(--ink);
   padding: 0 8px;
   text-transform: none;
@@ -1416,7 +1596,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0 10px;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .quiet-details summary {
@@ -1445,19 +1625,19 @@ select {
   gap: 10px;
   background: var(--surface);
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .score-hero.passed {
   background: var(--pass-bg);
-  color: #315f44;
-  border-color: #bed8c4;
+  color: var(--color-pass);
+  border-color: var(--color-pass);
 }
 
 .score-hero.review {
   background: var(--review-bg);
-  color: #7c4b24;
-  border-color: #e7caa7;
+  color: var(--color-warn);
+  border-color: var(--color-warn);
 }
 
 .library-actions {
@@ -1486,12 +1666,12 @@ select {
 
 .reviewer-row.pass {
   background: var(--pass-bg);
-  border-color: #bed8c4;
+  border-color: var(--color-pass);
 }
 
 .reviewer-row.warn {
   background: var(--review-bg);
-  border-color: #e7caa7;
+  border-color: var(--color-warn);
 }
 
 .reviewer-row strong,
@@ -1525,7 +1705,7 @@ select {
 .artifact-card small {
   color: var(--muted);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1548,7 +1728,7 @@ select {
   border: 2px solid rgba(43, 39, 36, 0.18);
   border-radius: 6px;
   padding: 8px;
-  background: #fff;
+  background: var(--color-panel);
 }
 
 .mission-card header {
@@ -1577,7 +1757,7 @@ select {
 
 .mission-card p {
   margin: 8px 0;
-  color: #34302d;
+  color: var(--color-fg);
   font-size: 11px;
   line-height: 1.35;
 }
@@ -1588,7 +1768,7 @@ select {
   gap: 8px;
   color: var(--muted);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1607,7 +1787,7 @@ select {
   min-height: 64px;
   border: 2px solid rgba(43, 39, 36, 0.18);
   border-radius: 6px;
-  background: #fff;
+  background: var(--color-panel);
   display: grid;
   place-items: center;
   gap: 4px;
@@ -1618,7 +1798,7 @@ select {
   max-width: 100%;
   color: var(--muted);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   text-align: center;
   overflow-wrap: anywhere;
@@ -1629,7 +1809,7 @@ select {
   border-radius: 8px;
   padding: 10px;
   margin: 8px 0;
-  background: #fff;
+  background: var(--color-panel);
   display: grid;
   grid-template-columns: 10px minmax(0, 1fr) auto;
   align-items: start;
@@ -1656,7 +1836,7 @@ select {
 .activation-row em {
   font-style: normal;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1687,7 +1867,7 @@ select {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: 6px;
 }
 
@@ -1696,11 +1876,11 @@ pre {
   word-break: break-word;
   margin: 0;
   font-size: 11px;
-  color: #34302d;
+  color: var(--color-fg);
 }
 
 .error-text {
-  color: #9f2f22;
+  color: var(--color-fail);
   font-weight: 700;
 }
 
@@ -1710,7 +1890,7 @@ pre {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
   }
 }
 
@@ -1836,4 +2016,16 @@ pre {
   .subagent-grid {
     grid-template-columns: 1fr;
   }
+
+  .learning-surfaces {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Learning surfaces: the closed-loop proof cards (radar, comparison, trend, library). */
+.learning-surfaces {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
 }

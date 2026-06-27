@@ -66,3 +66,97 @@ def test_supabase_store_builds_rows_without_sqlite(monkeypatch: pytest.MonkeyPat
     assert calls[0][1]["id"] == "cand_x"
     assert calls[0][2] == "id"
     assert store_instance.health()["backend"] == "supabase"
+
+
+def test_sqlite_lessons_round_trip() -> None:
+    from interviu_api.database import get_lesson, init_db, list_lessons_for_candidate, save_lesson
+    from interviu_api.models import DiagnosticLesson
+
+    init_db()
+    lesson = DiagnosticLesson(
+        candidate_id="cand_1",
+        exam_pack_id="hr-v1",
+        competency="compliance",
+        text="needs work",
+        origin_run_id="run_1",
+        origin_score=0.2,
+    )
+    save_lesson(lesson)
+
+    fetched = get_lesson(lesson.id)
+    assert fetched is not None
+    assert fetched.competency == "compliance"
+    assert fetched.active is True
+
+    scoped = list_lessons_for_candidate("cand_1", "hr-v1", ["compliance"], active_only=True)
+    assert len(scoped) == 1
+
+    # Retiring a lesson removes it from the active view but keeps the record.
+    lesson.active = False
+    save_lesson(lesson)
+    assert list_lessons_for_candidate("cand_1", active_only=True) == []
+    assert len(list_lessons_for_candidate("cand_1", active_only=False)) == 1
+
+
+def test_supabase_store_persists_lessons(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[str, dict, str]] = []
+
+    class FakeQuery:
+        def __init__(self, table: str):
+            self.table = table
+
+        def upsert(self, row: dict, on_conflict: str):
+            calls.append((self.table, row, on_conflict))
+            return self
+
+        def select(self, *_args, **_kwargs):
+            return self
+
+        def eq(self, *_args, **_kwargs):
+            return self
+
+        def in_(self, *_args, **_kwargs):
+            return self
+
+        def order(self, *_args, **_kwargs):
+            return self
+
+        def limit(self, *_args, **_kwargs):
+            return self
+
+        def execute(self):
+            return type("Response", (), {"data": [], "count": 0})()
+
+    class FakeClient:
+        def table(self, table: str):
+            return FakeQuery(table)
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "supabase",
+        type("FakeSupabase", (), {"create_client": lambda url, key: FakeClient()}),
+    )
+    store_instance = SupabaseStore("https://project.supabase.co", "server-key")
+
+    from interviu_api.models import DiagnosticLesson
+
+    store_instance.save_lesson(
+        DiagnosticLesson(
+            candidate_id="cand_x",
+            exam_pack_id="hr-v1",
+            competency="compliance",
+            text="t",
+            origin_run_id="run_1",
+        )
+    )
+
+    table, row, on_conflict = calls[0]
+    assert table == "interviu_lessons"
+    assert row["candidate_id"] == "cand_x"
+    assert row["exam_pack_id"] == "hr-v1"
+    assert row["competency"] == "compliance"
+    assert row["active"] is True
+    assert on_conflict == "id"
+
+    # The filtered list path executes its query chain without error.
+    assert store_instance.list_lessons_for_candidate("cand_x", "hr-v1", ["compliance"]) == []

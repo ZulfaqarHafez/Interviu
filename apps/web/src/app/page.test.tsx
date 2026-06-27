@@ -2,7 +2,31 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NuqsTestingAdapter } from "nuqs/adapters/testing";
+import { AnnouncerProvider } from "@/components/announcer";
 import Home from "./page";
+
+/**
+ * The refactored page composes TanStack Query hooks (and components that depend
+ * on nuqs / the announcer), so tests render it inside the same provider stack
+ * the real app uses. Retries are disabled so error-state queries (the learning
+ * surfaces hit endpoints this fixture does not mock) settle immediately.
+ */
+function renderHome() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <NuqsTestingAdapter>
+        <AnnouncerProvider>
+          <Home />
+        </AnnouncerProvider>
+      </NuqsTestingAdapter>
+    </QueryClientProvider>
+  );
+}
 
 const candidate = {
   id: "cand_demo",
@@ -356,7 +380,7 @@ afterEach(() => {
 
 describe("Interviu page", () => {
   it("renders the evaluation workspace as the first screen", async () => {
-    render(<Home />);
+    renderHome();
     await screen.findByRole("heading", { name: "Interviu" });
     expect(screen.getByRole("button", { name: /run evaluation/i })).toBeInTheDocument();
     expect(await screen.findByText("Mock candidate")).toBeInTheDocument();
@@ -377,17 +401,16 @@ describe("Interviu page", () => {
 
   it("builds coaching notes and recommends helpers after a run", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     const runButton = await screen.findByRole("button", { name: /run evaluation/i });
     await waitFor(() => expect(runButton).toBeEnabled());
     await user.click(runButton);
     await waitFor(() => expect(screen.getAllByText("Ready to ship").length).toBeGreaterThan(0));
+    // The optional trace-auditor helper is surfaced in the coaching-plan rail.
     expect(screen.getAllByText("Trace Auditor").length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("button", { name: /view plan/i }));
-    expect(await screen.findByText("Operating notes")).toBeInTheDocument();
-    // The optional trace-auditor helper exposes a downloadable .md.
-    const subAgentLink = screen.getByRole("link", { name: /trace-auditor\.md/ });
-    expect(subAgentLink).toHaveAttribute("download", "trace-auditor.md");
+    // The operating-notes markdown is downloadable from the coaching plan.
+    const specLink = screen.getByRole("link", { name: /export spec/i });
+    expect(specLink).toHaveAttribute("download", "interviu-run_demo-AGENTS.md");
   });
 
   it("surfaces recommended helpers for a needs_subagents verdict", async () => {
@@ -411,33 +434,32 @@ describe("Interviu page", () => {
       ]
     };
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     const runButton = await screen.findByRole("button", { name: /run evaluation/i });
     await waitFor(() => expect(runButton).toBeEnabled());
     await user.click(runButton);
     await waitFor(() => expect(screen.getAllByText("Add helpers").length).toBeGreaterThan(0));
+    // The recommended helper is shown with a "rec" priority chip.
     expect(screen.getByText("rec")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /view plan/i }));
-    const recLink = await screen.findByRole("link", { name: /fairness\.md/ });
-    expect(recLink).toHaveAttribute("download", "fairness.md");
+    expect(screen.getAllByText("Fairness Counterfactual Checker").length).toBeGreaterThan(0);
   });
 
-  it("runs OpenAI research and shows the result in the drawer", async () => {
+  it("runs OpenAI research and opens the trace inspector", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     const runButton = await screen.findByRole("button", { name: /run evaluation/i });
     await waitFor(() => expect(runButton).toBeEnabled());
     await user.click(runButton);
     await waitFor(() => expect(screen.getAllByText("Ready to ship").length).toBeGreaterThan(0));
     await user.click(screen.getByRole("button", { name: /^openai research$/i }));
-    expect(await screen.findByText("A compliance-first, auditable HR screening agent.")).toBeInTheDocument();
-    expect(screen.getByText("Research brief")).toBeInTheDocument();
-    expect(screen.getByText(/minimize sensitive data/)).toBeInTheDocument();
+    // Research success opens the trace inspector and tags it with the research mode.
+    expect(await screen.findByText(/Research: fast/i)).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /trace inspector/i })).toBeInTheDocument();
   });
 
   it("starts a demo run and shows TraceRazor output", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     const runButton = await screen.findByRole("button", { name: /run evaluation/i });
     await waitFor(() => expect(runButton).toBeEnabled());
     await user.click(runButton);
@@ -447,7 +469,7 @@ describe("Interviu page", () => {
 
   it("prepares an exam-pack export", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     await user.click(await screen.findByText("Exam export"));
     await screen.findByRole("button", { name: /prepare export/i });
     await user.click(screen.getByRole("button", { name: /prepare export/i }));
@@ -456,7 +478,7 @@ describe("Interviu page", () => {
 
   it("writes Hugging Face-ready exam files", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     await user.click(await screen.findByText("Exam export"));
     await screen.findByRole("button", { name: /write files/i });
     await user.click(screen.getByRole("button", { name: /write files/i }));
@@ -466,7 +488,7 @@ describe("Interviu page", () => {
 
   it("registers an HTTP candidate from the dock", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     fireEvent.click(await screen.findByText("Add HTTP candidate"));
     await screen.findByLabelText(/^name$/i);
     fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: "Webhook Candidate" } });
@@ -486,8 +508,7 @@ describe("Interviu page", () => {
   });
 
   it("fills the local HTTP starter candidate", async () => {
-    const user = userEvent.setup();
-    render(<Home />);
+    renderHome();
     fireEvent.click(await screen.findByText("Add HTTP candidate"));
     fireEvent.click(screen.getByRole("button", { name: /use local starter/i }));
 
@@ -498,8 +519,9 @@ describe("Interviu page", () => {
 
   it("updates the room when an adversarial pack is selected", async () => {
     const user = userEvent.setup();
-    render(<Home />);
-    await screen.findByLabelText(/exam pack/i);
+    renderHome();
+    // Wait for the exam packs query to populate the select options.
+    await screen.findByRole("option", { name: /Adversarial HR screening/i });
     await user.selectOptions(screen.getByLabelText(/exam pack/i), "hr-injection-v1");
     expect(screen.getAllByText("Adversarial HR screening").length).toBeGreaterThan(0);
   });

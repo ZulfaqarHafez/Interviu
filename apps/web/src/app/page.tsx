@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   AlertTriangle,
@@ -12,27 +13,92 @@ import {
   Plus,
   RefreshCw,
   Save,
-  ShieldCheck,
-  Sparkles,
-  X
+  Sparkles
 } from "lucide-react";
 import { interviuApi } from "@/lib/api";
-import type { AgentResearch, AgentSpec, CandidateConfig, Connector, ConnectorProbe, DatabaseHealth, ExamPack, ExamPackExport, ExamPackFileExport, JobScope, ProductReview, ProductReviewer, ProofBundle, RoleAnalysis, RunEvent, RunRecord, Scorecard, TracePayload } from "@/types/interviu";
-
-type LoadState = "idle" | "loading" | "running" | "complete" | "error";
+import {
+  useCandidates,
+  useConnectorProbes,
+  useConnectors,
+  useDatabaseHealth,
+  useExamPacks,
+  useHealth,
+  useRuns
+} from "@/lib/queries";
+import { useRunStream } from "@/lib/useRunStream";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import {
+  buildReviewers,
+  buildRoster,
+  buildWorkflow,
+  candidateDockSprite,
+  connectorIcon,
+  errorMessage,
+  idleSpriteForPack,
+  labelize,
+  maxTransferGap,
+  readinessLabel,
+  readinessSprite,
+  refineryHeroClass,
+  runSprite,
+  traceAuditStatus,
+  traceScoreLabel,
+  traceStatus,
+  type LoadState
+} from "@/lib/derive";
+import TraceDrawer from "@/components/trace/TraceDrawer";
+import CompetencyRadar from "@/components/scorecard/CompetencyRadar";
+import RunStateMachine from "@/components/run/RunStateMachine";
+import EmptyState from "@/components/onboarding/EmptyState";
+import ProgressTrend from "@/components/progress/ProgressTrend";
+import DiagnosticLibrary from "@/components/library/DiagnosticLibrary";
+import RunComparison from "@/components/scorecard/RunComparison";
+import type {
+  AgentResearch,
+  AgentSpec,
+  CandidateConfig,
+  ExamPackExport,
+  ExamPackFileExport,
+  JobScope,
+  ProductReview,
+  ProofBundle,
+  RoleAnalysis,
+  RunEvent,
+  RunRecord,
+  Scorecard,
+  TracePayload
+} from "@/types/interviu";
 
 export default function Home() {
-  const [health, setHealth] = useState<{ ok: boolean; tracerazor_importable: boolean; database_backend?: string } | null>(null);
-  const [databaseHealth, setDatabaseHealth] = useState<DatabaseHealth | null>(null);
-  const [examPacks, setExamPacks] = useState<ExamPack[]>([]);
+  // Boot data via TanStack Query (cache, retry, dedupe handled by the client).
+  const healthQuery = useHealth();
+  const databaseHealthQuery = useDatabaseHealth();
+  const examPacksQuery = useExamPacks();
+  const connectorsQuery = useConnectors();
+  const connectorProbesQuery = useConnectorProbes();
+  const candidatesQuery = useCandidates();
+  const runsQuery = useRuns();
+
+  const health = healthQuery.data ?? null;
+  const databaseHealth = databaseHealthQuery.data ?? null;
+  const examPacks = useMemo(() => examPacksQuery.data ?? [], [examPacksQuery.data]);
+  const connectors = useMemo(() => connectorsQuery.data ?? [], [connectorsQuery.data]);
+  const connectorProbes = useMemo(() => connectorProbesQuery.data ?? [], [connectorProbesQuery.data]);
+  const candidates = useMemo(() => candidatesQuery.data ?? [], [candidatesQuery.data]);
+  const recentRuns = useMemo(() => runsQuery.data ?? [], [runsQuery.data]);
+
+  const bootLoading =
+    healthQuery.isLoading ||
+    examPacksQuery.isLoading ||
+    candidatesQuery.isLoading ||
+    runsQuery.isLoading;
+
+  // Run-scoped state set imperatively once a run resolves.
   const [selectedExamPackId, setSelectedExamPackId] = useState("hr-v1");
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [examPackExport, setExamPackExport] = useState<ExamPackExport | null>(null);
   const [examPackFileExport, setExamPackFileExport] = useState<ExamPackFileExport | null>(null);
-  const [connectors, setConnectors] = useState<Connector[]>([]);
-  const [connectorProbes, setConnectorProbes] = useState<ConnectorProbe[]>([]);
-  const [recentRuns, setRecentRuns] = useState<RunRecord[]>([]);
-  const [candidates, setCandidates] = useState<CandidateConfig[]>([]);
-  const [candidate, setCandidate] = useState<CandidateConfig | null>(null);
+  const [extraCandidates, setExtraCandidates] = useState<CandidateConfig[]>([]);
   const [candidateName, setCandidateName] = useState("HTTP Candidate");
   const [candidateEndpoint, setCandidateEndpoint] = useState("");
   const [candidateModel, setCandidateModel] = useState("");
@@ -49,14 +115,72 @@ export default function Home() {
   const [jobScopeText, setJobScopeText] = useState("");
   const [roleAnalysis, setRoleAnalysis] = useState<RoleAnalysis | null>(null);
   const [roleBusy, setRoleBusy] = useState(false);
-  const [state, setState] = useState<LoadState>("loading");
   const [error, setError] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [httpCandidateOpen, setHttpCandidateOpen] = useState(false);
 
+  const runStream = useRunStream();
+
+  // Merge server candidates with any registered locally this session.
+  const allCandidates = useMemo(() => {
+    const seen = new Set<string>();
+    const merged: CandidateConfig[] = [];
+    for (const item of [...extraCandidates, ...candidates]) {
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      merged.push(item);
+    }
+    return merged;
+  }, [extraCandidates, candidates]);
+
+  const candidate = useMemo(() => {
+    if (selectedCandidateId) {
+      const match = allCandidates.find((item) => item.id === selectedCandidateId);
+      if (match) return match;
+    }
+    return allCandidates.find((item) => item.adapter_type === "mock") ?? allCandidates[0] ?? null;
+  }, [selectedCandidateId, allCandidates]);
+
+  // Map run-stream lifecycle onto the legacy LoadState the derive helpers expect.
+  const state: LoadState = useMemo(() => {
+    if (runStream.status === "queued" || runStream.status === "running") return "running";
+    if (error || runStream.status === "failed") return "error";
+    if (scorecard) return "complete";
+    if (bootLoading) return "loading";
+    return "idle";
+  }, [runStream.status, error, scorecard, bootLoading]);
+
+  const isRunning = state === "running";
+
+  // When the stream completes, capture the scorecard and load the run artifacts.
   useEffect(() => {
-    void loadBoot();
-  }, []);
+    if (runStream.status !== "completed" || !runStream.scorecard) return;
+    const completedScorecard = runStream.scorecard;
+    setScorecard(completedScorecard);
+    void hydrateRunArtifacts(completedScorecard.run_id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runStream.status, runStream.scorecard]);
+
+  // Surface stream failures in the existing error channel.
+  useEffect(() => {
+    if (runStream.status === "failed" && runStream.error) {
+      setError(runStream.error);
+    }
+  }, [runStream.status, runStream.error]);
+
+  // Keep the live events in sync with the stream while running.
+  useEffect(() => {
+    if (isRunning && runStream.events.length) {
+      setEvents(runStream.events);
+    }
+  }, [isRunning, runStream.events]);
+
+  // Default the selected pack to a valid one once packs load.
+  useEffect(() => {
+    if (examPacks.length && !examPacks.some((pack) => pack.id === selectedExamPackId)) {
+      setSelectedExamPackId(examPacks[0].id);
+    }
+  }, [examPacks, selectedExamPackId]);
 
   const latestCompetency = useMemo(() => {
     const graded = [...events].reverse().find((event) => event.event_type === "response_graded");
@@ -66,7 +190,7 @@ export default function Home() {
   const passValues = Object.values(scorecard?.pass_at_k ?? {});
   const passedCount = passValues.filter(Boolean).length;
   const runLabel = scorecard?.certified ? "Passed" : scorecard ? "Needs review" : run?.status ?? "Ready";
-  const spriteKind = state === "running"
+  const spriteKind = isRunning
     ? "candidate-review"
     : scorecard?.certified
       ? "candidate-approved"
@@ -77,11 +201,6 @@ export default function Home() {
   const totalCount = passValues.length || (selectedExamPack?.items.length ?? 5);
   const probeById = useMemo(() => Object.fromEntries(connectorProbes.map((probe) => [probe.id, probe])), [connectorProbes]);
   const activationItems = useMemo(() => connectorProbes.filter((probe) => probe.status !== "pass").slice(0, 5), [connectorProbes]);
-  const proofBundleHref = useMemo(
-    () => (proofBundle ? `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(proofBundle, null, 2))}` : null),
-    [proofBundle]
-  );
-  const proofBundleFilename = proofBundle ? `interviu-${proofBundle.run.id}-proof-bundle.json` : "interviu-proof-bundle.json";
   const examExportRows = examPackExport?.huggingface.files["data/interviu_exam_rows.jsonl"] ?? [];
   const examExportHref = examPackExport
     ? `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(examPackExport, null, 2))}`
@@ -95,8 +214,8 @@ export default function Home() {
     return counts;
   }, [events]);
   const roster = useMemo(
-    () => buildRoster(state === "running", rosterCounts, scorecard, selectedExamPack?.simulator_model),
-    [state, rosterCounts, scorecard, selectedExamPack?.simulator_model]
+    () => buildRoster(isRunning, rosterCounts, scorecard, selectedExamPack?.simulator_model),
+    [isRunning, rosterCounts, scorecard, selectedExamPack?.simulator_model]
   );
   const workflow = useMemo(
     () => buildWorkflow(state, scorecard, agentSpec, roleAnalysis, passedCount, totalCount),
@@ -112,48 +231,23 @@ export default function Home() {
   );
   const agentMarkdownFilename = agentSpec ? `interviu-${agentSpec.run_id}-AGENTS.md` : "AGENTS.md";
 
-  async function loadBoot() {
-    setState("loading");
+  const hasAnyData = allCandidates.length > 0 || recentRuns.length > 0 || run !== null;
+  const showEmptyState = !bootLoading && !hasAnyData && !isRunning;
+
+  function refreshBoot() {
     setError(null);
-    try {
-      const [healthPayload, dbHealthPayload, packsPayload, connectorsPayload, probePayload, candidatesPayload, runsPayload] = await Promise.all([
-        interviuApi.health(),
-        interviuApi.databaseHealth(),
-        interviuApi.examPacks(),
-        interviuApi.connectors(),
-        interviuApi.connectorProbes(),
-        interviuApi.candidates(),
-        interviuApi.runs()
-      ]);
-      setHealth(healthPayload);
-      setDatabaseHealth(dbHealthPayload);
-      setExamPacks(packsPayload);
-      if (packsPayload.length && !packsPayload.some((pack) => pack.id === selectedExamPackId)) {
-        setSelectedExamPackId(packsPayload[0].id);
-      }
-      setConnectors(connectorsPayload);
-      setConnectorProbes(probePayload);
-      setRecentRuns(runsPayload);
-      setCandidates(candidatesPayload);
-      setCandidate((currentCandidate) => {
-        const stillAvailable = currentCandidate ? candidatesPayload.find((item) => item.id === currentCandidate.id) : null;
-        return stillAvailable ?? candidatesPayload.find((item) => item.adapter_type === "mock") ?? candidatesPayload[0] ?? null;
-      });
-      setState("idle");
-    } catch (exc) {
-      setError(errorMessage(exc));
-      setState("error");
-    }
+    void healthQuery.refetch();
+    void databaseHealthQuery.refetch();
+    void examPacksQuery.refetch();
+    void connectorsQuery.refetch();
+    void connectorProbesQuery.refetch();
+    void candidatesQuery.refetch();
+    void runsQuery.refetch();
   }
 
-  async function refreshConnectorProbes() {
+  function refreshConnectorProbes() {
     setError(null);
-    try {
-      const probePayload = await interviuApi.connectorProbes();
-      setConnectorProbes(probePayload);
-    } catch (exc) {
-      setError(errorMessage(exc));
-    }
+    void connectorProbesQuery.refetch();
   }
 
   async function prepareExamPackExport(packId = selectedExamPackId) {
@@ -186,17 +280,15 @@ export default function Home() {
     setError(null);
     try {
       const createdCandidate = await interviuApi.createCandidate({
-          name: candidateName.trim() || "HTTP Candidate",
+        name: candidateName.trim() || "HTTP Candidate",
         adapter_type: "http",
         endpoint_url: endpoint,
         model: candidateModel.trim() || null,
         metadata: { source: "web-candidate-dock" }
       });
-      setCandidates((currentCandidates) => [
-        createdCandidate,
-        ...currentCandidates.filter((item) => item.id !== createdCandidate.id)
-      ]);
-      setCandidate(createdCandidate);
+      setExtraCandidates((current) => [createdCandidate, ...current.filter((item) => item.id !== createdCandidate.id)]);
+      setSelectedCandidateId(createdCandidate.id);
+      void candidatesQuery.refetch();
       setCandidateEndpoint("");
       setHttpCandidateOpen(false);
     } catch (exc) {
@@ -211,9 +303,7 @@ export default function Home() {
     setError(null);
   }
 
-  async function startDemoRun() {
-    setState("running");
-    setError(null);
+  function resetRunArtifacts() {
     setEvents([]);
     setScorecard(null);
     setTrace(null);
@@ -222,31 +312,15 @@ export default function Home() {
     setAgentSpec(null);
     setAgentExport(null);
     setAgentResearch(null);
+  }
+
+  async function hydrateRunArtifacts(runId: string) {
     try {
-      const activeCandidate =
-        candidate ??
-        (await interviuApi.createCandidate({
-          name: "Demo Candidate",
-          adapter_type: "mock",
-          metadata: { source: "web" }
-        }));
-      setCandidate(activeCandidate);
-      setCandidates((currentCandidates) => [
-        activeCandidate,
-        ...currentCandidates.filter((item) => item.id !== activeCandidate.id)
-      ]);
-      const jobScope = jobScopeText.trim() ? buildJobScope(jobScopeText.trim()) : null;
-      const createdRun = await interviuApi.createRun(activeCandidate.id, selectedExamPack?.id ?? selectedExamPackId ?? "hr-v1", jobScope);
-      setRun(createdRun);
-      const result = await interviuApi.startRun(createdRun.id);
-      setScorecard(result);
-      setState("complete");
-      const [eventPayload, tracePayload, bundlePayload, reviewPayload, runsPayload] = await Promise.all([
-        interviuApi.events(createdRun.id),
-        interviuApi.trace(createdRun.id),
-        interviuApi.proofBundle(createdRun.id),
-        interviuApi.reviewers(createdRun.id),
-        interviuApi.runs()
+      const [eventPayload, tracePayload, bundlePayload, reviewPayload] = await Promise.all([
+        interviuApi.events(runId),
+        interviuApi.trace(runId),
+        interviuApi.proofBundle(runId),
+        interviuApi.reviewers(runId)
       ]);
       setEvents(eventPayload);
       setTrace(tracePayload);
@@ -254,17 +328,48 @@ export default function Home() {
       setProductReview(reviewPayload);
       setAgentSpec(bundlePayload.agent_spec ?? null);
       setRoleAnalysis(bundlePayload.role_analysis ?? null);
-      setRecentRuns(runsPayload);
-      setState("complete");
+      void runsQuery.refetch();
     } catch (exc) {
       setError(errorMessage(exc));
-      setState("error");
     }
   }
 
-  async function loadPersistedRun(runId: string) {
-    setState("loading");
+  async function startDemoRun() {
     setError(null);
+    resetRunArtifacts();
+    runStream.reset();
+    try {
+      let activeCandidate = candidate;
+      if (!activeCandidate) {
+        activeCandidate = await interviuApi.createCandidate({
+          name: "Demo Candidate",
+          adapter_type: "mock",
+          metadata: { source: "web" }
+        });
+        setExtraCandidates((current) => [activeCandidate as CandidateConfig, ...current]);
+        setSelectedCandidateId(activeCandidate.id);
+        void candidatesQuery.refetch();
+      }
+      const jobScope = jobScopeText.trim() ? buildJobScope(jobScopeText.trim()) : null;
+      const createdRun = await interviuApi.createRun(
+        activeCandidate.id,
+        selectedExamPack?.id ?? selectedExamPackId ?? "hr-v1",
+        jobScope
+      );
+      setRun(createdRun);
+      runStream.start(createdRun.id, { k: createdRun.k, itemCount: selectedExamPack?.items.length });
+    } catch (exc) {
+      setError(errorMessage(exc));
+    }
+  }
+
+  function cancelRun() {
+    runStream.cancel();
+  }
+
+  async function loadPersistedRun(runId: string) {
+    setError(null);
+    runStream.reset();
     try {
       const [tracePayload, bundlePayload, reviewPayload] = await Promise.all([
         interviuApi.trace(runId),
@@ -272,12 +377,10 @@ export default function Home() {
         interviuApi.reviewers(runId)
       ]);
       setRun(bundlePayload.run);
-      setCandidate(bundlePayload.candidate);
       if (bundlePayload.candidate) {
-        setCandidates((currentCandidates) => [
-          bundlePayload.candidate as CandidateConfig,
-          ...currentCandidates.filter((item) => item.id !== bundlePayload.candidate?.id)
-        ]);
+        const loadedCandidate = bundlePayload.candidate;
+        setExtraCandidates((current) => [loadedCandidate, ...current.filter((item) => item.id !== loadedCandidate.id)]);
+        setSelectedCandidateId(loadedCandidate.id);
       }
       setScorecard(bundlePayload.scorecard);
       setEvents(tracePayload.events);
@@ -289,10 +392,8 @@ export default function Home() {
       setAgentExport(null);
       setAgentResearch(null);
       setDrawerOpen(true);
-      setState("complete");
     } catch (exc) {
       setError(errorMessage(exc));
-      setState("error");
     }
   }
 
@@ -408,6 +509,9 @@ export default function Home() {
     }
   }
 
+  const comparisonBaseline = scorecard?.prior_run_id ?? run?.id ?? null;
+  const activeRunId = scorecard?.run_id ?? run?.id ?? null;
+
   return (
     <main className="app-shell">
       <section className="arena-band workbench" aria-label="Interviu evaluation workspace">
@@ -420,7 +524,8 @@ export default function Home() {
             </div>
           </div>
           <div className="toolbar">
-            <button className="icon-button" type="button" title="Refresh" onClick={loadBoot}>
+            <ThemeToggle />
+            <button className="icon-button" type="button" title="Refresh" onClick={refreshBoot}>
               <RefreshCw size={18} />
             </button>
             <button className="icon-button" type="button" title="Probe connectors" onClick={refreshConnectorProbes}>
@@ -432,17 +537,32 @@ export default function Home() {
             <button className="icon-button" type="button" title="Export proof bundle" onClick={exportProofBundle}>
               <Save size={18} />
             </button>
-            <button className="command-button primary" type="button" onClick={startDemoRun} disabled={state === "running" || state === "loading"}>
+            <button className="command-button primary" type="button" onClick={startDemoRun} disabled={isRunning || bootLoading}>
               <Play size={18} />
               Run evaluation
             </button>
           </div>
         </div>
 
+        {showEmptyState ? (
+          <section className="panel-section" aria-label="get started" style={{ borderBottom: "none" }}>
+            <EmptyState
+              examPackId={selectedExamPackId}
+              onRunComplete={(completedRun, completedScorecard) => {
+                setRun(completedRun);
+                setSelectedCandidateId(completedRun.candidate_id);
+                setScorecard(completedScorecard);
+                void candidatesQuery.refetch();
+                void hydrateRunArtifacts(completedRun.id);
+              }}
+            />
+          </section>
+        ) : null}
+
         <div className="cockpit-grid">
           <section className="run-brief" aria-label="current evaluation">
             <div className="run-brief-copy">
-              <span className={`eyebrow ${state === "running" ? "live" : ""}`}>{state === "running" ? "Running" : runLabel}</span>
+              <span className={`eyebrow ${isRunning ? "live" : ""}`}>{isRunning ? "Running" : runLabel}</span>
               <h2>{candidate?.name ?? "Demo Candidate"}</h2>
               <p>{selectedExamPack?.name ?? "HR screening reliability"}</p>
               <div className="brief-tags" aria-label="evaluation context">
@@ -452,7 +572,7 @@ export default function Home() {
               </div>
             </div>
             <div className="candidate-zone compact">
-              <div className={`sprite-sheet hero-sprite sprite-${spriteKind} ${state === "running" ? "thinking" : ""}`} aria-hidden="true" />
+              <div className={`sprite-sheet hero-sprite sprite-${spriteKind} ${isRunning ? "thinking" : ""}`} aria-hidden="true" />
             </div>
           </section>
 
@@ -466,7 +586,7 @@ export default function Home() {
           <section className="evidence-panel" aria-label="evaluation evidence">
             <div className="panel-head">
               <span className="roster-title">
-                <Bot size={16} /> Evaluation panel {state === "running" ? "working" : scorecard ? "complete" : "ready"}
+                <Bot size={16} /> Evaluation panel {isRunning ? "working" : scorecard ? "complete" : "ready"}
               </span>
               <div className="badges" aria-label="pass at k progress">
                 {Array.from({ length: totalCount }).map((_, index) => {
@@ -529,6 +649,28 @@ export default function Home() {
           </section>
         </div>
 
+        {(isRunning || runStream.status === "failed" || runStream.status === "canceled") && (
+          <section className="panel-section" aria-label="run progress" style={{ borderBottom: "none" }}>
+            <RunStateMachine
+              status={runStream.status}
+              progress={runStream.progress}
+              gradedCount={runStream.gradedCount}
+              totalExpected={runStream.totalExpected}
+              events={runStream.events}
+              onCancel={cancelRun}
+            />
+          </section>
+        )}
+
+        {activeRunId || candidate ? (
+          <section className="learning-surfaces" aria-label="learning surfaces">
+            <CompetencyRadar scorecard={scorecard} />
+            <RunComparison runId={activeRunId} baseline={comparisonBaseline ?? undefined} />
+            <ProgressTrend candidateId={candidate?.id ?? null} />
+            <DiagnosticLibrary candidateId={candidate?.id ?? null} examPackId={selectedExamPackId} />
+          </section>
+        ) : null}
+
         <div className="status-strip">
           <Metric label="Run" value={run?.id ?? "Not started"} />
           <Metric label="Checks" value={`${passedCount}/${totalCount}`} />
@@ -554,12 +696,10 @@ export default function Home() {
             <span>Candidate</span>
             <select
               value={candidate?.id ?? ""}
-              onChange={(event) => {
-                setCandidate(candidates.find((item) => item.id === event.target.value) ?? null);
-              }}
+              onChange={(event) => setSelectedCandidateId(event.target.value || null)}
             >
-              {candidates.length ? (
-                candidates.map((item) => (
+              {allCandidates.length ? (
+                allCandidates.map((item) => (
                   <option value={item.id} key={item.id}>{item.name} / {item.adapter_type}</option>
                 ))
               ) : (
@@ -705,15 +845,7 @@ export default function Home() {
             <span>{scorecard?.certified ? "Passed" : scorecard ? "Needs review" : "Not run yet"}</span>
             {scorecard?.certified ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
           </div>
-          {Object.entries(scorecard?.competency_scores ?? emptyCompetencies(selectedExamPack)).slice(0, 5).map(([name, value]) => (
-            <div className="bar-row" key={name}>
-              <span>{labelize(name)}</span>
-              <div className="bar-track" aria-label={`${name} score`}>
-                <div className="bar-fill" style={{ width: `${Math.round(value * 100)}%` }} />
-              </div>
-              <strong>{Math.round(value * 100)}</strong>
-            </div>
-          ))}
+          <CompetencyRadar scorecard={scorecard} />
         </section>
 
         <section className="panel-section">
@@ -893,14 +1025,24 @@ export default function Home() {
           <summary>Recent runs</summary>
           {recentRuns.length ? (
             recentRuns.slice(0, 5).map((item) => (
-              <button className="ledger-row" type="button" key={item.id} onClick={() => loadPersistedRun(item.id)}>
-                <span className={`sprite-sheet mini-sprite sheet-runs sprite-${runSprite(item.status)}`} aria-hidden="true" />
-                <span>
-                  <strong>{item.id}</strong>
-                  <small>{item.status} / {item.exam_pack_id}</small>
-                </span>
-                <span>{item.k}x</span>
-              </button>
+              <div className="ledger-row-group" key={item.id} style={{ display: "flex", alignItems: "stretch", gap: 6 }}>
+                <button className="ledger-row" type="button" style={{ flex: 1 }} onClick={() => loadPersistedRun(item.id)}>
+                  <span className={`sprite-sheet mini-sprite sheet-runs sprite-${runSprite(item.status)}`} aria-hidden="true" />
+                  <span>
+                    <strong>{item.id}</strong>
+                    <small>{item.status} / {item.exam_pack_id}</small>
+                  </span>
+                  <span>{item.k}x</span>
+                </button>
+                <Link
+                  className="icon-button"
+                  href={`/runs/${item.id}`}
+                  title={`Open run ${item.id} in its own page`}
+                  aria-label={`Open run ${item.id}`}
+                >
+                  <PanelRightOpen size={16} />
+                </Link>
+              </div>
             ))
           ) : (
             <div className="connector-row">No stored runs yet</div>
@@ -966,25 +1108,16 @@ export default function Home() {
         ) : null}
       </aside>
 
-      {drawerOpen && (
-        <TraceDrawer
-          events={events}
-          trace={trace}
-          scorecard={scorecard}
-          proofBundle={proofBundle}
-          proofBundleHref={proofBundleHref}
-          proofBundleFilename={proofBundleFilename}
-          databaseHealth={databaseHealth}
-          agentSpec={agentSpec}
-          agentMarkdownHref={agentMarkdownHref}
-          agentMarkdownFilename={agentMarkdownFilename}
-          agentExport={agentExport}
-          agentResearch={agentResearch}
-          onWriteAgentFiles={writeAgentSpecFiles}
-          onExport={exportProofBundle}
-          onClose={() => setDrawerOpen(false)}
-        />
-      )}
+      <TraceDrawer
+        events={events}
+        trace={trace}
+        scorecard={scorecard}
+        proofBundle={proofBundle}
+        agentSpec={agentSpec}
+        agentResearch={agentResearch}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
     </main>
   );
 }
@@ -1007,456 +1140,6 @@ function MetricTile({ label, value, tone = "neutral" }: { label: string; value: 
   );
 }
 
-function TraceDrawer({
-  events,
-  trace,
-  scorecard,
-  proofBundle,
-  proofBundleHref,
-  proofBundleFilename,
-  databaseHealth,
-  agentSpec,
-  agentMarkdownHref,
-  agentMarkdownFilename,
-  agentExport,
-  agentResearch,
-  onWriteAgentFiles,
-  onExport,
-  onClose
-}: {
-  events: RunEvent[];
-  trace: TracePayload | null;
-  scorecard: Scorecard | null;
-  proofBundle: ProofBundle | null;
-  proofBundleHref: string | null;
-  proofBundleFilename: string;
-  databaseHealth: DatabaseHealth | null;
-  agentSpec: AgentSpec | null;
-  agentMarkdownHref: string | null;
-  agentMarkdownFilename: string;
-  agentExport: { run_id: string; directory: string; sub_agent_count: number } | null;
-  agentResearch: AgentResearch | null;
-  onWriteAgentFiles: () => void;
-  onClose: () => void;
-  onExport: () => void;
-}) {
-  const audit = scorecard?.trace_audit;
-  return (
-    <aside className="drawer" aria-label="trace drawer">
-      <div className="drawer-header">
-        <div>
-          <h2 className="section-title">Trace</h2>
-          <strong>{trace?.run_id ?? "No run selected"}</strong>
-        </div>
-        <div className="drawer-actions">
-          {proofBundleHref ? (
-            <a className="icon-button" title="Download proof bundle" href={proofBundleHref} download={proofBundleFilename}>
-              <Save size={18} />
-            </a>
-          ) : (
-            <button className="icon-button" type="button" title="Export proof bundle" onClick={onExport}>
-              <Save size={18} />
-            </button>
-          )}
-          <button className="icon-button" type="button" title="Close trace drawer" onClick={onClose}>
-            <X size={18} />
-          </button>
-        </div>
-      </div>
-      <div className="connector-row">
-        <span><Activity size={16} /> TraceRazor {audit?.status ?? "pending"}</span>
-        <strong>{audit?.grade ?? "no grade"}</strong>
-      </div>
-      <div className="connector-row">
-        <span><ShieldCheck size={16} /> transfer_gap</span>
-        <strong>{scorecard ? maxTransferGap(scorecard).toFixed(2) : "0.00"}</strong>
-      </div>
-      <div className="connector-row">
-        <span>Database health</span>
-        <strong>{databaseHealth?.backend ?? "unknown"} / {databaseHealth?.ok ? "ok" : "pending"}</strong>
-      </div>
-      <div className="connector-row">
-        <span>Proof bundle</span>
-        <strong>{proofBundle ? `${proofBundle.summary.event_count} spans` : "not exported"}</strong>
-      </div>
-      {agentSpec && (
-        <section className="drawer-refinery">
-          <div className="drawer-refinery-head">
-            <span className="refinery-verdict">
-              <Sparkles size={16} /> Coaching plan / {readinessLabel(agentSpec.readiness)}
-            </span>
-            <div className="drawer-actions">
-              {agentMarkdownHref && (
-                <a className="icon-button" title="Download operating notes" href={agentMarkdownHref} download={agentMarkdownFilename}>
-                  <Save size={18} />
-                </a>
-              )}
-              <button className="icon-button" type="button" title="Write coaching files" onClick={onWriteAgentFiles}>
-                <Bot size={18} />
-              </button>
-            </div>
-          </div>
-          <p className="refinery-headline">{agentSpec.headline}</p>
-          {agentSpec.tracerazor_actions.length > 0 && (
-            <ul className="refinery-actions">
-              {agentSpec.tracerazor_actions.map((action, index) => (
-                <li key={`${index}-${action}`}>{action}</li>
-              ))}
-            </ul>
-          )}
-          {agentSpec.sub_agents.length > 0 && (
-            <div className="subagent-grid">
-              {agentSpec.sub_agents.map((sub) => (
-                <article className="subagent-card" key={sub.id}>
-                  <header>
-                    <span className={`sprite-sheet mini-sprite sprite-${sub.sprite}`} aria-hidden="true" />
-                    <span>
-                      <strong>{sub.name}</strong>
-                      <small>{sub.role}</small>
-                    </span>
-                    <span className={`pill ${sub.priority === "recommended" ? "ready" : "planned"}`}>{sub.priority}</span>
-                  </header>
-                  <p>{sub.trigger}</p>
-                  <div className="subagent-meta">
-                    <span>{sub.focus}</span>
-                    <span>{sub.tools.join(", ") || "no extra tools"}</span>
-                  </div>
-                  <a
-                    className="command-button"
-                    href={`data:text/markdown;charset=utf-8,${encodeURIComponent(sub.definition_markdown)}`}
-                    download={`${sub.id}.md`}
-                  >
-                    <Save size={16} />
-                    {sub.id}.md
-                  </a>
-                </article>
-              ))}
-            </div>
-          )}
-          <details className="quiet-details drawer-md">
-            <summary>Operating notes</summary>
-            <pre>{agentSpec.agent_markdown}</pre>
-          </details>
-          {agentExport && (
-            <div className="artifact-card">
-              <span>Agent export</span>
-              <strong>{agentExport.sub_agent_count} helper files</strong>
-              <small>{agentExport.directory}</small>
-            </div>
-          )}
-        </section>
-      )}
-      {agentResearch && (
-        <section className="drawer-research">
-          <div className="drawer-refinery-head">
-            <span className="refinery-verdict">
-              <Sparkles size={16} /> OpenAI research ({agentResearch.mode})
-            </span>
-            <span className="pill ready">{agentResearch.model ?? agentResearch.status}</span>
-          </div>
-          {agentResearch.status !== "ok" ? (
-            <p className="error-text">{agentResearch.status}: {agentResearch.message}</p>
-          ) : (
-            <>
-              <p className="refinery-headline">{agentResearch.summary}</p>
-              {agentResearch.recommended_tools.length > 0 && (
-                <div className="connector-row">
-                  <span>Tools</span>
-                  <strong>{agentResearch.recommended_tools.join(", ")}</strong>
-                </div>
-              )}
-              {agentResearch.recommended_subagents.length > 0 && (
-                <div className="subagent-grid">
-                  {agentResearch.recommended_subagents.map((idea) => (
-                    <article className="subagent-card" key={idea.name}>
-                      <header>
-                        <span className="sprite-sheet mini-sprite sprite-candidate" aria-hidden="true" />
-                        <span>
-                          <strong>{idea.name}</strong>
-                          <small>{idea.purpose}</small>
-                        </span>
-                      </header>
-                    </article>
-                  ))}
-                </div>
-              )}
-              {agentResearch.risks.length > 0 && (
-                <ul className="refinery-actions">
-                  {agentResearch.risks.map((risk, index) => (
-                    <li key={`${index}-${risk}`}>{risk}</li>
-                  ))}
-                </ul>
-              )}
-              {agentResearch.sources.length > 0 && (
-                <div className="research-sources">
-                  <span className="section-title">Sources</span>
-                  {agentResearch.sources.map((source) => (
-                    <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-                      {source.title || source.url}
-                    </a>
-                  ))}
-                </div>
-              )}
-              <details className="quiet-details drawer-md">
-                <summary>Research brief</summary>
-                <pre>{agentResearch.brief_markdown}</pre>
-              </details>
-            </>
-          )}
-        </section>
-      )}
-      {(events.length ? events : trace?.events ?? []).map((event) => (
-        <article className="event-row" key={event.span_id}>
-          <header>
-            <span>{event.sequence}. {event.actor} / {event.event_type}</span>
-            <span>{event.tracerazor_step_id ? `TR ${event.tracerazor_step_id}` : "span"}</span>
-          </header>
-          <pre>{JSON.stringify(event.payload, null, 2)}</pre>
-        </article>
-      ))}
-    </aside>
-  );
-}
-
-function emptyCompetencies(pack?: ExamPack): Record<string, number> {
-  const names = pack?.items.map((item) => item.competency) ?? [
-    "compliance",
-    "fairness",
-    "ambiguity_handling",
-    "refusal_boundaries",
-    "interview_ethics"
-  ];
-  return Object.fromEntries(Array.from(new Set(names)).map((name) => [name, 0]));
-}
-
-function idleSpriteForPack(packId: string) {
-  return packId.includes("injection") ? "candidate-proof" : "candidate-ready";
-}
-
-function labelize(value: string) {
-  return value
-    .replace(/_/g, " ")
-    .replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
-}
-
-function traceStatus(scorecard: Scorecard | null) {
-  if (!scorecard) {
-    return "pending";
-  }
-  const audit = scorecard.trace_audit;
-  return audit.tas_score === null || audit.tas_score === undefined
-    ? audit.status
-    : `${audit.tas_score.toFixed(0)} ${audit.grade ?? ""}`.trim();
-}
-
-function traceScoreLabel(scorecard: Scorecard | null) {
-  const audit = scorecard?.trace_audit;
-  if (!audit) return "Pending";
-  if (audit.tas_score !== null && audit.tas_score !== undefined) return audit.tas_score.toFixed(1);
-  if (audit.status === "error" || audit.status === "unavailable") return "Not scored";
-  if (audit.status === "insufficient_steps") return "Insufficient";
-  return "Pending";
-}
-
-function traceAuditStatus(scorecard: Scorecard | null, traceRazorImportable?: boolean) {
-  const status = scorecard?.trace_audit.status;
-  if (status) return labelize(status);
-  return traceRazorImportable ? "Ready" : "Unavailable";
-}
-
-function maxTransferGap(scorecard: Scorecard) {
-  return Math.max(0, ...Object.values(scorecard.transfer_gap));
-}
-
-function connectorIcon(id: string) {
-  if (id.includes("supabase")) return "sprite-supabase";
-  if (id.includes("hugging")) return "sprite-hugging-face";
-  if (id.includes("vercel")) return "sprite-vercel";
-  if (id.includes("trace")) return "sprite-tracerazor";
-  if (id.includes("http")) return "sprite-http-antenna";
-  if (id.includes("mcp")) return "sprite-mcp-plug";
-  if (id.includes("openai")) return "sprite-model-chip";
-  if (id.includes("local")) return "sprite-local-command";
-  return "sprite-candidate";
-}
-
-function candidateDockSprite(candidate: CandidateConfig | null) {
-  if (candidate?.adapter_type === "http") return "sprite-http-antenna";
-  if (candidate?.adapter_type === "mcp-server") return "sprite-mcp-plug";
-  if (candidate?.adapter_type === "local-command") return "sprite-local-command";
-  if (candidate?.adapter_type === "openai-compatible") return "sprite-model-chip";
-  return "sprite-candidate";
-}
-
-type WorkflowStage = {
-  key: string;
-  label: string;
-  meta: string;
-  sprite: string;
-  sheet: string;
-  state: "idle" | "active" | "done" | "attention";
-};
-
-function buildWorkflow(
-  state: LoadState,
-  scorecard: Scorecard | null,
-  agentSpec: AgentSpec | null,
-  roleAnalysis: RoleAnalysis | null,
-  passedCount: number,
-  totalCount: number
-): WorkflowStage[] {
-  const hasRun = scorecard !== null;
-  const hasCoaching = agentSpec !== null || roleAnalysis !== null;
-  return [
-    {
-      key: "prepare",
-      label: "Prepare",
-      meta: roleAnalysis ? `${roleAnalysis.requirements.length} role checks` : "candidate and role",
-      sprite: roleAnalysis ? "lesson-pinned" : "run-queued",
-      sheet: roleAnalysis ? "sheet-lessons" : "sheet-runs",
-      state: state === "idle" && !hasRun ? "active" : "done"
-    },
-    {
-      key: "evaluate",
-      label: "Evaluate",
-      meta: state === "running" ? "exam in progress" : hasRun ? `${passedCount}/${totalCount} checks` : "not started",
-      sprite: state === "running" ? "run-running" : hasRun ? "run-complete" : "timeline-node",
-      sheet: "sheet-runs",
-      state: state === "running" ? "active" : hasRun ? "done" : "idle"
-    },
-    {
-      key: "judge",
-      label: "Judge",
-      meta: scorecard ? (scorecard.certified ? "passed" : "needs review") : "waiting",
-      sprite: scorecard?.certified ? "grader-approve" : scorecard ? "grader-reject" : "grader-deliberating",
-      sheet: "sheet-judging",
-      state: scorecard ? (scorecard.certified ? "done" : "attention") : state === "running" ? "active" : "idle"
-    },
-    {
-      key: "teach",
-      label: "Teach",
-      meta: agentSpec ? readinessLabel(agentSpec.readiness) : "coaching next",
-      sprite: agentSpec ? "lesson-applied" : "lesson-book",
-      sheet: "sheet-lessons",
-      state: hasCoaching ? "done" : scorecard ? "active" : "idle"
-    }
-  ];
-}
-
-function buildReviewers(
-  state: LoadState,
-  scorecard: Scorecard | null,
-  health: { ok: boolean; tracerazor_importable: boolean; database_backend?: string } | null,
-  databaseHealth: DatabaseHealth | null,
-  proofBundle: ProofBundle | null
-): ProductReviewer[] {
-  const traceStatus = scorecard?.trace_audit.status;
-  const runtimeWarn = state === "error" || databaseHealth?.ok === false || traceStatus === "error";
-  const proofReady = scorecard?.certified && scorecard.trace_audit.status === "ok";
-  return [
-    {
-      key: "experience",
-      name: "UX reviewer",
-      summary: scorecard ? "workflow, score, and coaching are visible" : "room is ready for a first run",
-      sprite: "candidate-document",
-      status: scorecard ? "pass" : "wait",
-      label: scorecard ? "clear" : "ready",
-      evidence: []
-    },
-    {
-      key: "runtime",
-      name: "Runtime reviewer",
-      summary: runtimeWarn
-        ? traceStatus === "error"
-          ? "TraceRazor needs attention"
-          : "local service needs attention"
-        : `${health?.database_backend ?? "sqlite"} storage responding`,
-      sprite: runtimeWarn ? "candidate-alert" : "candidate-shield",
-      status: runtimeWarn ? "warn" : "pass",
-      label: runtimeWarn ? "check" : "stable",
-      evidence: []
-    },
-    {
-      key: "evidence",
-      name: "Evidence reviewer",
-      summary: proofReady
-        ? "proof bundle and audit passed"
-        : scorecard
-          ? "proof bundle records the review reasons"
-          : proofBundle
-            ? "proof bundle is available"
-            : "waiting for scorecard",
-      sprite: proofReady ? "candidate-approved" : scorecard ? "candidate-review" : "candidate-audit",
-      status: proofReady ? "pass" : scorecard ? "warn" : "wait",
-      label: proofReady ? "passed" : scorecard ? "review" : "waiting",
-      evidence: []
-    },
-  ];
-}
-
-type RosterAgent = {
-  key: string;
-  label: string;
-  sprite: string;
-  sheet: string;
-  state: "idle" | "active" | "done";
-  meta: string;
-  title: string;
-};
-
-function buildRoster(
-  running: boolean,
-  counts: Record<string, number>,
-  scorecard: Scorecard | null,
-  simulatorModel?: string
-): RosterAgent[] {
-  const roles: Array<{ key: string; label: string; sheet: string; actor: string; doneMeta: (count: number) => string }> = [
-    { key: "examiner", label: "Examiner", sheet: "", actor: "examiner", doneMeta: (count) => `${count} asked` },
-    { key: "grader", label: "Judge panel", sheet: "sheet-judging", actor: "grader_panel", doneMeta: (count) => `${count} graded` },
-    { key: "lessons", label: "Lessons", sheet: "sheet-lessons", actor: "lesson_library", doneMeta: (count) => `${count} kept` },
-    { key: "trace", label: "TraceRazor", sheet: "", actor: "trace_auditor", doneMeta: () => traceRosterMeta(scorecard) },
-    { key: "sim", label: "Simulator", sheet: "", actor: "system", doneMeta: () => (simulatorModel ? "scored" : "ready") }
-  ];
-  return roles.map((role) => {
-    const count = counts[role.actor] ?? 0;
-    const state: RosterAgent["state"] = running ? "active" : count > 0 ? "done" : "idle";
-    const meta = running ? "working" : count > 0 ? role.doneMeta(count) : "idle";
-    return {
-      key: role.key,
-      label: role.label,
-      sprite: rosterSprite(role.key, running, count, scorecard),
-      sheet: role.sheet,
-      state,
-      meta,
-      title: `${role.label}: ${meta}`
-    };
-  });
-}
-
-function rosterSprite(key: string, running: boolean, count: number, scorecard: Scorecard | null): string {
-  if (key === "grader") {
-    if (running) return "grader-deliberating";
-    if (scorecard?.certified) return "grader-approve";
-    if (scorecard) return "grader-reject";
-    return "grader-deliberating";
-  }
-  if (key === "lessons") {
-    if (running) return "new-lesson-stamp";
-    if (count > 4) return "library-many";
-    if (count > 0) return "library-few";
-    return "library-empty";
-  }
-  const map: Record<string, string> = { examiner: "domain", trace: "tracerazor", sim: "simulator" };
-  return map[key] ?? "candidate";
-}
-
-function runSprite(status: string): string {
-  if (status === "running") return "run-running";
-  if (status === "completed") return "run-complete";
-  if (status === "failed") return "fail-bead";
-  return "run-queued";
-}
-
 function buildJobScope(text: string): JobScope {
   return {
     raw_text: text,
@@ -1473,28 +1156,6 @@ function buildJobScope(text: string): JobScope {
   };
 }
 
-function traceRosterMeta(scorecard: Scorecard | null) {
-  const tas = scorecard?.trace_audit.tas_score;
-  if (tas !== null && tas !== undefined) return `TAS ${tas.toFixed(0)}`;
-  return scorecard?.trace_audit.status ?? "idle";
-}
-
-function readinessLabel(readiness: AgentSpec["readiness"]) {
-  if (readiness === "ready") return "Ready to ship";
-  if (readiness === "needs_subagents") return "Add helpers";
-  return "Refine";
-}
-
-function readinessSprite(readiness: AgentSpec["readiness"]) {
-  if (readiness === "ready") return "candidate-approved";
-  if (readiness === "needs_subagents") return "candidate-question";
-  return "candidate-review";
-}
-
-function refineryHeroClass(readiness: AgentSpec["readiness"]) {
-  return readiness === "ready" ? "passed" : "review";
-}
-
 function downloadJson(filename: string, payload: unknown) {
   if (typeof window === "undefined") {
     return;
@@ -1508,8 +1169,4 @@ function downloadJson(filename: string, payload: unknown) {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
-}
-
-function errorMessage(exc: unknown) {
-  return exc instanceof Error ? exc.message : "Unknown Interviu error";
 }
