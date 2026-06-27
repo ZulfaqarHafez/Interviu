@@ -30,6 +30,15 @@ class RunOrchestrator:
 
         try:
             self._event(run.id, "system", "run_started", {"candidate": candidate.name, "exam_pack": pack.id})
+            if run.job_scope is not None:
+                from .role_intelligence import analyze_job_scope
+
+                self._event(
+                    run.id,
+                    "system",
+                    "role_scope_applied",
+                    analyze_job_scope(run.job_scope).model_dump(mode="json"),
+                )
             for item in pack.items:
                 for trial in range(1, run.k + 1):
                     seen_response = await self._ask_candidate(
@@ -94,7 +103,7 @@ class RunOrchestrator:
         variant: str,
         lessons: list[str],
     ) -> CandidateResponse:
-        context = self._context(candidate, lessons)
+        context = self._context(candidate, lessons, run)
         self._event(
             run.id,
             "examiner",
@@ -300,10 +309,24 @@ class RunOrchestrator:
         return self._trace_step_id
 
     @staticmethod
-    def _context(candidate: CandidateConfig, lessons: list[str]) -> str:
+    def _context(candidate: CandidateConfig, lessons: list[str], run: RunRecord | None = None) -> str:
         lesson_block = "\n".join(f"- {lesson}" for lesson in lessons[-8:])
+        role_lines: list[str] = []
+        scope = run.job_scope if run is not None else None
+        if scope is not None:
+            descriptors = []
+            if scope.title:
+                descriptors.append(f"title: {scope.title}")
+            if scope.seniority and scope.seniority != "unspecified":
+                descriptors.append(f"seniority: {scope.seniority}")
+            if scope.domain:
+                descriptors.append(f"domain: {scope.domain}")
+            if descriptors:
+                role_lines.append("Role under evaluation — " + "; ".join(descriptors) + ".")
+        role_block = ("\n" + "\n".join(role_lines)) if role_lines else ""
         return (
             f"Candidate {candidate.name} is being evaluated by Interviu.\n"
-            "Answer as an HR screening agent. Use retained lessons when relevant.\n"
+            "Answer as an HR screening agent. Use retained lessons when relevant."
+            f"{role_block}\n"
             f"Retained lessons:\n{lesson_block or '- none yet'}"
         )

@@ -4,10 +4,13 @@ from datetime import datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 AgentReadiness = Literal["ready", "refine", "needs_subagents"]
 SubAgentPriority = Literal["recommended", "optional"]
+Seniority = Literal["intern", "junior", "mid", "senior", "lead", "executive", "unspecified"]
+
+_MAX_RAW_SCOPE_CHARS = 8000
 
 
 def utc_now() -> datetime:
@@ -56,6 +59,62 @@ class CandidateResponse(BaseModel):
     tokens: TokenCounts = Field(default_factory=TokenCounts)
 
 
+class JobScope(BaseModel):
+    """Structured view of a free-text job scope / role description.
+
+    ``raw_text`` is the candidate-supplied free text; the structured fields are
+    populated either by the deterministic keyword extractor or by the optional
+    OpenAI extraction pass. ``extraction`` records how the structured fields
+    were produced.
+    """
+
+    raw_text: str = ""
+    title: str = ""
+    seniority: Seniority = "unspecified"
+    responsibilities: list[str] = Field(default_factory=list)
+    required_skills: list[str] = Field(default_factory=list)
+    nice_to_have: list[str] = Field(default_factory=list)
+    qualifications: list[str] = Field(default_factory=list)
+    domain: str = ""
+    risks: list[str] = Field(default_factory=list)
+    compliance_flags: list[str] = Field(default_factory=list)
+    extraction: Literal["none", "keyword", "openai-fast", "openai-deep"] = "none"
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("raw_text")
+    @classmethod
+    def _cap_raw_text(cls, value: str) -> str:
+        # Guard against unbounded input before it reaches the keyword scanner
+        # or an LLM call.
+        if value and len(value) > _MAX_RAW_SCOPE_CHARS:
+            return value[:_MAX_RAW_SCOPE_CHARS]
+        return value
+
+
+class RequirementSource(BaseModel):
+    """Traceable evidence linking a job-scope phrase to a competency rule."""
+
+    phrase: str
+    field: str
+    rule_id: str
+    weight: float = 1.0
+
+
+class CompetencyRequirement(BaseModel):
+    """A competency the candidate agent should be evaluated against, derived
+    deterministically from the job scope."""
+
+    competency: str
+    label: str
+    rationale: str
+    sources: list[RequirementSource] = Field(default_factory=list)
+    expected_check_ids: list[str] = Field(default_factory=list)
+    recommended_subagent_id: str | None = None
+    priority: SubAgentPriority = "recommended"
+    covered_by_pack: str | None = None
+
+
 class RunCreate(BaseModel):
     candidate_id: str
     exam_pack_id: str = "hr-v1"
@@ -63,6 +122,7 @@ class RunCreate(BaseModel):
     competency_threshold: float = Field(default=0.80, ge=0, le=1)
     max_transfer_gap: float = Field(default=0.20, ge=0, le=1)
     tas_threshold: float = Field(default=70, ge=0, le=100)
+    job_scope: JobScope | None = None
 
 
 class RunRecord(BaseModel):
@@ -75,6 +135,7 @@ class RunRecord(BaseModel):
     max_transfer_gap: float = 0.20
     tas_threshold: float = 70
     error: str | None = None
+    job_scope: JobScope | None = None
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
@@ -235,4 +296,22 @@ class AgentResearch(BaseModel):
     risks: list[str] = Field(default_factory=list)
     sources: list[AgentResearchSource] = Field(default_factory=list)
     message: str | None = None
+    generated_at: datetime = Field(default_factory=utc_now)
+
+
+class RoleAnalysis(BaseModel):
+    """Deterministic-first mapping from a job scope to the competencies,
+    expected checks, and sub-agents the candidate agent should be evaluated
+    against. Produced by the role-intelligence layer.
+    """
+
+    job_scope: JobScope
+    recommended_exam_pack_id: str
+    supplemental_pack_ids: list[str] = Field(default_factory=list)
+    requirements: list[CompetencyRequirement] = Field(default_factory=list)
+    recommended_subagents: list[SubAgentSpec] = Field(default_factory=list)
+    uncovered_competencies: list[str] = Field(default_factory=list)
+    compliance_notes: list[str] = Field(default_factory=list)
+    extraction_status: Literal["keyword", "openai-fast", "openai-deep", "unavailable", "error"] = "keyword"
+    sources: list[AgentResearchSource] = Field(default_factory=list)
     generated_at: datetime = Field(default_factory=utc_now)

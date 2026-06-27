@@ -178,6 +178,77 @@ def test_connector_probe_reports_local_evidence(monkeypatch) -> None:
     assert "evidence" in by_id["supabase"]
 
 
+class _RoleFakeAudit:
+    def __init__(self, threshold: float):
+        self.threshold = threshold
+
+    def analyse(self, candidate, trace_steps, task_value_score):
+        from interviu_api.models import TraceAuditSummary
+
+        return TraceAuditSummary(
+            status="ok", trace_id="t", tas_score=88, grade="Good", passes=True,
+            total_steps=len(trace_steps), total_tokens=1000,
+        )
+
+
+def test_role_analysis_keyword_endpoint() -> None:
+    with TestClient(app) as client:
+        analysis = client.post(
+            "/role-analysis",
+            json={"raw_text": "screen and rank candidates fairly", "extract": "keyword"},
+        )
+
+    assert analysis.status_code == 200
+    payload = analysis.json()
+    assert payload["schema"] == "interviu.role_analysis.v1"
+    assert payload["extraction_status"] == "keyword"
+    assert len(payload["requirements"]) >= 1
+
+
+def test_run_round_trips_job_scope_and_proof_bundle(monkeypatch) -> None:
+    # Force the local sqlite store so the round-trip does not depend on the
+    # developer's .env (which may point persistence at Supabase).
+    monkeypatch.setattr("interviu_api.main.load_local_env", lambda: None)
+    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _RoleFakeAudit)
+
+    job_scope = {
+        "raw_text": "Screen and rank candidates and parse each resume upload; protect ssn and gdpr data.",
+        "title": "Recruiting Screener",
+        "seniority": "senior",
+        "domain": "talent acquisition",
+    }
+
+    with TestClient(app) as client:
+        candidate_id = client.get("/candidates").json()[0]["id"]
+        run = client.post(
+            "/runs",
+            json={"candidate_id": candidate_id, "job_scope": job_scope},
+        ).json()
+        fetched = client.get(f"/runs/{run['id']}").json()
+        role = client.get(f"/runs/{run['id']}/role-analysis").json()
+        client.post(f"/runs/{run['id']}/start")
+        bundle = client.get(f"/runs/{run['id']}/proof-bundle").json()
+        events = client.get(f"/runs/{run['id']}/events").json()
+
+    # The job scope round-trips through the persisted run payload.
+    assert fetched["job_scope"] is not None
+    assert fetched["job_scope"]["title"] == "Recruiting Screener"
+    assert fetched["job_scope"]["raw_text"].startswith("Screen and rank")
+
+    # Role analysis is exposed per-run and in the proof bundle.
+    assert role["schema"] == "interviu.role_analysis.v1"
+    assert bundle["role_analysis"]["schema"] == "interviu.role_analysis.v1"
+
+    # The role scope is applied as a deterministic orchestration event.
+    assert any(event["event_type"] == "role_scope_applied" for event in events)
+
+
+def test_run_role_analysis_missing_run_is_404() -> None:
+    with TestClient(app) as client:
+        response = client.get("/runs/run_missing/role-analysis")
+    assert response.status_code == 404
+
+
 def test_exam_pack_export_and_import() -> None:
     with TestClient(app) as client:
         packs = client.get("/exam-packs").json()

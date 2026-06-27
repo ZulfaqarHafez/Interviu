@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from .connectors import connector_probes, connector_registry
 from .database import (
@@ -23,9 +26,23 @@ from .agent_refinery import agent_spec_payload
 from .agent_research import load_local_env, research_agent_spec
 from .exam_packs import exam_pack_export, get_exam_pack, list_exam_packs, register_exam_pack
 from .exports import write_agent_spec_files, write_exam_pack_files
-from .models import CandidateConfig, ExamPack, RunCreate, RunRecord
+from .models import CandidateConfig, ExamPack, JobScope, RunCreate, RunRecord
 from .orchestrator import RunOrchestrator
+from .role_intelligence import (
+    analyze_job_scope,
+    extract_job_scope_openai,
+    role_analysis_for_run,
+    role_analysis_payload,
+)
 from .trace_audit import _load_tracerazor_client
+
+_MAX_ROLE_SCOPE_CHARS = 8000
+
+class RoleAnalysisRequest(BaseModel):
+    raw_text: str = Field(default="", max_length=_MAX_ROLE_SCOPE_CHARS)
+    extract: Literal["keyword", "openai-fast", "openai-deep"] = "keyword"
+    override_pack_id: str | None = None
+
 
 app = FastAPI(title="Interviu API", version="0.1.0")
 
@@ -102,6 +119,29 @@ def export_exam_pack_files(pack_id: str) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@app.post("/role-analysis")
+def role_analysis(request: RoleAnalysisRequest) -> dict:
+    raw_text = (request.raw_text or "")[:_MAX_ROLE_SCOPE_CHARS]
+    if request.override_pack_id is not None:
+        try:
+            get_exam_pack(request.override_pack_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Exam pack not found") from exc
+
+    job_scope: JobScope | None = None
+    if request.extract != "keyword":
+        mode = "deep" if request.extract == "openai-deep" else "fast"
+        try:
+            job_scope = extract_job_scope_openai(raw_text, mode=mode)
+        except Exception:
+            # OpenAI extraction is best-effort recall; fall back to keyword.
+            job_scope = None
+    if job_scope is None:
+        job_scope = JobScope(raw_text=raw_text)
+
+    return role_analysis_payload(job_scope, override_pack_id=request.override_pack_id)
+
+
 @app.get("/connectors")
 def connectors() -> list[dict]:
     return connector_registry()
@@ -135,13 +175,21 @@ def create_run(payload: RunCreate) -> dict:
         get_exam_pack(payload.exam_pack_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Exam pack not found") from exc
+
+    exam_pack_id = payload.exam_pack_id
+    # When the caller leaves the default pack, let role intelligence pick the pack
+    # that best fits the supplied job scope.
+    if payload.job_scope is not None and exam_pack_id == "hr-v1":
+        exam_pack_id = analyze_job_scope(payload.job_scope).recommended_exam_pack_id
+
     run = RunRecord(
         candidate_id=payload.candidate_id,
-        exam_pack_id=payload.exam_pack_id,
+        exam_pack_id=exam_pack_id,
         k=payload.k,
         competency_threshold=payload.competency_threshold,
         max_transfer_gap=payload.max_transfer_gap,
         tas_threshold=payload.tas_threshold,
+        job_scope=payload.job_scope,
     )
     return save_run(run).model_dump(mode="json")
 
@@ -167,6 +215,14 @@ def get_run_endpoint(run_id: str) -> dict:
     if run is None:
         raise HTTPException(status_code=404, detail="Run not found")
     return run.model_dump(mode="json")
+
+
+@app.get("/runs/{run_id}/role-analysis")
+def run_role_analysis(run_id: str) -> dict:
+    payload = role_analysis_for_run(run_id)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    return payload
 
 
 @app.get("/runs/{run_id}/events")
@@ -245,9 +301,14 @@ def run_proof_bundle(run_id: str) -> dict:
         agent_spec = agent_spec_payload(run_id)
     except KeyError:
         agent_spec = None
+    try:
+        role_analysis_bundle = role_analysis_for_run(run_id)
+    except Exception:
+        role_analysis_bundle = None
     return bundle | {
         "database": db_health,
         "connectors": connector_registry(),
         "connector_probes": connector_probes(),
         "agent_spec": agent_spec,
+        "role_analysis": role_analysis_bundle,
     }
