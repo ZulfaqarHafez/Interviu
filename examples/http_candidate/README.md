@@ -1,6 +1,6 @@
-# Interviu HTTP Candidate Starter
+# Assay HTTP Candidate Starter
 
-This starter is a local black-box candidate endpoint for Interviu. It implements the same HTTP contract used by real agents, so it is useful for testing the full examiner, scoring, persistence, and TraceRazor proof path before wiring a private model or MCP server.
+This starter is a local black-box candidate endpoint for Assay. It implements the same HTTP contract used by real agents, so it is useful for testing the full examiner, scoring, persistence, and TraceRazor proof path before wiring a private model or MCP server.
 
 ## Run
 
@@ -8,7 +8,7 @@ This starter is a local black-box candidate endpoint for Interviu. It implements
 python -m uvicorn examples.http_candidate.server:app --host 127.0.0.1 --port 8080
 ```
 
-Register it in Interviu as:
+Register it in Assay as:
 
 ```text
 http://127.0.0.1:8080/ask
@@ -37,4 +37,4 @@ http://127.0.0.1:8080/ask
 }
 ```
 
-Interviu stores the full run timeline, then forwards only candidate reasoning and tool steps to TraceRazor.
+Assay stores the full run timeline, then forwards only candidate reasoning and tool steps to TraceRazor.

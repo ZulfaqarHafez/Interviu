@@ -6,7 +6,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Sprite } from "@/components/ui/Sprite";
 import { useRunComparison } from "@/lib/queries";
 import { errorMessage, labelize } from "@/lib/derive";
-import type { ComparisonOutcome, CompetencyComparison, RunComparison as RunComparisonData } from "@/types/interviu";
+import type { ComparisonOutcome, CompetencyComparison, RunComparison as RunComparisonData } from "@/types/assay";
 
 /** Delta-cell shading per LangSmith's improved/regressed/unchanged pattern. */
 const DELTA_STYLE: Record<ComparisonOutcome, React.CSSProperties> = {

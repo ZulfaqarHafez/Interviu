@@ -11,16 +11,16 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 # Rate limiting is on by default with generous limits. Set
-# INTERVIU_RATE_LIMIT_ENABLED=0/false/off to disable it for local troubleshooting.
-RATE_LIMIT_ENABLED_ENV = "INTERVIU_RATE_LIMIT_ENABLED"
+# ASSAY_RATE_LIMIT_ENABLED=0/false/off to disable it for local troubleshooting.
+RATE_LIMIT_ENABLED_ENV = "ASSAY_RATE_LIMIT_ENABLED"
 
 # Per-endpoint limits, each tunable via env. Defaults are generous so normal
 # interactive use is never throttled; they exist to blunt abuse/runaway clients.
 _LIMIT_ENVS: dict[str, tuple[str, str]] = {
-    "create_run": ("INTERVIU_RATE_LIMIT_CREATE_RUN", "600/minute"),
-    "start_run": ("INTERVIU_RATE_LIMIT_START_RUN", "300/minute"),
-    "role_analysis": ("INTERVIU_RATE_LIMIT_ROLE_ANALYSIS", "300/minute"),
-    "agent_research": ("INTERVIU_RATE_LIMIT_AGENT_RESEARCH", "120/minute"),
+    "create_run": ("ASSAY_RATE_LIMIT_CREATE_RUN", "600/minute"),
+    "start_run": ("ASSAY_RATE_LIMIT_START_RUN", "300/minute"),
+    "role_analysis": ("ASSAY_RATE_LIMIT_ROLE_ANALYSIS", "300/minute"),
+    "agent_research": ("ASSAY_RATE_LIMIT_AGENT_RESEARCH", "120/minute"),
 }
 
 

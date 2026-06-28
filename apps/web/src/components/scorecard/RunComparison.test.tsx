@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RunComparison } from "./RunComparison";
-import type { RunComparison as RunComparisonData } from "@/types/interviu";
+import type { RunComparison as RunComparisonData } from "@/types/assay";
 
 const useRunComparisonMock = vi.hoisted(() => vi.fn());
 
@@ -23,7 +23,7 @@ function renderWithClient(ui: React.ReactElement) {
 
 function makeComparison(overrides: Partial<RunComparisonData> = {}): RunComparisonData {
   return {
-    schema: "interviu.run_comparison.v1",
+    schema: "assay.run_comparison.v1",
     run_id: "run_b",
     baseline_run_id: "run_a",
     candidate_id: "cand_demo",

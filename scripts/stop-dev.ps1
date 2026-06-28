@@ -32,4 +32,4 @@ foreach ($pidValue in $allPids) {
 }
 
 Remove-Item -Path $statePath -Force -ErrorAction SilentlyContinue
-Write-Host "Stopped Interviu dev processes."
+Write-Host "Stopped Assay dev processes."

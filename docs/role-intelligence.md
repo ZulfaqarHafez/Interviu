@@ -12,11 +12,11 @@ no network and no LLM produces the full analysis; an optional OpenAI extraction
 pass only improves recall. Every requirement is backed by an evidence chain, so
 the decision is always explainable.
 
-`apps/api/interviu_api/role_intelligence.py` is the implementation.
+`apps/api/assay_api/role_intelligence.py` is the implementation.
 
 ## JobScope
 
-A `JobScope` (`apps/api/interviu_api/models.py`) is the structured view of a
+A `JobScope` (`apps/api/assay_api/models.py`) is the structured view of a
 role description. `raw_text` is the candidate-supplied free text; the structured
 fields are populated either by the deterministic keyword extractor or by the
 optional OpenAI extraction pass, and `extraction` records which produced them.
@@ -146,18 +146,18 @@ server-side via `agent_research.resolve_openai_key` (`OPENAI_API_KEY` /
 is configured the function returns `None`**, so the caller falls back to a
 keyword-only `JobScope` and the feature degrades gracefully. Extraction uses the
 default fast model with a strict JSON-schema response (`_JOB_SCOPE_JSON_SCHEMA`),
-timeout configurable via `INTERVIU_OPENAI_TIMEOUT_S`. `mode` is `fast` or
+timeout configurable via `ASSAY_OPENAI_TIMEOUT_S`. `mode` is `fast` or
 `deep`; the resulting `extraction` field is `openai-fast` or `openai-deep`.
 
-## Payload: `interviu.role_analysis.v1`
+## Payload: `assay.role_analysis.v1`
 
 `role_analysis_payload(job_scope, override_pack_id=None)` returns the
-schema-tagged JSON (`{"schema": "interviu.role_analysis.v1", ...}`), the
+schema-tagged JSON (`{"schema": "assay.role_analysis.v1", ...}`), the
 serialized `RoleAnalysis`:
 
 ```jsonc
 {
-  "schema": "interviu.role_analysis.v1",
+  "schema": "assay.role_analysis.v1",
   "job_scope": { /* JobScope, with detected seniority + compliance flags */ },
   "recommended_exam_pack_id": "hr-v1",
   "supplemental_pack_ids": ["hr-injection-v1"],
@@ -191,7 +191,7 @@ serialized `RoleAnalysis`:
   `keyword | openai-fast | openai-deep` (defaults to `keyword`). With a non-keyword
   mode the API attempts OpenAI extraction and falls back to keyword extraction on
   any failure; an unknown `override_pack_id` returns `404`. Returns the
-  `interviu.role_analysis.v1` payload. (`raw_text` capped server-side.)
+  `assay.role_analysis.v1` payload. (`raw_text` capped server-side.)
 - `GET /runs/{run_id}/role-analysis` — analysis for a persisted run, computed
   from the run's stored job scope (or an empty scope) and treating the run's
   exam pack as a pack override so the analysis reflects the pack the run actually
@@ -208,5 +208,5 @@ pack.
 ## Boundaries
 
 Role analysis is a deterministic, offline-safe internal capability artifact, not
-a legal or standards compliance claim — mirroring the rest of the Interviu MVP.
+a legal or standards compliance claim — mirroring the rest of the Assay MVP.
 Protected-attribute handling is a guardrail, not legal advice.

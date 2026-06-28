@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   }
 };
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('interviu-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+const themeInitScript = `(function(){try{var t=localStorage.getItem('assay-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

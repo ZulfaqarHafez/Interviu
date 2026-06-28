@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import { CompetencyRadar } from "./CompetencyRadar";
-import type { Scorecard } from "@/types/interviu";
+import type { Scorecard } from "@/types/assay";
 
 // recharts ResponsiveContainer relies on ResizeObserver, absent in jsdom.
 beforeAll(() => {
@@ -23,7 +23,7 @@ function makeScorecard(overrides: Partial<Scorecard> = {}): Scorecard {
     certificate_label: "Internal capability bar only",
     k: 3,
     thresholds: { competency: 0.8 },
-    simulator_model: "interviu-deterministic-sim-v1",
+    simulator_model: "assay-deterministic-sim-v1",
     pass_at_k: { compliance: true, fairness: false },
     competency_scores: { compliance: 0.96, fairness: 0.6 },
     seen_scores: { compliance: 0.96, fairness: 0.6 },

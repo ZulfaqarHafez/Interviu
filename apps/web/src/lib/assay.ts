@@ -1,4 +1,4 @@
-import type { Scorecard, AgentSpec, RunEvent } from "@/types/interviu";
+import type { Scorecard, AgentSpec, RunEvent } from "@/types/assay";
 import { labelize, maxTransferGap } from "@/lib/derive";
 
 /**

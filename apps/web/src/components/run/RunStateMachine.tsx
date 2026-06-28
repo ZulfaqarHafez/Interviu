@@ -6,7 +6,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Sprite from "@/components/ui/Sprite";
 import { labelize } from "@/lib/derive";
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 import type { RunStreamStatus } from "@/lib/useRunStream";
 
 /**

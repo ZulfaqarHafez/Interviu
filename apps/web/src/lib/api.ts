@@ -1,4 +1,4 @@
-import type { AgentIntakeResponse, AgentResearch, AgentSpec, AgentSpecFileExport, CandidateConfig, CandidateProgress, Connector, ConnectorProbe, DatabaseHealth, DiagnosticLesson, ExamPack, ExamPackExport, ExamPackFileExport, Health, JobScope, ProductReview, ProofBundle, RoleAnalysis, RoleBrief, RunComparison, RunEvent, RunRecord, Scorecard, TracePayload } from "@/types/interviu";
+import type { AgentIntakeResponse, AgentResearch, AgentSpec, AgentSpecFileExport, CandidateConfig, CandidateProgress, Connector, ConnectorProbe, DatabaseHealth, DiagnosticLesson, ExamPack, ExamPackExport, ExamPackFileExport, Health, JobScope, ProductReview, ProofBundle, RoleAnalysis, RoleBrief, RunComparison, RunEvent, RunRecord, Scorecard, TracePayload } from "@/types/assay";
 
 function apiBaseUrl() {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
@@ -29,7 +29,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export const interviuApi = {
+export const assayApi = {
   health: () => request<Health>("/health"),
   databaseHealth: () => request<DatabaseHealth>("/health/database"),
   examPacks: () => request<ExamPack[]>("/exam-packs"),

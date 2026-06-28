@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from interviu_api import main
-from interviu_api.agent_intake import detect_agent_facts
-from interviu_api.main import app
+from assay_api import main
+from assay_api.agent_intake import detect_agent_facts
+from assay_api.main import app
 
 SAMPLE_AGENT_MD = """# Recruiting Screener Agent
 
@@ -26,7 +26,7 @@ You screen and rank candidates fairly using job-related criteria only.
 @pytest.fixture(autouse=True)
 def _local_sqlite_only(monkeypatch: pytest.MonkeyPatch) -> None:
     # Mirror test_api: stop startup from re-populating Supabase env from a local .env.
-    monkeypatch.setattr("interviu_api.main.load_local_env", lambda: None)
+    monkeypatch.setattr("assay_api.main.load_local_env", lambda: None)
 
 
 def test_detect_helper_extracts_title_and_tools() -> None:

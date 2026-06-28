@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { interviuApi } from "@/lib/api";
+import { assayApi } from "@/lib/api";
 import {
   useCandidates,
   useExamPacks,
@@ -25,7 +25,7 @@ import type {
   RunRecord,
   Scorecard,
   TracePayload
-} from "@/types/interviu";
+} from "@/types/assay";
 
 export default function Home() {
   // Boot data via TanStack Query (cache, retry, dedupe handled by the client).
@@ -136,9 +136,9 @@ export default function Home() {
   async function hydrateRunArtifacts(runId: string) {
     try {
       const [eventPayload, tracePayload, bundlePayload] = await Promise.all([
-        interviuApi.events(runId),
-        interviuApi.trace(runId),
-        interviuApi.proofBundle(runId)
+        assayApi.events(runId),
+        assayApi.trace(runId),
+        assayApi.proofBundle(runId)
       ]);
       setEvents(eventPayload);
       setTrace(tracePayload);
@@ -161,7 +161,7 @@ export default function Home() {
     setRun(null);
     setIntakeSubmitting(true);
     try {
-      const intake = await interviuApi.candidateFromMarkdown(markdown);
+      const intake = await assayApi.candidateFromMarkdown(markdown);
       const created = intake.candidate;
       setExtraCandidates((current) => [created, ...current.filter((item) => item.id !== created.id)]);
       setSelectedCandidateId(created.id);
@@ -182,7 +182,7 @@ export default function Home() {
             extraction: "none" as const
           }
         : null;
-      const createdRun = await interviuApi.createRun(created.id, packId, jobScope);
+      const createdRun = await assayApi.createRun(created.id, packId, jobScope);
       const runPack = examPacks.find((pack) => pack.id === createdRun.exam_pack_id) ?? selectedExamPack;
       setRun(createdRun);
       runStream.start(createdRun.id, { k: createdRun.k, itemCount: runPack?.items.length });
@@ -217,8 +217,8 @@ export default function Home() {
       setError(null);
       try {
         const [tracePayload, bundlePayload] = await Promise.all([
-          interviuApi.trace(runId),
-          interviuApi.proofBundle(runId)
+          assayApi.trace(runId),
+          assayApi.proofBundle(runId)
         ]);
         setEvents(tracePayload.events);
         setTrace(tracePayload);

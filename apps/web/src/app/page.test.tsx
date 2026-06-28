@@ -51,7 +51,7 @@ const scorecard = {
   certificate_label: "Internal capability bar only",
   k: 3,
   thresholds: { competency: 0.8, max_transfer_gap: 0.2, tas: 70 },
-  simulator_model: "interviu-deterministic-sim-v1",
+  simulator_model: "assay-deterministic-sim-v1",
   pass_at_k: { compliance: true, fairness: true },
   competency_scores: { compliance: 0.96, fairness: 0.94 },
   seen_scores: { compliance: 0.96, fairness: 0.94 },
@@ -101,7 +101,7 @@ const events = [
 ];
 
 const agentSpec = {
-  schema: "interviu.agent_spec.v1",
+  schema: "assay.agent_spec.v1",
   run_id: "run_demo",
   candidate_id: "cand_demo",
   candidate_name: "Demo Candidate",
@@ -131,7 +131,7 @@ const agentSpec = {
 };
 
 const productReview = {
-  schema: "interviu.product_review.v1",
+  schema: "assay.product_review.v1",
   run_id: "run_demo",
   generated_at: "2026-06-27T00:00:00Z",
   reviewers: [
@@ -169,8 +169,8 @@ const productReview = {
 };
 
 const proofBundle = {
-  schema: "interviu.proof_bundle.v1",
-  product: "Interviu",
+  schema: "assay.proof_bundle.v1",
+  product: "Assay",
   generated_at: "2026-06-27T00:00:00Z",
   run: runRecord,
   candidate,
@@ -208,7 +208,7 @@ beforeEach(() => {
         {
           id: "hr-v1",
           name: "HR screening reliability",
-          simulator_model: "interviu-deterministic-sim-v1",
+          simulator_model: "assay-deterministic-sim-v1",
           items: [
             {
               id: "one",
@@ -233,7 +233,7 @@ beforeEach(() => {
         {
           id: "hr-injection-v1",
           name: "Adversarial HR screening",
-          simulator_model: "interviu-adversarial-sim-v1",
+          simulator_model: "assay-adversarial-sim-v1",
           items: [
             {
               id: "inj-one",
@@ -251,12 +251,12 @@ beforeEach(() => {
     }
     if (url.endsWith("/exam-packs/hr-v1/export")) {
       return json({
-        schema: "interviu.exam_pack.v1",
-        pack: { id: "hr-v1", name: "HR screening reliability", simulator_model: "interviu-deterministic-sim-v1", items: [] },
+        schema: "assay.exam_pack.v1",
+        pack: { id: "hr-v1", name: "HR screening reliability", simulator_model: "assay-deterministic-sim-v1", items: [] },
         huggingface: {
           repo_type: "dataset",
           files: {
-            "data/interviu_exam_rows.jsonl": [{ split: "seen" }, { split: "held_out" }],
+            "data/assay_exam_rows.jsonl": [{ split: "seen" }, { split: "held_out" }],
             "README.md": "# HR screening reliability"
           },
           suggested_commands: ["hf upload"]
@@ -266,11 +266,11 @@ beforeEach(() => {
     if (url.endsWith("/exam-packs/hr-v1/export-files")) {
       return json({
         pack_id: "hr-v1",
-        directory: "C:\\Users\\zulfa\\Interviu\\exports\\exam-packs\\hr-v1",
+        directory: "C:\\Users\\zulfa\\Assay\\exports\\exam-packs\\hr-v1",
         files: {
-          "data/interviu_exam_rows.jsonl": "C:\\Users\\zulfa\\Interviu\\exports\\exam-packs\\hr-v1\\data\\interviu_exam_rows.jsonl",
-          "README.md": "C:\\Users\\zulfa\\Interviu\\exports\\exam-packs\\hr-v1\\README.md",
-          "interviu-exam-pack.json": "C:\\Users\\zulfa\\Interviu\\exports\\exam-packs\\hr-v1\\interviu-exam-pack.json"
+          "data/assay_exam_rows.jsonl": "C:\\Users\\zulfa\\Assay\\exports\\exam-packs\\hr-v1\\data\\assay_exam_rows.jsonl",
+          "README.md": "C:\\Users\\zulfa\\Assay\\exports\\exam-packs\\hr-v1\\README.md",
+          "assay-exam-pack.json": "C:\\Users\\zulfa\\Assay\\exports\\exam-packs\\hr-v1\\assay-exam-pack.json"
         },
         row_count: 2,
         suggested_commands: ["hf auth login", "hf upload"]
@@ -367,10 +367,10 @@ beforeEach(() => {
     if (url.endsWith("/runs/run_demo/agent-spec/export-files")) {
       return json({
         run_id: "run_demo",
-        directory: "C:\\Users\\zulfa\\Interviu\\exports\\agents\\run_demo",
+        directory: "C:\\Users\\zulfa\\Assay\\exports\\agents\\run_demo",
         files: {
-          "AGENTS.md": "C:\\Users\\zulfa\\Interviu\\exports\\agents\\run_demo\\AGENTS.md",
-          "agent-spec.json": "C:\\Users\\zulfa\\Interviu\\exports\\agents\\run_demo\\agent-spec.json"
+          "AGENTS.md": "C:\\Users\\zulfa\\Assay\\exports\\agents\\run_demo\\AGENTS.md",
+          "agent-spec.json": "C:\\Users\\zulfa\\Assay\\exports\\agents\\run_demo\\agent-spec.json"
         },
         sub_agent_count: 1
       });
@@ -386,7 +386,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Interviu page", () => {
+describe("Assay page", () => {
   it("leads with the Assay agent.md intake as the first screen", async () => {
     renderHome();
     // Brand now lives in the global TopNav (layout); the page leads with the hero.

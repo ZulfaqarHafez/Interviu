@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, X, Loader2 } from "lucide-react";
 import { liveSteps, roleQualified, tailoredExam, type LiveStep } from "@/lib/assay";
 import BrandMark from "@/components/ui/BrandMark";
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 import type { RunStreamStatus } from "@/lib/useRunStream";
 
 /**

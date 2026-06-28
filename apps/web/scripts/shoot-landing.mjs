@@ -5,7 +5,7 @@ const b = await chromium.launch();
 async function shot(name, theme){
   const ctx = await b.newContext({ viewport:{width:1280,height:900} });
   const p = await ctx.newPage();
-  await p.addInitScript((t)=>localStorage.setItem("interviu-theme",t), theme);
+  await p.addInitScript((t)=>localStorage.setItem("assay-theme",t), theme);
   await p.goto("http://127.0.0.1:3000/",{waitUntil:"networkidle"});
   await p.waitForTimeout(1000);
   const ov = await p.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);

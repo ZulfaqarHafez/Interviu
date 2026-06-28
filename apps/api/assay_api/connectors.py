@@ -114,7 +114,7 @@ def connector_registry() -> list[dict[str, Any]]:
 
 
 def connector_probes() -> list[dict[str, Any]]:
-    """Read-only product probes for the tools Interviu can use today."""
+    """Read-only product probes for the tools Assay can use today."""
 
     return [
         _probe_mock(),
@@ -205,7 +205,7 @@ def _probe_supabase() -> dict[str, Any]:
             "status": "fail",
             "evidence": f"Database probe failed: {exc}",
             "details": {"url_configured": url_configured, "server_key_configured": key_configured},
-            "next_step": "Check server-only Supabase env vars and rerun python -m interviu_api.verify_database.",
+            "next_step": "Check server-only Supabase env vars and rerun python -m assay_api.verify_database.",
         }
 
     if backend == "supabase" and health.get("ok"):
@@ -219,7 +219,7 @@ def _probe_supabase() -> dict[str, Any]:
         }
 
     if url_configured and key_configured:
-        evidence = "Supabase credentials are present, but SQLite is active because INTERVIU_DB_BACKEND is not set to supabase."
+        evidence = "Supabase credentials are present, but SQLite is active because ASSAY_DB_BACKEND is not set to supabase."
     elif url_configured and not key_configured:
         evidence = "Supabase URL is configured, but the server-only service role key is missing."
     else:
@@ -230,7 +230,7 @@ def _probe_supabase() -> dict[str, Any]:
         "status": "warn",
         "evidence": evidence,
         "details": health | {"url_configured": url_configured, "server_key_configured": key_configured},
-        "next_step": "Set INTERVIU_DB_BACKEND=supabase plus SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on the API process to activate Supabase.",
+        "next_step": "Set ASSAY_DB_BACKEND=supabase plus SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on the API process to activate Supabase.",
     }
 
 

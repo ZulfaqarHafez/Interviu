@@ -3,14 +3,14 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from interviu_api.main import app
+from assay_api.main import app
 
 
 @pytest.fixture(autouse=True)
 def _local_sqlite_only(monkeypatch: pytest.MonkeyPatch) -> None:
     # Mirror test_api.py: keep the learning-loop tests on the isolated sqlite
     # store and stop startup from re-loading a developer's local .env.
-    monkeypatch.setattr("interviu_api.main.load_local_env", lambda: None)
+    monkeypatch.setattr("assay_api.main.load_local_env", lambda: None)
 
 
 class _FakeAudit:
@@ -18,7 +18,7 @@ class _FakeAudit:
         self.threshold = threshold
 
     def analyse(self, candidate, trace_steps, task_value_score):
-        from interviu_api.models import TraceAuditSummary
+        from assay_api.models import TraceAuditSummary
 
         return TraceAuditSummary(
             status="ok", trace_id="t", tas_score=88, grade="Good", passes=True,
@@ -27,7 +27,7 @@ class _FakeAudit:
 
 
 def _failing_grade(item, response, threshold, **_kwargs):
-    from interviu_api.scoring import GradeResult
+    from assay_api.scoring import GradeResult
 
     return GradeResult(
         score=0.2,
@@ -41,7 +41,7 @@ def _failing_grade(item, response, threshold, **_kwargs):
 
 
 def _passing_grade(item, response, threshold, **_kwargs):
-    from interviu_api.scoring import GradeResult
+    from assay_api.scoring import GradeResult
 
     return GradeResult(
         score=0.95,
@@ -61,8 +61,8 @@ def _start_run(client: TestClient, candidate_id: str) -> str:
 
 
 def test_lessons_persist_and_apply_across_runs(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
-    monkeypatch.setattr("interviu_api.orchestrator.grade_response", _failing_grade)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.grade_response", _failing_grade)
 
     with TestClient(app) as client:
         candidate_id = client.get("/candidates").json()[0]["id"]
@@ -97,24 +97,24 @@ def test_lessons_persist_and_apply_across_runs(monkeypatch: pytest.MonkeyPatch) 
 
 
 def test_progress_tracks_competency_trend(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
 
     with TestClient(app) as client:
         candidate_id = client.get("/candidates").json()[0]["id"]
 
         # Run A fails the competencies (creates lessons with a low origin score).
-        monkeypatch.setattr("interviu_api.orchestrator.grade_response", _failing_grade)
+        monkeypatch.setattr("assay_api.orchestrator.grade_response", _failing_grade)
         run_a = _start_run(client, candidate_id)
 
         # Run B recovers: the competencies now pass.
-        monkeypatch.setattr("interviu_api.orchestrator.grade_response", _passing_grade)
+        monkeypatch.setattr("assay_api.orchestrator.grade_response", _passing_grade)
         run_b = _start_run(client, candidate_id)
 
         progress = client.get(f"/candidates/{candidate_id}/progress").json()
         comparison = client.get(f"/runs/{run_b}/comparison?baseline={run_a}").json()
         lessons = client.get(f"/candidates/{candidate_id}/lessons").json()
 
-    assert progress["schema"] == "interviu.candidate_progress.v1"
+    assert progress["schema"] == "assay.candidate_progress.v1"
     assert progress["run_count"] == 2
     assert progress["competencies"], "progress should report per-competency trends"
     a_competency = progress["competencies"][0]
@@ -123,7 +123,7 @@ def test_progress_tracks_competency_trend(monkeypatch: pytest.MonkeyPatch) -> No
     assert a_competency["trend"] == "improving"
 
     # The run comparison shows the recovery as an improvement vs the baseline.
-    assert comparison["schema"] == "interviu.run_comparison.v1"
+    assert comparison["schema"] == "assay.run_comparison.v1"
     assert comparison["baseline_run_id"] == run_a
     assert comparison["improved"] >= 1
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertTriangle, FlaskConical } from "lucide-react";
 import { useCandidates, useRuns } from "@/lib/queries";
 import { AgentArt } from "@/components/ui/EmptyArt";
-import type { RunRecord } from "@/types/interviu";
+import type { RunRecord } from "@/types/assay";
 
 /**
  * Agents — the candidate definitions under test, deduplicated by name and rolled

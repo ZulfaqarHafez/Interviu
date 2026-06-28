@@ -86,7 +86,7 @@ _SYSTEM_PROMPT = (
 
 
 def max_items() -> int:
-    raw = os.environ.get("INTERVIU_TAILORED_MAX_ITEMS")
+    raw = os.environ.get("ASSAY_TAILORED_MAX_ITEMS")
     try:
         value = int(raw) if raw else _DEFAULT_MAX_ITEMS
     except ValueError:
@@ -135,9 +135,9 @@ def _fallback_pack(run: RunRecord) -> ExamPack:
 def _generate_items(key: str, brief: RoleBrief, run: RunRecord) -> list[dict[str, Any]]:
     from openai import OpenAI
 
-    timeout_s = float(os.environ.get("INTERVIU_OPENAI_TIMEOUT_S", "120"))
+    timeout_s = float(os.environ.get("ASSAY_OPENAI_TIMEOUT_S", "120"))
     client = OpenAI(api_key=key, timeout=timeout_s)
-    model = os.environ.get("INTERVIU_TAILORED_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
+    model = os.environ.get("ASSAY_TAILORED_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
     prompt = _build_prompt(brief)
     response = client.responses.create(
         model=model,

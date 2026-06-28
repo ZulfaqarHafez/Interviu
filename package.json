@@ -1,5 +1,5 @@
 {
-  "name": "interviu",
+  "name": "assay",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "powershell -ExecutionPolicy Bypass -File scripts/start-dev.ps1",
     "dev:stop": "powershell -ExecutionPolicy Bypass -File scripts/stop-dev.ps1",
-    "dev:api": "python -m uvicorn interviu_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port 8000",
+    "dev:api": "python -m uvicorn assay_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port 8000",
     "dev:candidate": "powershell -ExecutionPolicy Bypass -File scripts/start-http-candidate.ps1",
     "dev:web": "npm --workspace apps/web run dev",
     "test": "python -m pytest apps/api/tests && npm --workspace apps/web run test -- --run",

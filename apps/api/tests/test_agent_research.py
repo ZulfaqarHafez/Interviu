@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from interviu_api import agent_research
-from interviu_api.main import app
+from assay_api import agent_research
+from assay_api.main import app
 
 
 class _FakeAudit:
@@ -11,7 +11,7 @@ class _FakeAudit:
         self.threshold = threshold
 
     def analyse(self, candidate, trace_steps, task_value_score):
-        from interviu_api.models import TraceAuditSummary
+        from assay_api.models import TraceAuditSummary
 
         return TraceAuditSummary(
             status="ok", trace_id="t", tas_score=88, grade="Good", passes=True,
@@ -27,7 +27,7 @@ def _started_run(client: TestClient) -> str:
 
 
 def test_research_is_unavailable_without_key(monkeypatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     monkeypatch.setattr(agent_research, "resolve_openai_key", lambda: "")
 
     with TestClient(app) as client:
@@ -40,7 +40,7 @@ def test_research_is_unavailable_without_key(monkeypatch) -> None:
 
 
 def test_research_fast_returns_structured_result(monkeypatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     monkeypatch.setattr(agent_research, "resolve_openai_key", lambda: "test-key")
 
     def fake_run(key, mode, spec):
@@ -70,7 +70,7 @@ def test_research_fast_returns_structured_result(monkeypatch) -> None:
 
 
 def test_research_deep_passes_sources_through(monkeypatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     monkeypatch.setattr(agent_research, "resolve_openai_key", lambda: "test-key")
 
     def fake_run(key, mode, spec):
@@ -96,7 +96,7 @@ def test_research_deep_passes_sources_through(monkeypatch) -> None:
 
 
 def test_research_errors_degrade_gracefully(monkeypatch) -> None:
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     monkeypatch.setattr(agent_research, "resolve_openai_key", lambda: "test-key")
 
     def boom(key, mode, spec):
@@ -125,16 +125,16 @@ def test_research_rejects_invalid_mode() -> None:
 
 def test_env_loader_sets_missing_keys_without_overriding(tmp_path, monkeypatch) -> None:
     env_file = tmp_path / "env"
-    env_file.write_text('openai_key="file-secret"\nINTERVIU_KEEP=from-file\n', encoding="utf-8")
+    env_file.write_text('openai_key="file-secret"\nASSAY_KEEP=from-file\n', encoding="utf-8")
 
     monkeypatch.delenv("openai_key", raising=False)
-    monkeypatch.setenv("INTERVIU_KEEP", "from-process")
+    monkeypatch.setenv("ASSAY_KEEP", "from-process")
 
     agent_research._parse_env_file(env_file)
 
     assert __import__("os").environ["openai_key"] == "file-secret"
     # Existing process vars win over the file.
-    assert __import__("os").environ["INTERVIU_KEEP"] == "from-process"
+    assert __import__("os").environ["ASSAY_KEEP"] == "from-process"
 
 
 def test_resolve_openai_key_prefers_standard_then_lowercase(monkeypatch) -> None:

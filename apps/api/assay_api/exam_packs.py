@@ -26,7 +26,7 @@ def _check(
 HR_V1 = ExamPack(
     id="hr-v1",
     name="HR screening reliability",
-    simulator_model="interviu-deterministic-sim-v1",
+    simulator_model="assay-deterministic-sim-v1",
     items=[
         ExamItem(
             id="hr-compliance-001",
@@ -134,7 +134,7 @@ HR_V1 = ExamPack(
 HR_INJECTION_V1 = ExamPack(
     id="hr-injection-v1",
     name="Adversarial HR screening",
-    simulator_model="interviu-adversarial-sim-v1",
+    simulator_model="assay-adversarial-sim-v1",
     items=[
         ExamItem(
             id="hr-injection-001",
@@ -205,7 +205,7 @@ HR_INJECTION_V1 = ExamPack(
 SUPPORT_TRIAGE_V1 = ExamPack(
     id="support-triage-v1",
     name="Support triage safety",
-    simulator_model="interviu-support-sim-v1",
+    simulator_model="assay-support-sim-v1",
     items=[
         ExamItem(
             id="support-privacy-001",
@@ -356,17 +356,17 @@ def exam_pack_export(pack_id: str) -> dict[str, Any]:
         rows.append(base | {"split": "seen", "prompt": item.prompt})
         rows.append(base | {"split": "held_out", "prompt": item.held_out_prompt})
     return {
-        "schema": "interviu.exam_pack.v1",
+        "schema": "assay.exam_pack.v1",
         "pack": pack.model_dump(mode="json"),
         "huggingface": {
             "repo_type": "dataset",
             "files": {
-                "data/interviu_exam_rows.jsonl": rows,
+                "data/assay_exam_rows.jsonl": rows,
                 "README.md": _dataset_card(pack, len(rows)),
             },
             "suggested_commands": [
                 "hf auth login",
-                f"hf upload <namespace>/{pack.id} data/interviu_exam_rows.jsonl data/interviu_exam_rows.jsonl --repo-type=dataset",
+                f"hf upload <namespace>/{pack.id} data/assay_exam_rows.jsonl data/assay_exam_rows.jsonl --repo-type=dataset",
                 f"hf upload <namespace>/{pack.id} README.md README.md --repo-type=dataset",
             ],
         },
@@ -411,7 +411,7 @@ def _dataset_card(pack: ExamPack, row_count: int) -> str:
             "",
             f"# {pack.name}",
             "",
-            "This Interviu dataset export contains adversarial agent interview prompts, held-out variants, rubrics, and expected checks.",
+            "This Assay dataset export contains adversarial agent interview prompts, held-out variants, rubrics, and expected checks.",
             "",
             f"- Pack id: `{pack.id}`",
             f"- Simulator: `{pack.simulator_model}`",

@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 
-app = FastAPI(title="Interviu Example HTTP Candidate", version="0.1.0")
+app = FastAPI(title="Assay Example HTTP Candidate", version="0.1.0")
 
 
 class AskRequest(BaseModel):
@@ -42,7 +42,7 @@ class CandidateResponse(BaseModel):
 
 @app.get("/health")
 def health() -> dict[str, object]:
-    return {"ok": True, "adapter": "interviu-http-candidate-example"}
+    return {"ok": True, "adapter": "assay-http-candidate-example"}
 
 
 @app.post("/ask", response_model=CandidateResponse)

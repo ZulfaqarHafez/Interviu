@@ -1,10 +1,10 @@
 # Pixel Sprite Assets
 
-Interviu now has two sprite assets:
+Assay now has two sprite assets:
 
-- `apps/web/public/sprites/interviu-dojo-sprites.svg`: deterministic 32px grid sprite sheet used by the app.
-- `apps/web/public/sprites/interviu-dojo-generated-concept.png`: AI-generated concept sheet used as visual direction.
-- `apps/web/public/sprites/interviu-character-expanded-concept.png`: AI-generated character-state concept sheet used for the expanded character row.
+- `apps/web/public/sprites/assay-dojo-sprites.svg`: deterministic 32px grid sprite sheet used by the app.
+- `apps/web/public/sprites/assay-dojo-generated-concept.png`: AI-generated concept sheet used as visual direction.
+- `apps/web/public/sprites/assay-character-expanded-concept.png`: AI-generated character-state concept sheet used for the expanded character row.
 
 The app renders from the SVG sheet so browser output is stable and testable. The generated PNG is kept as a creative reference for future richer sprite passes.
 
@@ -14,8 +14,8 @@ The sheets were restyled from the original saturated "candy" look to a premium,
 editorial, **duotone-tinted-by-state** treatment. Each of the four sheets ships
 **two variants**:
 
-- `interviu-<sheet>-sprites.svg` — the **light** sheet (Muted Editorial palette).
-- `interviu-<sheet>-sprites-dark.svg` — the **dark** sheet (Premium Terminal
+- `assay-<sheet>-sprites.svg` — the **light** sheet (Muted Editorial palette).
+- `assay-<sheet>-sprites-dark.svg` — the **dark** sheet (Premium Terminal
   palette). Geometry and tile coordinates are byte-identical to the light file;
   only the `<defs><style>` palette block differs.
 
@@ -60,14 +60,14 @@ dark variant is swapped in by CSS: under `.dark`, `apps/web/src/app/globals.css`
 re-points each sheet's `--sprite-sheet-url` at the `…-dark.svg` file. Dark
 filenames for the CSS wiring:
 
-- `/sprites/interviu-dojo-sprites-dark.svg`
-- `/sprites/interviu-judging-sprites-dark.svg`
-- `/sprites/interviu-lessons-sprites-dark.svg`
-- `/sprites/interviu-runs-sprites-dark.svg`
+- `/sprites/assay-dojo-sprites-dark.svg`
+- `/sprites/assay-judging-sprites-dark.svg`
+- `/sprites/assay-lessons-sprites-dark.svg`
+- `/sprites/assay-runs-sprites-dark.svg`
 
 ## Sprite Manifest
 
-`apps/web/public/sprites/interviu-dojo-sprites.json` defines the tile coordinates. Each tile is 32px, and CSS scales hero sprites to 96px with `image-rendering: pixelated`.
+`apps/web/public/sprites/assay-dojo-sprites.json` defines the tile coordinates. Each tile is 32px, and CSS scales hero sprites to 96px with `image-rendering: pixelated`.
 
 Current sprites include candidate states, examiners, judge panel, simulator, TraceRazor, Supabase, Hugging Face, Vercel, pass/fail badges, prompt injection tiles, tool-output traps, privacy vaults, dataset export crates, MCP plugs, model chips, HTTP antennas, local command terminals, audit shards, and expanded character rows with walking, shield, document, audit, celebration, tired, terminal, privacy-lock, ready, question, evidence, review, approved, alert, export, proof, and calm poses.
 
@@ -89,12 +89,12 @@ as `sprite-<suffix>`. Readiness verdicts use `candidate-approved`,
 
 ## Additional Sheets: Judging / Lessons / Runs
 
-Beyond the 9×5 `dojo` sheet, Interviu ships three single-row companion sheets,
+Beyond the 9×5 `dojo` sheet, Assay ships three single-row companion sheets,
 each a deterministic 9×1 (288×32) SVG plus a sibling JSON manifest under
 `apps/web/public/sprites/`. They keep the dojo sheet focused on characters while
 giving runtime state its own glyphs.
 
-### `interviu-judging-sprites` (grader panel state)
+### `assay-judging-sprites` (grader panel state)
 
 | Tile | Manifest key | CSS class |
 | --- | --- | --- |
@@ -108,7 +108,7 @@ giving runtime state its own glyphs.
 | Grader disagreement | `graderDisagreement` | `sprite-grader-disagreement` |
 | Verdict sealed | `verdictSealed` | `sprite-verdict-sealed` |
 
-### `interviu-lessons-sprites` (lesson library growth)
+### `assay-lessons-sprites` (lesson library growth)
 
 | Tile | Manifest key | CSS class |
 | --- | --- | --- |
@@ -121,7 +121,7 @@ giving runtime state its own glyphs.
 | Lesson applied | `lessonApplied` | `sprite-lesson-applied` |
 | Lesson pinned | `lessonPinned` | `sprite-lesson-pinned` |
 
-### `interviu-runs-sprites` (run status / timeline)
+### `assay-runs-sprites` (run status / timeline)
 
 | Tile | Manifest key | CSS class |
 | --- | --- | --- |
@@ -176,6 +176,6 @@ conventions, the palette classes, the manifest shape, and the four-step wiring
 class), and reminds you to keep this doc updated.
 
 When editing geometry, apply the change to **both** the light
-`interviu-<sheet>-sprites.svg` and the dark `interviu-<sheet>-sprites-dark.svg`
+`assay-<sheet>-sprites.svg` and the dark `assay-<sheet>-sprites-dark.svg`
 so the two stay coordinate-identical (only their `<defs><style>` palette blocks
 differ — see the palette table above). Keep both variants background-transparent.

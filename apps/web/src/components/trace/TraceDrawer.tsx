@@ -14,7 +14,7 @@ import type {
   RunEvent,
   Scorecard,
   TracePayload
-} from "@/types/interviu";
+} from "@/types/assay";
 import SpanTree from "./SpanTree";
 import SpanDetail from "./SpanDetail";
 
@@ -82,7 +82,7 @@ export function TraceDrawer({
 
   const handleDownload = () => {
     if (!proofBundle) return;
-    downloadJson(`interviu-${proofBundle.run.id}-proof-bundle.json`, proofBundle);
+    downloadJson(`assay-${proofBundle.run.id}-proof-bundle.json`, proofBundle);
   };
 
   return (

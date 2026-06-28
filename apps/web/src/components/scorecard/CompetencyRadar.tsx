@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Sprite } from "@/components/ui/Sprite";
 import { labelize } from "@/lib/derive";
-import type { Scorecard } from "@/types/interviu";
+import type { Scorecard } from "@/types/assay";
 
 export type CompetencyRadarProps = {
   /** Full scorecard; `competency_scores` is read for the radar. */

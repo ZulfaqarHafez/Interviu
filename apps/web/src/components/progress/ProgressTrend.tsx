@@ -15,7 +15,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Sprite } from "@/components/ui/Sprite";
 import { useCandidateProgress } from "@/lib/queries";
 import { errorMessage, labelize } from "@/lib/derive";
-import type { CandidateProgress } from "@/types/interviu";
+import type { CandidateProgress } from "@/types/assay";
 
 /**
  * Stable-ish palette for competency lines. Cycles through the semantic accent

@@ -22,7 +22,7 @@ export function ThemeToggle() {
     setTheme(next);
     document.documentElement.classList.toggle("dark", next === "dark");
     try {
-      localStorage.setItem("interviu-theme", next);
+      localStorage.setItem("assay-theme", next);
     } catch {
       // ignore storage failures (private mode, etc.)
     }

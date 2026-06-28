@@ -6,14 +6,14 @@ import os
 from fastapi import Header, HTTPException, Request, status
 
 API_KEY_HEADER = "X-API-Key"
-API_KEYS_ENV = "INTERVIU_API_KEYS"
+API_KEYS_ENV = "ASSAY_API_KEYS"
 
 # Paths that must always be reachable without a key (health probes / preflight).
 EXEMPT_PATHS = {"/health", "/health/database"}
 
 
 def configured_api_keys() -> set[str]:
-    """Return the set of accepted API keys parsed from ``INTERVIU_API_KEYS``.
+    """Return the set of accepted API keys parsed from ``ASSAY_API_KEYS``.
 
     The env var is a comma-separated list. Empty/whitespace entries are dropped.
     When unset or empty the returned set is empty, which means auth is disabled
@@ -35,7 +35,7 @@ async def require_api_key(
 ) -> None:
     """Global auth dependency.
 
-    Opt-in: if ``INTERVIU_API_KEYS`` is unset/empty this is a no-op so the local
+    Opt-in: if ``ASSAY_API_KEYS`` is unset/empty this is a no-op so the local
     dev app keeps working with no auth configured. When keys are configured, a
     matching ``X-API-Key`` header is required or the request is rejected with 401.
     Health probes (see ``EXEMPT_PATHS``) are always allowed.

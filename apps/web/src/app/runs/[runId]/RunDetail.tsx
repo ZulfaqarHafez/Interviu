@@ -79,7 +79,7 @@ export default function RunDetail({ runId }: { runId: string }) {
             type="button"
             className="command-button"
             disabled={!proofBundle}
-            onClick={() => proofBundle && downloadJson(`interviu-${runId}-proof-bundle.json`, proofBundle)}
+            onClick={() => proofBundle && downloadJson(`assay-${runId}-proof-bundle.json`, proofBundle)}
           >
             <Save size={16} /> Export proof
           </button>

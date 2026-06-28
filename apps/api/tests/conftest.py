@@ -8,14 +8,14 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def isolated_db(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("INTERVIU_DB_PATH", str(tmp_path / "interviu-test.db"))
-    monkeypatch.delenv("INTERVIU_DB_BACKEND", raising=False)
+    monkeypatch.setenv("ASSAY_DB_PATH", str(tmp_path / "assay-test.db"))
+    monkeypatch.delenv("ASSAY_DB_BACKEND", raising=False)
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
-    monkeypatch.delenv("INTERVIU_REQUIRE_TENANT", raising=False)
-    monkeypatch.delenv("INTERVIU_DEFAULT_TENANT", raising=False)
-    from interviu_api.database import reset_store_cache
-    from interviu_api import rate_limit as rl
+    monkeypatch.delenv("ASSAY_REQUIRE_TENANT", raising=False)
+    monkeypatch.delenv("ASSAY_DEFAULT_TENANT", raising=False)
+    from assay_api.database import reset_store_cache
+    from assay_api import rate_limit as rl
 
     reset_store_cache()
     rl._storage.reset()

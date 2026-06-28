@@ -1,12 +1,12 @@
-name: Interviu Assay
-description: Run an agent.md through Interviu Assay and publish proof artifacts.
+name: Assay Assay
+description: Run an agent.md through Assay Assay and publish proof artifacts.
 
 inputs:
   agent-md:
     description: Path to the agent.md or AGENTS.md file under test.
     required: true
   pack:
-    description: Interviu exam pack id.
+    description: Assay exam pack id.
     required: false
     default: hr-v1
   pack-file:
@@ -67,7 +67,7 @@ runs:
         cache: pip
         cache-dependency-path: apps/api/requirements-dev.txt
 
-    - name: Install Interviu API dependencies
+    - name: Install Assay API dependencies
       shell: bash
       run: python -m pip install -r apps/api/requirements-dev.txt
 
@@ -92,7 +92,7 @@ runs:
         if [ "${{ inputs.require-trace }}" = "true" ]; then
           args+=(--require-trace)
         fi
-        PYTHONPATH=apps/api python -m interviu_api.cli "${args[@]}"
+        PYTHONPATH=apps/api python -m assay_api.cli "${args[@]}"
         status=$?
         echo "exit_code=$status" >> "$GITHUB_OUTPUT"
         exit 0
@@ -109,7 +109,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: interviu-assay
+        name: assay-assay
         path: |
           ${{ inputs.json-out }}
           ${{ inputs.proof-out }}
@@ -125,13 +125,13 @@ runs:
           const path = "${{ inputs.summary-out }}";
           if (!fs.existsSync(path)) return;
           const body = [
-            "<!-- interviu-assay-comment -->",
+            "<!-- assay-assay-comment -->",
             fs.readFileSync(path, "utf8")
           ].join("\n");
           const { owner, repo } = context.repo;
           const issue_number = context.payload.pull_request.number;
           const comments = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
-          const existing = comments.data.find((comment) => comment.body && comment.body.includes("<!-- interviu-assay-comment -->"));
+          const existing = comments.data.find((comment) => comment.body && comment.body.includes("<!-- assay-assay-comment -->"));
           if (existing) {
             await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
           } else {

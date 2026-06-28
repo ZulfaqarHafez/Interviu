@@ -1,7 +1,7 @@
 import type {
   ExamPack,
   Scorecard
-} from "@/types/interviu";
+} from "@/types/assay";
 
 /**
  * Pure derive helpers ported verbatim from page.tsx so every console component
@@ -77,5 +77,5 @@ export function downloadJson(filename: string, payload: unknown) {
 }
 
 export function errorMessage(exc: unknown) {
-  return exc instanceof Error ? exc.message : "Unknown Interviu error";
+  return exc instanceof Error ? exc.message : "Unknown Assay error";
 }

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from interviu_api.models import CandidateConfig
-from interviu_api.trace_audit import TraceAuditService, _audit_slice
+from assay_api.models import CandidateConfig
+from assay_api.trace_audit import TraceAuditService, _audit_slice
 
 
 def test_trace_audit_reports_insufficient_steps() -> None:
@@ -37,7 +37,7 @@ def test_trace_audit_accepts_fake_client(monkeypatch) -> None:
             assert trace["task_value_score"] == 0.9
             return FakeReport()
 
-    monkeypatch.setattr("interviu_api.trace_audit._load_tracerazor_client", lambda: FakeClient)
+    monkeypatch.setattr("assay_api.trace_audit._load_tracerazor_client", lambda: FakeClient)
 
     service = TraceAuditService(threshold=70)
     candidate = CandidateConfig(name="Demo", adapter_type="mock")
@@ -74,7 +74,7 @@ def test_trace_audit_caps_large_repeated_traces(monkeypatch) -> None:
             assert trace["metadata"]["sampling"] == "representative"
             return FakeReport()
 
-    monkeypatch.setattr("interviu_api.trace_audit._load_tracerazor_client", lambda: FakeClient)
+    monkeypatch.setattr("assay_api.trace_audit._load_tracerazor_client", lambda: FakeClient)
 
     service = TraceAuditService(threshold=70)
     candidate = CandidateConfig(name="Demo", adapter_type="mock")
@@ -96,7 +96,7 @@ def test_trace_audit_caps_large_repeated_traces(monkeypatch) -> None:
 
     assert summary.status == "ok"
     assert summary.total_steps == 60
-    assert summary.raw["interviu_audit"]["audited_steps"] == 8
+    assert summary.raw["assay_audit"]["audited_steps"] == 8
 
 
 def test_audit_slice_keeps_short_traces_unchanged() -> None:

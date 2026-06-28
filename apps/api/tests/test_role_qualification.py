@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from interviu_api import role_qualification
-from interviu_api.main import app
-from interviu_api.models import CandidateConfig, RunRecord
+from assay_api import role_qualification
+from assay_api.main import app
+from assay_api.models import CandidateConfig, RunRecord
 
 
 class _FakeAudit:
@@ -13,7 +13,7 @@ class _FakeAudit:
         self.threshold = threshold
 
     def analyse(self, candidate, trace_steps, task_value_score):
-        from interviu_api.models import TraceAuditSummary
+        from assay_api.models import TraceAuditSummary
 
         return TraceAuditSummary(
             status="ok", trace_id="t", tas_score=88, grade="Good", passes=True,
@@ -29,8 +29,8 @@ def _started_run(client: TestClient) -> str:
 
 
 def _enable(monkeypatch) -> None:
-    monkeypatch.setenv("INTERVIU_TAILORED_EXAMS_ENABLED", "1")
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setenv("ASSAY_TAILORED_EXAMS_ENABLED", "1")
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
 
 
 def test_brief_is_deterministic_without_key(monkeypatch) -> None:
@@ -91,7 +91,7 @@ def test_brief_fast_returns_structured_result(monkeypatch) -> None:
 
 def test_brief_deep_passes_sources_through(monkeypatch) -> None:
     _enable(monkeypatch)
-    monkeypatch.setenv("INTERVIU_QUALIFY_MODE", "deep")
+    monkeypatch.setenv("ASSAY_QUALIFY_MODE", "deep")
     monkeypatch.setattr(role_qualification, "resolve_openai_key", lambda: "test-key")
 
     def fake_run(key, mode, agent_md, job_scope):
@@ -140,7 +140,7 @@ def test_brief_errors_degrade_to_deterministic(monkeypatch) -> None:
 
 def test_brief_absent_when_flag_off(monkeypatch) -> None:
     # Flag intentionally not set.
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     monkeypatch.setattr(role_qualification, "resolve_openai_key", lambda: "")
 
     with TestClient(app) as client:

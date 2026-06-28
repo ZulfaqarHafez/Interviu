@@ -7,7 +7,7 @@ import {
   type UseMutationOptions,
   type UseQueryOptions
 } from "@tanstack/react-query";
-import { interviuApi } from "@/lib/api";
+import { assayApi } from "@/lib/api";
 import type {
   AgentSpec,
   CandidateConfig,
@@ -25,7 +25,7 @@ import type {
   RunRecord,
   Scorecard,
   TracePayload
-} from "@/types/interviu";
+} from "@/types/assay";
 
 type HealthPayload = { ok: boolean; tracerazor_importable: boolean; database_backend: string; openai_configured?: boolean };
 
@@ -64,7 +64,7 @@ type QueryOpts<T> = Omit<UseQueryOptions<T, Error, T>, "queryKey" | "queryFn">;
 export function useHealth(options?: QueryOpts<HealthPayload>) {
   return useQuery({
     queryKey: queryKeys.health(),
-    queryFn: () => interviuApi.health(),
+    queryFn: () => assayApi.health(),
     ...options
   });
 }
@@ -72,7 +72,7 @@ export function useHealth(options?: QueryOpts<HealthPayload>) {
 export function useDatabaseHealth(options?: QueryOpts<DatabaseHealth>) {
   return useQuery({
     queryKey: queryKeys.databaseHealth(),
-    queryFn: () => interviuApi.databaseHealth(),
+    queryFn: () => assayApi.databaseHealth(),
     ...options
   });
 }
@@ -80,7 +80,7 @@ export function useDatabaseHealth(options?: QueryOpts<DatabaseHealth>) {
 export function useExamPacks(options?: QueryOpts<ExamPack[]>) {
   return useQuery({
     queryKey: queryKeys.examPacks(),
-    queryFn: () => interviuApi.examPacks(),
+    queryFn: () => assayApi.examPacks(),
     ...options
   });
 }
@@ -90,7 +90,7 @@ export function useImportExamPackFile(
 ) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ content, format }) => interviuApi.importExamPackFile(content, format),
+    mutationFn: ({ content, format }) => assayApi.importExamPackFile(content, format),
     ...options,
     onSettled: (...args) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.examPacks() });
@@ -102,7 +102,7 @@ export function useImportExamPackFile(
 export function useConnectors(options?: QueryOpts<Connector[]>) {
   return useQuery({
     queryKey: queryKeys.connectors(),
-    queryFn: () => interviuApi.connectors(),
+    queryFn: () => assayApi.connectors(),
     ...options
   });
 }
@@ -110,7 +110,7 @@ export function useConnectors(options?: QueryOpts<Connector[]>) {
 export function useConnectorProbes(options?: QueryOpts<ConnectorProbe[]>) {
   return useQuery({
     queryKey: queryKeys.connectorProbes(),
-    queryFn: () => interviuApi.connectorProbes(),
+    queryFn: () => assayApi.connectorProbes(),
     ...options
   });
 }
@@ -118,7 +118,7 @@ export function useConnectorProbes(options?: QueryOpts<ConnectorProbe[]>) {
 export function useCandidates(options?: QueryOpts<CandidateConfig[]>) {
   return useQuery({
     queryKey: queryKeys.candidates(),
-    queryFn: () => interviuApi.candidates(),
+    queryFn: () => assayApi.candidates(),
     ...options
   });
 }
@@ -126,7 +126,7 @@ export function useCandidates(options?: QueryOpts<CandidateConfig[]>) {
 export function useRuns(options?: QueryOpts<RunRecord[]>) {
   return useQuery({
     queryKey: queryKeys.runs(),
-    queryFn: () => interviuApi.runs(),
+    queryFn: () => assayApi.runs(),
     ...options
   });
 }
@@ -134,7 +134,7 @@ export function useRuns(options?: QueryOpts<RunRecord[]>) {
 export function useRun(runId: string | null | undefined, options?: QueryOpts<RunRecord>) {
   return useQuery({
     queryKey: queryKeys.run(runId ?? ""),
-    queryFn: () => interviuApi.proofBundle(runId as string).then((bundle) => bundle.run),
+    queryFn: () => assayApi.proofBundle(runId as string).then((bundle) => bundle.run),
     enabled: Boolean(runId),
     ...options
   });
@@ -143,7 +143,7 @@ export function useRun(runId: string | null | undefined, options?: QueryOpts<Run
 export function useScorecard(runId: string | null | undefined, options?: QueryOpts<Scorecard>) {
   return useQuery({
     queryKey: queryKeys.scorecard(runId ?? ""),
-    queryFn: () => interviuApi.scorecard(runId as string),
+    queryFn: () => assayApi.scorecard(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -152,7 +152,7 @@ export function useScorecard(runId: string | null | undefined, options?: QueryOp
 export function useTrace(runId: string | null | undefined, options?: QueryOpts<TracePayload>) {
   return useQuery({
     queryKey: queryKeys.trace(runId ?? ""),
-    queryFn: () => interviuApi.trace(runId as string),
+    queryFn: () => assayApi.trace(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -169,7 +169,7 @@ export function useEvents(
   const { live, ...options } = opts ?? {};
   return useQuery({
     queryKey: queryKeys.events(runId ?? ""),
-    queryFn: () => interviuApi.events(runId as string),
+    queryFn: () => assayApi.events(runId as string),
     enabled: Boolean(runId),
     refetchInterval: live ? 1000 : false,
     ...options
@@ -179,7 +179,7 @@ export function useEvents(
 export function useProofBundle(runId: string | null | undefined, options?: QueryOpts<ProofBundle>) {
   return useQuery({
     queryKey: queryKeys.proofBundle(runId ?? ""),
-    queryFn: () => interviuApi.proofBundle(runId as string),
+    queryFn: () => assayApi.proofBundle(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -188,7 +188,7 @@ export function useProofBundle(runId: string | null | undefined, options?: Query
 export function useAgentSpec(runId: string | null | undefined, options?: QueryOpts<AgentSpec>) {
   return useQuery({
     queryKey: queryKeys.agentSpec(runId ?? ""),
-    queryFn: () => interviuApi.agentSpec(runId as string),
+    queryFn: () => assayApi.agentSpec(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -197,7 +197,7 @@ export function useAgentSpec(runId: string | null | undefined, options?: QueryOp
 export function useReviewers(runId: string | null | undefined, options?: QueryOpts<ProductReview>) {
   return useQuery({
     queryKey: queryKeys.reviewers(runId ?? ""),
-    queryFn: () => interviuApi.reviewers(runId as string),
+    queryFn: () => assayApi.reviewers(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -209,7 +209,7 @@ export function useCandidateProgress(
 ) {
   return useQuery({
     queryKey: queryKeys.candidateProgress(candidateId ?? ""),
-    queryFn: () => interviuApi.candidateProgress(candidateId as string),
+    queryFn: () => assayApi.candidateProgress(candidateId as string),
     enabled: Boolean(candidateId),
     ...options
   });
@@ -222,7 +222,7 @@ export function useCandidateLessons(
 ) {
   return useQuery({
     queryKey: queryKeys.candidateLessons(candidateId ?? "", examPackId),
-    queryFn: () => interviuApi.candidateLessons(candidateId as string, examPackId),
+    queryFn: () => assayApi.candidateLessons(candidateId as string, examPackId),
     enabled: Boolean(candidateId),
     ...options
   });
@@ -235,7 +235,7 @@ export function useRunComparison(
 ) {
   return useQuery({
     queryKey: queryKeys.runComparison(runId ?? "", baseline),
-    queryFn: () => interviuApi.runComparison(runId as string, baseline),
+    queryFn: () => assayApi.runComparison(runId as string, baseline),
     enabled: Boolean(runId),
     ...options
   });
@@ -247,7 +247,7 @@ export function useRunLessonsApplied(
 ) {
   return useQuery({
     queryKey: queryKeys.runLessonsApplied(runId ?? ""),
-    queryFn: () => interviuApi.runLessonsApplied(runId as string),
+    queryFn: () => assayApi.runLessonsApplied(runId as string),
     enabled: Boolean(runId),
     ...options
   });
@@ -265,7 +265,7 @@ export function useCreateCandidate(
 ) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (candidate: Partial<CandidateConfig>) => interviuApi.createCandidate(candidate),
+    mutationFn: (candidate: Partial<CandidateConfig>) => assayApi.createCandidate(candidate),
     ...options,
     onSettled: (...args) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.candidates() });
@@ -284,7 +284,7 @@ export function useCreateRun(options?: MutationOpts<RunRecord, CreateRunVars>) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ candidateId, examPackId = "hr-v1", jobScope = null }: CreateRunVars) =>
-      interviuApi.createRun(candidateId, examPackId, jobScope),
+      assayApi.createRun(candidateId, examPackId, jobScope),
     ...options,
     onSettled: (...args) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.runs() });
@@ -296,7 +296,7 @@ export function useCreateRun(options?: MutationOpts<RunRecord, CreateRunVars>) {
 export function useStartRun(options?: MutationOpts<Scorecard, string>) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (runId: string) => interviuApi.startRun(runId),
+    mutationFn: (runId: string) => assayApi.startRun(runId),
     ...options,
     onSettled: (data, error, runId, ...rest) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.runs() });

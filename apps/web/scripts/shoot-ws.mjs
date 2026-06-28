@@ -5,7 +5,7 @@ const b = await chromium.launch();
 async function shot(name, path, full=false){
   const ctx = await b.newContext({viewport:{width:1280,height:860}});
   const p = await ctx.newPage();
-  await p.addInitScript(()=>localStorage.setItem("interviu-theme","light"));
+  await p.addInitScript(()=>localStorage.setItem("assay-theme","light"));
   const errs=[]; p.on("pageerror",e=>errs.push(e.message));
   await p.goto("http://127.0.0.1:3000"+path,{waitUntil:"domcontentloaded"});
   await p.waitForTimeout(2500);

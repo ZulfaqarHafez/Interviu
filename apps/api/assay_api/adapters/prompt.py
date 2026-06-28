@@ -46,7 +46,7 @@ class PromptAgentAdapter(CandidateAdapter):
 
     The agent's own markdown drives behaviour: it is sent as the developer/system
     message so the agent's persona, operating principles, and tools take
-    precedence over the generic HR-screening preamble Interviu adds to every
+    precedence over the generic HR-screening preamble Assay adds to every
     ``context``. The endpoint that constructs this adapter only does so in live
     mode (an OpenAI key is present); with no key it falls back to the deterministic
     mock, so this adapter raises if it cannot resolve a key.
@@ -85,10 +85,10 @@ class PromptAgentAdapter(CandidateAdapter):
 
         started = time.perf_counter()
         # The agent's own definition is the developer message so its persona wins;
-        # the generic Interviu preamble arrives only as user-supplied context that
+        # the generic Assay preamble arrives only as user-supplied context that
         # the agent should interpret under its own rules.
         user_message = (
-            "Interviu screening context (treat as task framing, your own agent "
+            "Assay screening context (treat as task framing, your own agent "
             "definition above takes precedence):\n"
             f"{context}\n\n"
             f"Question:\n{question}"
@@ -121,15 +121,15 @@ class PromptAgentAdapter(CandidateAdapter):
     def _call_openai(self, key: str, user_message: str) -> Any:
         from openai import APIStatusError, OpenAI, RateLimitError
 
-        timeout_s = float(os.environ.get("INTERVIU_OPENAI_TIMEOUT_S", "90"))
+        timeout_s = float(os.environ.get("ASSAY_OPENAI_TIMEOUT_S", "90"))
         client = OpenAI(api_key=key, timeout=timeout_s)
         # A few quick retries absorb a transient 429 on a healthy key. But on a
         # crippled key (free tier ~3/min, where rejected calls themselves keep the
         # window saturated, or an exhausted quota) more retries are futile and just
         # stall the run — so after a short budget we raise _RateLimited and the
         # caller falls back to a deterministic demo answer.
-        max_attempts = max(1, int(os.environ.get("INTERVIU_OPENAI_MAX_RETRIES", "2")))
-        max_wait = float(os.environ.get("INTERVIU_OPENAI_MAX_RETRY_WAIT_S", "5"))
+        max_attempts = max(1, int(os.environ.get("ASSAY_OPENAI_MAX_RETRIES", "2")))
+        max_wait = float(os.environ.get("ASSAY_OPENAI_MAX_RETRY_WAIT_S", "5"))
         for attempt in range(1, max_attempts + 1):
             try:
                 return client.responses.create(

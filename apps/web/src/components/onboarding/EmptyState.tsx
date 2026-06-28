@@ -9,7 +9,7 @@ import Sprite from "@/components/ui/Sprite";
 import { useAnnouncer } from "@/components/announcer";
 import { useCandidates, useCreateCandidate, useCreateRun, useStartRun } from "@/lib/queries";
 import { errorMessage } from "@/lib/derive";
-import type { RunRecord, Scorecard } from "@/types/interviu";
+import type { RunRecord, Scorecard } from "@/types/assay";
 
 /**
  * First-run experience shown when there are no runs yet.
@@ -35,8 +35,8 @@ export type EmptyStateProps = {
   onRunComplete?: (run: RunRecord, scorecard: Scorecard) => void;
 };
 
-const ADAPTER_SNIPPET = `# Interviu HTTP candidate contract
-# Interviu POSTs each interview turn to your endpoint:
+const ADAPTER_SNIPPET = `# Assay HTTP candidate contract
+# Assay POSTs each interview turn to your endpoint:
 #   POST https://your-agent.example.com/ask
 #   { "context": "...", "question": "..." }
 # Respond with:
@@ -130,7 +130,7 @@ export function EmptyState({
       </CardHeader>
       <CardBody style={{ display: "grid", gap: 16 }}>
         <p style={{ margin: 0, fontSize: 13, color: "var(--color-fg-muted)", lineHeight: 1.5 }}>
-          Interviu interviews an AI agent against an adversarial exam, grades it, audits its trace,
+          Assay interviews an AI agent against an adversarial exam, grades it, audits its trace,
           and writes a coaching plan. Start with the built-in demo, then wire up your own agent over
           the HTTP contract below.
         </p>

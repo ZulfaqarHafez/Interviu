@@ -427,7 +427,7 @@ def _run_extraction(key: str, raw_text: str, mode: str) -> dict[str, Any]:
 
     from .agent_research import DEFAULT_FAST_MODEL
 
-    timeout_s = float(os.environ.get("INTERVIU_OPENAI_TIMEOUT_S", "90"))
+    timeout_s = float(os.environ.get("ASSAY_OPENAI_TIMEOUT_S", "90"))
     client = OpenAI(api_key=key, timeout=timeout_s)
     model = DEFAULT_FAST_MODEL
     response = client.responses.create(
@@ -469,7 +469,7 @@ def _extraction_text(response: Any) -> str:
 def role_analysis_payload(job_scope: JobScope, override_pack_id: str | None = None) -> dict[str, Any]:
     """Return the schema-tagged JSON payload for a role analysis."""
     analysis = analyze_job_scope(job_scope, override_pack_id=override_pack_id)
-    return {"schema": "interviu.role_analysis.v1", **analysis.model_dump(mode="json")}
+    return {"schema": "assay.role_analysis.v1", **analysis.model_dump(mode="json")}
 
 
 def role_analysis_for_run(run_id: str) -> dict[str, Any] | None:

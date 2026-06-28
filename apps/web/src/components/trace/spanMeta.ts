@@ -1,4 +1,4 @@
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 
 /**
  * Per-actor visual metadata shared by SpanTree and SpanDetail so the trace view

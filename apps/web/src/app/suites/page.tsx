@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Download, Upload } from "lucide-react";
-import { interviuApi } from "@/lib/api";
+import { assayApi } from "@/lib/api";
 import { downloadJson, errorMessage } from "@/lib/derive";
 import { useExamPacks, useImportExamPackFile } from "@/lib/queries";
 import { ProbeArrayArt } from "@/components/ui/EmptyArt";
@@ -36,8 +36,8 @@ export default function SuitesPage() {
   async function exportPack(packId: string) {
     setMessage(null);
     try {
-      const payload = await interviuApi.examPackExport(packId);
-      downloadJson(`${packId}-interviu-exam-pack.json`, payload);
+      const payload = await assayApi.examPackExport(packId);
+      downloadJson(`${packId}-assay-exam-pack.json`, payload);
     } catch (exc) {
       setMessage(errorMessage(exc));
     }

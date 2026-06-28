@@ -10,7 +10,7 @@ this agent be?" in one of two modes:
   and more expensive; on-demand only.
 
 The whole layer is optional. With no API key it returns a ``status="unavailable"``
-result so the rest of Interviu keeps working offline. The key is read
+result so the rest of Assay keeps working offline. The key is read
 server-side only (never exposed to the browser) from a local env file or the
 process environment, and an OpenAI call sends the run's candidate answers and
 scores to OpenAI, so it is always an explicit, on-demand action.
@@ -27,9 +27,9 @@ from .models import AgentResearch, AgentResearchSource, AgentSpec, SubAgentIdea
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
-DEFAULT_FAST_MODEL = os.environ.get("INTERVIU_OPENAI_MODEL", "gpt-4.1")
-DEFAULT_DEEP_MODEL = os.environ.get("INTERVIU_OPENAI_DEEP_MODEL", "o4-mini-deep-research")
-DISABLE_OPENAI_ENV = "INTERVIU_DISABLE_OPENAI"
+DEFAULT_FAST_MODEL = os.environ.get("ASSAY_OPENAI_MODEL", "gpt-4.1")
+DEFAULT_DEEP_MODEL = os.environ.get("ASSAY_OPENAI_DEEP_MODEL", "o4-mini-deep-research")
+DISABLE_OPENAI_ENV = "ASSAY_DISABLE_OPENAI"
 
 _RESEARCH_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -123,7 +123,7 @@ def research_agent_spec(run_id: str, mode: str = "fast") -> AgentResearch | None
 def _run_research(key: str, mode: str, spec: AgentSpec) -> dict[str, Any]:
     from openai import OpenAI
 
-    timeout_s = float(os.environ.get("INTERVIU_OPENAI_TIMEOUT_S", "300" if mode == "deep" else "90"))
+    timeout_s = float(os.environ.get("ASSAY_OPENAI_TIMEOUT_S", "300" if mode == "deep" else "90"))
     client = OpenAI(api_key=key, timeout=timeout_s)
     prompt = _build_prompt(spec, mode)
 
@@ -166,13 +166,13 @@ def _build_prompt(spec: AgentSpec, mode: str) -> str:
         [
             f"Candidate agent: {spec.candidate_name}",
             f"Exam pack: {spec.exam_pack_id}",
-            f"Interviu readiness verdict: {spec.readiness} - {spec.headline}",
+            f"Assay readiness verdict: {spec.readiness} - {spec.headline}",
             f"Verified strengths: {', '.join(spec.strengths) or 'none'}",
             f"Gaps to fix: {', '.join(spec.gaps) or 'none'}",
             f"TraceRazor actions: {', '.join(spec.tracerazor_actions) or 'none'}",
-            f"Interviu's deterministic helper recommendations: {sub_agents}",
+            f"Assay's deterministic helper recommendations: {sub_agents}",
             "",
-            "Interviu's current refined agent definition:",
+            "Assay's current refined agent definition:",
             spec.agent_markdown,
             "",
             "Task: Recommend what this agent should be. Improve on the deterministic definition above, "
@@ -258,11 +258,11 @@ def resolve_openai_key() -> str:
 def load_local_env() -> None:
     """Populate os.environ from a local env file for keys that are not already set.
 
-    Looks at ``INTERVIU_ENV_FILE`` then ``.env`` then ``env`` at the project root.
+    Looks at ``ASSAY_ENV_FILE`` then ``.env`` then ``env`` at the project root.
     This is dependency-free and never overrides variables already in the
     environment.
     """
-    candidates = [os.environ.get("INTERVIU_ENV_FILE"), ".env", "env"]
+    candidates = [os.environ.get("ASSAY_ENV_FILE"), ".env", "env"]
     for name in candidates:
         if not name:
             continue

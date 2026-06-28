@@ -18,8 +18,8 @@ class TraceAuditService:
 
     def __init__(self, threshold: float):
         self.threshold = threshold
-        self.timeout_s = float(os.environ.get("INTERVIU_TRACERAZOR_TIMEOUT_S", "12"))
-        self.max_audit_steps = int(os.environ.get("INTERVIU_TRACERAZOR_MAX_STEPS", str(self.DEFAULT_MAX_AUDIT_STEPS)))
+        self.timeout_s = float(os.environ.get("ASSAY_TRACERAZOR_TIMEOUT_S", "12"))
+        self.max_audit_steps = int(os.environ.get("ASSAY_TRACERAZOR_MAX_STEPS", str(self.DEFAULT_MAX_AUDIT_STEPS)))
 
     def analyse(
         self,
@@ -47,7 +47,7 @@ class TraceAuditService:
 
         audit_steps = _audit_slice(trace_steps, self.max_audit_steps)
         trace = {
-            "trace_id": f"interviu_{uuid4().hex[:12]}",
+            "trace_id": f"assay_{uuid4().hex[:12]}",
             "agent_name": candidate.name,
             "framework": candidate.adapter_type,
             "task_value_score": max(0.0, min(1.0, task_value_score)),
@@ -69,12 +69,12 @@ class TraceAuditService:
                 status="error",
                 total_steps=source_step_count,
                 passes=False,
-                raw={"interviu_audit": trace["metadata"]},
+                raw={"assay_audit": trace["metadata"]},
                 message=str(exc),
             )
 
         raw = dict(report_payload["raw"] or {})
-        raw.setdefault("interviu_audit", trace["metadata"])
+        raw.setdefault("assay_audit", trace["metadata"])
         return TraceAuditSummary(
             status="ok",
             trace_id=report_payload["trace_id"],
@@ -139,7 +139,7 @@ def _trace_audit_worker(threshold: float, trace: dict[str, Any], queue: Any) -> 
 def _audit_slice(trace_steps: list[dict[str, Any]], max_steps: int) -> list[dict[str, Any]]:
     """Return a bounded, ordered, representative candidate trace.
 
-    Interviu stores every span, but repeated pass^k variants can produce many
+    Assay stores every span, but repeated pass^k variants can produce many
     near-identical candidate steps. TraceRazor only needs enough candidate-only
     reasoning/tool material to score adequacy, so keep a balanced slice while
     avoiding local binary timeouts on routine demos.

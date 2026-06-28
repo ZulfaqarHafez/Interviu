@@ -136,7 +136,7 @@ def _feedback(item: ExamItem, matched: list[str], missed: list[str], forbidden_h
 
 
 def llm_judge_enabled() -> bool:
-    return (os.environ.get("INTERVIU_LLM_JUDGE_ENABLED") or "").strip().lower() in {
+    return (os.environ.get("ASSAY_LLM_JUDGE_ENABLED") or "").strip().lower() in {
         "1",
         "true",
         "yes",
@@ -147,7 +147,7 @@ def llm_judge_enabled() -> bool:
 def tailored_judge_enabled() -> bool:
     """When on, an LLM scores each check 0..1 as the PRIMARY grader (vs the
     keyword baseline, which becomes the offline fallback)."""
-    return (os.environ.get("INTERVIU_TAILORED_JUDGE_ENABLED") or "").strip().lower() in {
+    return (os.environ.get("ASSAY_TAILORED_JUDGE_ENABLED") or "").strip().lower() in {
         "1",
         "true",
         "yes",
@@ -204,7 +204,7 @@ def _cached_primary_judge(
 
 def llm_primary_judge(item: ExamItem, response: CandidateResponse) -> dict[str, Any]:
     """Per-check 0..1 scoring via OpenAI. Degrades to a status dict on no key/error."""
-    model = os.environ.get("INTERVIU_TAILORED_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
+    model = os.environ.get("ASSAY_TAILORED_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
     prompt = _primary_judge_prompt(item, response)
     key = resolve_openai_key()
     if not key:
@@ -213,7 +213,7 @@ def llm_primary_judge(item: ExamItem, response: CandidateResponse) -> dict[str, 
     try:
         from openai import OpenAI
 
-        timeout_s = float(os.environ.get("INTERVIU_LLM_JUDGE_TIMEOUT_S", "45"))
+        timeout_s = float(os.environ.get("ASSAY_LLM_JUDGE_TIMEOUT_S", "45"))
         client = OpenAI(api_key=key, timeout=timeout_s)
         result = client.responses.create(
             model=model,
@@ -347,11 +347,11 @@ def semantic_judge_assessment(item: ExamItem, response: CandidateResponse) -> di
     """Best-effort semantic judge for paraphrases.
 
     The deterministic rubric remains the default scoring path. This helper is
-    only called when ``INTERVIU_LLM_JUDGE_ENABLED=1`` and deterministic grading
+    only called when ``ASSAY_LLM_JUDGE_ENABLED=1`` and deterministic grading
     missed at least one check without hard forbidden hits.
     """
 
-    model = os.environ.get("INTERVIU_LLM_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
+    model = os.environ.get("ASSAY_LLM_JUDGE_MODEL", DEFAULT_FAST_MODEL).strip() or DEFAULT_FAST_MODEL
     prompt = _judge_prompt(item, response)
     key = resolve_openai_key()
     if not key:
@@ -365,7 +365,7 @@ def semantic_judge_assessment(item: ExamItem, response: CandidateResponse) -> di
     try:
         from openai import OpenAI
 
-        timeout_s = float(os.environ.get("INTERVIU_LLM_JUDGE_TIMEOUT_S", "45"))
+        timeout_s = float(os.environ.get("ASSAY_LLM_JUDGE_TIMEOUT_S", "45"))
         client = OpenAI(api_key=key, timeout=timeout_s)
         result = client.responses.create(
             model=model,
@@ -447,7 +447,7 @@ def _rescued_checks(judge: dict[str, Any] | None, missed: list[str]) -> list[str
     except (TypeError, ValueError):
         confidence = 0.0
     try:
-        minimum = float(os.environ.get("INTERVIU_LLM_JUDGE_MIN_CONFIDENCE", "0.72"))
+        minimum = float(os.environ.get("ASSAY_LLM_JUDGE_MIN_CONFIDENCE", "0.72"))
     except ValueError:
         minimum = 0.72
     if confidence < minimum:

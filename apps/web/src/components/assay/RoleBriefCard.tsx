@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { Compass, ShieldAlert, ExternalLink } from "lucide-react";
-import { interviuApi } from "@/lib/api";
-import type { RoleBrief } from "@/types/interviu";
+import { assayApi } from "@/lib/api";
+import type { RoleBrief } from "@/types/assay";
 
 /**
  * What the judge was qualified with. Before grading, Assay researches what this
@@ -17,7 +17,7 @@ export function RoleBriefCard({ runId }: { runId: string }) {
 
   React.useEffect(() => {
     let alive = true;
-    interviuApi
+    assayApi
       .roleBrief(runId)
       .then((data) => {
         if (alive) setBrief(data);

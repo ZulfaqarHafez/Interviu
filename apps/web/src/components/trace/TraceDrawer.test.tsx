@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import TraceDrawer from "./TraceDrawer";
-import type { RunEvent, Scorecard, TracePayload } from "@/types/interviu";
+import type { RunEvent, Scorecard, TracePayload } from "@/types/assay";
 
 const events: RunEvent[] = [
   {

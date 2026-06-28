@@ -1,4 +1,4 @@
-"""Interviu API package."""
+"""Assay API package."""
 
 __all__ = ["__version__"]
 

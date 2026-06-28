@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from interviu_api import exam_synthesis, role_qualification
-from interviu_api.exam_packs import _validate_pack_contract
-from interviu_api.main import app
-from interviu_api.models import BriefCompetency, RoleBrief, RunRecord
+from assay_api import exam_synthesis, role_qualification
+from assay_api.exam_packs import _validate_pack_contract
+from assay_api.main import app
+from assay_api.models import BriefCompetency, RoleBrief, RunRecord
 
 
 def _brief(status: str = "ok", competencies=None) -> RoleBrief:
@@ -130,15 +130,15 @@ class _FakeAudit:
         self.threshold = threshold
 
     def analyse(self, candidate, trace_steps, task_value_score):
-        from interviu_api.models import TraceAuditSummary
+        from assay_api.models import TraceAuditSummary
 
         return TraceAuditSummary(status="ok", trace_id="t", tas_score=88, grade="Good",
                                  passes=True, total_steps=len(trace_steps), total_tokens=1000)
 
 
 def test_tailored_run_registers_pack_and_marks_status(monkeypatch) -> None:
-    monkeypatch.setenv("INTERVIU_TAILORED_EXAMS_ENABLED", "1")
-    monkeypatch.setattr("interviu_api.orchestrator.TraceAuditService", _FakeAudit)
+    monkeypatch.setenv("ASSAY_TAILORED_EXAMS_ENABLED", "1")
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
     # Brief stage returns a live structured brief.
     monkeypatch.setattr(role_qualification, "resolve_openai_key", lambda: "k")
     monkeypatch.setattr(role_qualification, "_run_brief", lambda key, mode, agent_md, job_scope: {

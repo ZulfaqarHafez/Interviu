@@ -79,7 +79,7 @@ $webUrl = "http://127.0.0.1:$webPortResolved"
 $apiLog = Join-Path $logs "dev-api-$apiPortResolved.log"
 $webLog = Join-Path $logs "dev-web-$webPortResolved.log"
 
-$apiCommand = "python -m uvicorn interviu_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port $apiPortResolved *> '$apiLog'"
+$apiCommand = "python -m uvicorn assay_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port $apiPortResolved *> '$apiLog'"
 $webCommand = "Set-Location '$root\apps\web'; `$env:NEXT_PUBLIC_API_BASE_URL='$apiUrl'; npx next dev --hostname 127.0.0.1 --port $webPortResolved *> '$webLog'"
 
 $apiProcess = Start-Process -WindowStyle Hidden -PassThru -FilePath powershell -ArgumentList @(
@@ -122,6 +122,6 @@ $state = [ordered]@{
 $statePath = Join-Path $logs "dev-ports.json"
 $state | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 -Path $statePath
 
-Write-Host "Interviu API: $apiUrl"
-Write-Host "Interviu web: $webUrl"
+Write-Host "Assay API: $apiUrl"
+Write-Host "Assay web: $webUrl"
 Write-Host "Dev state: $statePath"

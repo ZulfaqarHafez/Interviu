@@ -2,7 +2,7 @@
 
 The Agent Refinery turns one interview run into a refined, reusable agent
 definition plus grounded sub-agent recommendations. It closes the loop on an
-Interviu run: the examiner, grader panel, lesson library, and the TraceRazor
+Assay run: the examiner, grader panel, lesson library, and the TraceRazor
 trace auditor produce a scorecard, and the refinery converts that scorecard into
 an `AGENTS.md` the candidate agent can actually ship with.
 
@@ -13,7 +13,7 @@ wrap `build_agent_spec` without changing its contract.
 
 ## Inputs
 
-`apps/api/interviu_api/agent_refinery.py::build_agent_spec` reads:
+`apps/api/assay_api/agent_refinery.py::build_agent_spec` reads:
 
 - the run config (`k`, `competency_threshold`, `max_transfer_gap`),
 - the scorecard (`held_out_scores`, `transfer_gap`, `pass_at_k`, `trace_audit`,
@@ -21,11 +21,11 @@ wrap `build_agent_spec` without changing its contract.
 - the exam pack (per-competency rubrics and expected checks), and
 - the run event spans (retained lessons recorded by the lesson library).
 
-## Output: `interviu.agent_spec.v1`
+## Output: `assay.agent_spec.v1`
 
 ```jsonc
 {
-  "schema": "interviu.agent_spec.v1",
+  "schema": "assay.agent_spec.v1",
   "run_id": "run_...",
   "candidate_id": "cand_...",
   "candidate_name": "Demo Candidate",
@@ -84,7 +84,7 @@ apply the patches whose savings justify the change before shipping.
 
 ## API
 
-- `GET /runs/{run_id}/agent-spec` — returns the `interviu.agent_spec.v1`
+- `GET /runs/{run_id}/agent-spec` — returns the `assay.agent_spec.v1`
   payload. `404` if the run is unknown, `409` if it has no scorecard yet.
 - `POST /runs/{run_id}/agent-spec/export-files` — writes `AGENTS.md`,
   `agent-spec.json`, and one `subagents/<id>.md` per recommendation under
@@ -107,10 +107,10 @@ The deterministic spec is always produced offline. On top of it, an optional
 OpenAI layer answers "what should this agent be?" on demand:
 
 - **Fast** (`mode=fast`, default) — one structured reasoning call (default
-  `gpt-4.1`, override with `INTERVIU_OPENAI_MODEL`) grounded only in the run's
+  `gpt-4.1`, override with `ASSAY_OPENAI_MODEL`) grounded only in the run's
   own evaluation evidence. Quick and cheap, no web access, no citations.
 - **Deep** (`mode=deep`) — OpenAI deep research (default
-  `o4-mini-deep-research`, override with `INTERVIU_OPENAI_DEEP_MODEL`) using the
+  `o4-mini-deep-research`, override with `ASSAY_OPENAI_DEEP_MODEL`) using the
   web-search tool, so recommendations are grounded in current external best
   practices and return cited sources. Slower (can take minutes) and costs more.
 
@@ -120,14 +120,14 @@ OpenAI layer answers "what should this agent be?" on demand:
 `AgentResearch` payload: `summary`, `brief_markdown`, `recommended_tools`,
 `recommended_subagents` (`{name, purpose}`), `risks`, and `sources` (deep mode).
 When no key is configured it returns `status="unavailable"` (with a hint) rather
-than failing, so the rest of Interviu keeps working offline. SDK/network/parse
+than failing, so the rest of Assay keeps working offline. SDK/network/parse
 failures return `status="error"` and degrade gracefully.
 
 ### Configuration
 
 The OpenAI key is read **server-side only** and is never exposed to the browser.
 `agent_research.load_local_env` populates the process environment (without
-overriding existing vars) from, in order, `INTERVIU_ENV_FILE`, then `.env`, then
+overriding existing vars) from, in order, `ASSAY_ENV_FILE`, then `.env`, then
 `env` at the project root, and the key is resolved from `OPENAI_API_KEY`,
 `OPENAI_KEY`, or `openai_key`:
 
@@ -135,9 +135,9 @@ overriding existing vars) from, in order, `INTERVIU_ENV_FILE`, then `.env`, then
 # project-root .env (git-ignored)
 OPENAI_API_KEY=sk-...
 # optional overrides
-INTERVIU_OPENAI_MODEL=gpt-4.1
-INTERVIU_OPENAI_DEEP_MODEL=o4-mini-deep-research
-INTERVIU_OPENAI_TIMEOUT_S=300
+ASSAY_OPENAI_MODEL=gpt-4.1
+ASSAY_OPENAI_DEEP_MODEL=o4-mini-deep-research
+ASSAY_OPENAI_TIMEOUT_S=300
 ```
 
 Running research sends the run's candidate answers, scores, and the refined
@@ -148,4 +148,4 @@ spec to OpenAI, so it is always an explicit, on-demand action triggered from the
 
 Refined specs are internal capability artifacts derived from deterministic mock
 grading — not legal or standards compliance claims, mirroring the rest of the
-Interviu MVP.
+Assay MVP.

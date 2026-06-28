@@ -9,13 +9,13 @@ from fastapi import Header, HTTPException, Request, status
 
 from .security import EXEMPT_PATHS, configured_api_keys
 
-TENANT_HEADER = "X-Interviu-Tenant"
-DEFAULT_TENANT_ENV = "INTERVIU_DEFAULT_TENANT"
-REQUIRE_TENANT_ENV = "INTERVIU_REQUIRE_TENANT"
+TENANT_HEADER = "X-Assay-Tenant"
+DEFAULT_TENANT_ENV = "ASSAY_DEFAULT_TENANT"
+REQUIRE_TENANT_ENV = "ASSAY_REQUIRE_TENANT"
 
 _TENANT_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$")
 _tenant_ctx: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "interviu_tenant_id",
+    "assay_tenant_id",
     default="",
 )
 
@@ -59,13 +59,13 @@ def validate_tenant_id(value: str) -> str:
 
 async def require_tenant(
     request: Request,
-    x_interviu_tenant: str | None = Header(default=None, alias=TENANT_HEADER),
+    x_assay_tenant: str | None = Header(default=None, alias=TENANT_HEADER),
 ) -> AsyncIterator[None]:
     """Bind the request to a tenant.
 
     Local mode remains frictionless: with no tenant header and no required mode,
     all reads/writes are scoped to the built-in ``local`` tenant. Hosted mode can
-    set ``INTERVIU_REQUIRE_TENANT=1`` to require an explicit tenant header on all
+    set ``ASSAY_REQUIRE_TENANT=1`` to require an explicit tenant header on all
     non-health routes; API-key auth is still handled by ``require_api_key``.
     """
 
@@ -77,15 +77,15 @@ async def require_tenant(
         if not configured_api_keys():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Tenant mode requires INTERVIU_API_KEYS to be configured",
+                detail="Tenant mode requires ASSAY_API_KEYS to be configured",
             )
-        if not x_interviu_tenant:
+        if not x_assay_tenant:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Missing {TENANT_HEADER}",
             )
 
-    tenant_id = validate_tenant_id(x_interviu_tenant) if x_interviu_tenant else default_tenant_id()
+    tenant_id = validate_tenant_id(x_assay_tenant) if x_assay_tenant else default_tenant_id()
     request.state.tenant_id = tenant_id
     token = bind_tenant_id(tenant_id)
     try:

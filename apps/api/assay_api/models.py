@@ -221,7 +221,7 @@ class ExamItem(BaseModel):
 
 
 class ExamPack(BaseModel):
-    schema_: Literal["interviu.exam_pack.v1"] = Field(default="interviu.exam_pack.v1", alias="schema")
+    schema_: Literal["assay.exam_pack.v1"] = Field(default="assay.exam_pack.v1", alias="schema")
     id: str = Field(pattern=_PUBLIC_ID_PATTERN)
     name: str = Field(min_length=1, max_length=160)
     simulator_model: str = Field(min_length=1, max_length=120)
@@ -278,7 +278,7 @@ class ProductReviewer(BaseModel):
 
 
 class ProductReview(BaseModel):
-    schema_: Literal["interviu.product_review.v1"] = Field(default="interviu.product_review.v1", alias="schema")
+    schema_: Literal["assay.product_review.v1"] = Field(default="assay.product_review.v1", alias="schema")
     run_id: str
     generated_at: datetime = Field(default_factory=utc_now)
     reviewers: list[ProductReviewer]
@@ -511,8 +511,8 @@ class CompetencyProgress(BaseModel):
 
 
 class CandidateProgress(BaseModel):
-    schema_: Literal["interviu.candidate_progress.v1"] = Field(
-        default="interviu.candidate_progress.v1", alias="schema"
+    schema_: Literal["assay.candidate_progress.v1"] = Field(
+        default="assay.candidate_progress.v1", alias="schema"
     )
     candidate_id: str
     candidate_name: str
@@ -538,8 +538,8 @@ class CompetencyComparison(BaseModel):
 
 
 class RunComparison(BaseModel):
-    schema_: Literal["interviu.run_comparison.v1"] = Field(
-        default="interviu.run_comparison.v1", alias="schema"
+    schema_: Literal["assay.run_comparison.v1"] = Field(
+        default="assay.run_comparison.v1", alias="schema"
     )
     run_id: str
     baseline_run_id: str | None = None

@@ -37,7 +37,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             boxShadow: "0 18px 55px rgba(20, 31, 27, 0.07)"
           }}
         >
-          <h1 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 800 }}>Interviu hit a fatal error</h1>
+          <h1 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 800 }}>Assay hit a fatal error</h1>
           <p style={{ margin: "0 0 16px", color: "#65716a", fontSize: 15, lineHeight: 1.5 }}>
             The application failed to start. Reloading usually clears transient issues.
           </p>

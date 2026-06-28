@@ -152,8 +152,8 @@ def _run_brief(key: str, mode: str, agent_md: str, job_scope: JobScope | None) -
 
     timeout_s = float(
         os.environ.get(
-            "INTERVIU_QUALIFY_TIMEOUT_S",
-            os.environ.get("INTERVIU_OPENAI_TIMEOUT_S", "300" if mode == "deep" else "90"),
+            "ASSAY_QUALIFY_TIMEOUT_S",
+            os.environ.get("ASSAY_OPENAI_TIMEOUT_S", "300" if mode == "deep" else "90"),
         )
     )
     client = OpenAI(api_key=key, timeout=timeout_s)

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { interviuApi } from "@/lib/api";
-import type { RunEvent, Scorecard } from "@/types/interviu";
+import { assayApi } from "@/lib/api";
+import type { RunEvent, Scorecard } from "@/types/assay";
 
 /**
  * Lifecycle of a long-running evaluation, modeled as an explicit state machine:
@@ -87,7 +87,7 @@ function apiBaseUrl(): string {
 }
 
 /**
- * Start a run with an abortable request. Mirrors `interviuApi.startRun` but
+ * Start a run with an abortable request. Mirrors `assayApi.startRun` but
  * threads an `AbortSignal` so `cancel()` aborts the in-flight POST — the shared
  * client intentionally stays signal-free.
  */
@@ -143,7 +143,7 @@ function createPollSource(intervalMs = DEFAULT_POLL_MS): RunEventSource {
       const tick = async () => {
         if (stopped || signal.aborted) return;
         try {
-          const events = await interviuApi.events(runId);
+          const events = await assayApi.events(runId);
           if (!stopped && !signal.aborted) {
             onEvents(events);
           }

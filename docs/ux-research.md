@@ -1,4 +1,4 @@
-# Interviu UX Research Notes
+# Assay UX Research Notes
 
 ## Comparable Product Patterns
 
@@ -7,9 +7,9 @@
 - Langfuse puts datasets, experiments, prompt versions, traces, and evaluation methods into the same lifecycle so teams can compare versions and trace failures.
 - Promptfoo leads with automated evals, red teaming, reports, provider comparison, and CI checks.
 
-## Direction For Interviu
+## Direction For Assay
 
-Interviu should feel like a local evaluation console, not a landing page or arcade. The first screen should answer:
+Assay should feel like a local evaluation console, not a landing page or arcade. The first screen should answer:
 
 - What candidate and exam pack are being tested?
 - Did the current run pass the internal gate?

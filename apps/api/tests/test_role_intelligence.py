@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from interviu_api.agent_refinery import _SUBAGENT_TEMPLATES, _slug
-from interviu_api.models import JobScope
-from interviu_api.role_intelligence import analyze_job_scope, role_analysis_payload
+from assay_api.agent_refinery import _SUBAGENT_TEMPLATES, _slug
+from assay_api.models import JobScope
+from assay_api.role_intelligence import analyze_job_scope, role_analysis_payload
 
 
 def _competencies(analysis) -> set[str]:
@@ -101,6 +101,6 @@ def test_floor_competencies_present_for_empty_scope() -> None:
 
 def test_payload_is_schema_tagged() -> None:
     payload = role_analysis_payload(JobScope(raw_text="screen and rank candidates"))
-    assert payload["schema"] == "interviu.role_analysis.v1"
+    assert payload["schema"] == "assay.role_analysis.v1"
     assert payload["extraction_status"] == "keyword"
     assert len(payload["requirements"]) >= 1

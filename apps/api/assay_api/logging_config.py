@@ -12,13 +12,13 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-LOGGER_NAME = "interviu"
+LOGGER_NAME = "assay"
 REQUEST_ID_HEADER = "X-Request-ID"
 
 # Context var so log records emitted while handling a request can carry its id
 # without threading it through every call.
 request_id_ctx: contextvars.ContextVar[str | None] = contextvars.ContextVar(
-    "interviu_request_id", default=None
+    "assay_request_id", default=None
 )
 
 
@@ -52,10 +52,10 @@ _configured = False
 
 
 def configure_logging() -> logging.Logger:
-    """Configure the ``interviu`` logger once with a JSON stream handler.
+    """Configure the ``assay`` logger once with a JSON stream handler.
 
     Idempotent so repeated app construction (e.g. across tests) does not stack
-    duplicate handlers. Level is tunable via ``INTERVIU_LOG_LEVEL`` (default INFO).
+    duplicate handlers. Level is tunable via ``ASSAY_LOG_LEVEL`` (default INFO).
     """
 
     global _configured
@@ -63,7 +63,7 @@ def configure_logging() -> logging.Logger:
     if _configured:
         return logger
 
-    level_name = os.environ.get("INTERVIU_LOG_LEVEL", "INFO").upper()
+    level_name = os.environ.get("ASSAY_LOG_LEVEL", "INFO").upper()
     logger.setLevel(getattr(logging, level_name, logging.INFO))
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(_JsonFormatter())

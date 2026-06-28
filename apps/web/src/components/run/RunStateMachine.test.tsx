@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import RunStateMachine from "./RunStateMachine";
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 
 const gradedEvents: RunEvent[] = [
   {

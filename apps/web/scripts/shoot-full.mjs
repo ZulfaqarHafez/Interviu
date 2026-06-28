@@ -9,7 +9,7 @@ const browser = await chromium.launch();
 async function shoot(name, { width, height, theme, expand }) {
   const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
-  await page.addInitScript((t) => localStorage.setItem("interviu-theme", t), theme);
+  await page.addInitScript((t) => localStorage.setItem("assay-theme", t), theme);
   await page.goto(base, { waitUntil: "networkidle" });
   await page.waitForTimeout(1200);
   if (expand) {

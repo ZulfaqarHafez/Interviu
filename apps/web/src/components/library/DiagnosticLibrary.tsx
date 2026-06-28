@@ -6,7 +6,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Sprite } from "@/components/ui/Sprite";
 import { useCandidateLessons } from "@/lib/queries";
 import { errorMessage, labelize } from "@/lib/derive";
-import type { DiagnosticLesson, LessonOutcome } from "@/types/interviu";
+import type { DiagnosticLesson, LessonOutcome } from "@/types/assay";
 
 /** Maps a lesson outcome to a Badge variant + human label. */
 const OUTCOME_META: Record<LessonOutcome, { variant: "pass" | "fail" | "warn" | "neutral"; label: string }> = {

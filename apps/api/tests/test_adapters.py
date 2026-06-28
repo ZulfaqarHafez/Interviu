@@ -5,8 +5,8 @@ import socket
 import httpx
 import pytest
 
-from interviu_api.adapters import CandidateAdapterError, HttpCandidateAdapter, MockCandidateAdapter
-from interviu_api.models import CandidateConfig
+from assay_api.adapters import CandidateAdapterError, HttpCandidateAdapter, MockCandidateAdapter
+from assay_api.models import CandidateConfig
 
 
 @pytest.fixture(autouse=True)
@@ -18,7 +18,7 @@ def _candidate_test_resolves_publicly(monkeypatch: pytest.MonkeyPatch) -> None:
             return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port or 80))]
         return original(host, port, *args, **kwargs)
 
-    monkeypatch.setattr("interviu_api.network_guard.socket.getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr("assay_api.network_guard.socket.getaddrinfo", fake_getaddrinfo)
 
 
 @pytest.mark.asyncio
@@ -107,7 +107,7 @@ async def test_http_adapter_raises_on_timeout() -> None:
 
 @pytest.mark.asyncio
 async def test_http_adapter_rejects_oversize_response(monkeypatch) -> None:
-    monkeypatch.setenv("INTERVIU_HTTP_CANDIDATE_MAX_BYTES", "64")
+    monkeypatch.setenv("ASSAY_HTTP_CANDIDATE_MAX_BYTES", "64")
     big_answer = "x" * 4096
 
     async def handler(_: httpx.Request) -> httpx.Response:

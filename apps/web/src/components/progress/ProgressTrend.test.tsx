@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ProgressTrend } from "./ProgressTrend";
-import type { CandidateProgress } from "@/types/interviu";
+import type { CandidateProgress } from "@/types/assay";
 
 // recharts ResponsiveContainer relies on ResizeObserver, absent in jsdom.
 beforeAll(() => {
@@ -23,7 +23,7 @@ function renderWithClient(ui: React.ReactElement) {
 
 function makeProgress(overrides: Partial<CandidateProgress> = {}): CandidateProgress {
   return {
-    schema: "interviu.candidate_progress.v1",
+    schema: "assay.candidate_progress.v1",
     candidate_id: "cand_demo",
     candidate_name: "Demo Candidate",
     run_count: 2,

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 import { DiagnosticLibrary } from "./DiagnosticLibrary";
-import type { DiagnosticLesson } from "@/types/interviu";
+import type { DiagnosticLesson } from "@/types/assay";
 
 function renderWithClient(ui: React.ReactElement) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

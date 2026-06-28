@@ -36,11 +36,11 @@ def _flag_enabled(name: str) -> bool:
 
 def tailored_exams_enabled() -> bool:
     """Master switch for the role-qualification / tailored-exam stage."""
-    return _flag_enabled("INTERVIU_TAILORED_EXAMS_ENABLED")
+    return _flag_enabled("ASSAY_TAILORED_EXAMS_ENABLED")
 
 
 def qualify_mode() -> str:
-    mode = (os.environ.get("INTERVIU_QUALIFY_MODE") or "fast").strip().lower()
+    mode = (os.environ.get("ASSAY_QUALIFY_MODE") or "fast").strip().lower()
     return mode if mode in ("fast", "deep") else "fast"
 
 
@@ -709,7 +709,7 @@ class RunOrchestrator:
                 role_lines.append("Role under evaluation - " + "; ".join(descriptors) + ".")
         role_block = ("\n" + "\n".join(role_lines)) if role_lines else ""
         return (
-            f"Candidate {candidate.name} is being evaluated by Interviu.\n"
+            f"Candidate {candidate.name} is being evaluated by Assay.\n"
             "Answer as the candidate agent under evaluation. Use retained lessons when relevant."
             f"{role_block}\n"
             f"Retained lessons:\n{lesson_block or '- none yet'}"

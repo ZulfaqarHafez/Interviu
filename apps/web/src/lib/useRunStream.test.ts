@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useRunStream, type RunEventSource } from "./useRunStream";
-import type { RunEvent, Scorecard } from "@/types/interviu";
+import type { RunEvent, Scorecard } from "@/types/assay";
 
 const baseScorecard: Scorecard = {
   run_id: "run_1",

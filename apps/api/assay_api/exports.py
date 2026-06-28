@@ -18,23 +18,23 @@ def write_exam_pack_files(pack_id: str) -> ExamPackFileExport:
     payload = exam_pack_export(pack_id)
     pack = payload["pack"]
     hf = payload["huggingface"]
-    rows: list[dict[str, Any]] = hf["files"]["data/interviu_exam_rows.jsonl"]
+    rows: list[dict[str, Any]] = hf["files"]["data/assay_exam_rows.jsonl"]
     slug = _safe_slug(pack["id"])
     directory = EXPORT_ROOT / slug
     data_dir = directory / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
 
     files = {
-        "data/interviu_exam_rows.jsonl": data_dir / "interviu_exam_rows.jsonl",
+        "data/assay_exam_rows.jsonl": data_dir / "assay_exam_rows.jsonl",
         "README.md": directory / "README.md",
-        "interviu-exam-pack.json": directory / "interviu-exam-pack.json",
+        "assay-exam-pack.json": directory / "assay-exam-pack.json",
     }
-    files["data/interviu_exam_rows.jsonl"].write_text(
+    files["data/assay_exam_rows.jsonl"].write_text(
         "\n".join(json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows) + "\n",
         encoding="utf-8",
     )
     files["README.md"].write_text(hf["files"]["README.md"], encoding="utf-8")
-    files["interviu-exam-pack.json"].write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    files["assay-exam-pack.json"].write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
     return ExamPackFileExport(
         pack_id=pack["id"],
@@ -60,7 +60,7 @@ def write_agent_spec_files(run_id: str) -> AgentSpecFileExport | None:
     }
     files["AGENTS.md"].write_text(spec.agent_markdown, encoding="utf-8")
     files["agent-spec.json"].write_text(
-        json.dumps({"schema": "interviu.agent_spec.v1", **spec.model_dump(mode="json")}, indent=2, ensure_ascii=False),
+        json.dumps({"schema": "assay.agent_spec.v1", **spec.model_dump(mode="json")}, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
     for sub_agent in spec.sub_agents:

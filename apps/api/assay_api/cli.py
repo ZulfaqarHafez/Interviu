@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="assay",
-        description="Run an Interviu Assay evaluation from CI or a local shell.",
+        description="Run an Assay Assay evaluation from CI or a local shell.",
     )
     subparsers = parser.add_subparsers(dest="command")
     run = subparsers.add_parser("run", help="Run an agent.md against an exam pack")
@@ -73,12 +73,12 @@ def _run_command(args: argparse.Namespace) -> int:
         return 2
 
     if args.db_path:
-        os.environ["INTERVIU_DB_PATH"] = str(Path(args.db_path))
-        os.environ["INTERVIU_DB_BACKEND"] = "sqlite"
+        os.environ["ASSAY_DB_PATH"] = str(Path(args.db_path))
+        os.environ["ASSAY_DB_BACKEND"] = "sqlite"
         reset_store_cache()
 
     if not args.live:
-        os.environ["INTERVIU_DISABLE_OPENAI"] = "1"
+        os.environ["ASSAY_DISABLE_OPENAI"] = "1"
     elif not resolve_openai_key():
         print("--live requires OPENAI_API_KEY (or openai_key) to be configured", file=sys.stderr)
         return 2
@@ -166,7 +166,7 @@ def _score_payload(scorecard: dict[str, Any], pass_threshold: float, require_tra
     certified = bool(scorecard.get("certified"))
     passed = competencies_pass and not blocking_failures
     return {
-        "schema": "interviu.assay_scorecard.v1",
+        "schema": "assay.scorecard.v1",
         "run_id": scorecard.get("run_id"),
         "passed": passed,
         "certified": certified,

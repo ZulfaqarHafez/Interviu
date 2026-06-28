@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from interviu_api.agent_refinery import build_agent_spec
-from interviu_api.exam_packs import get_exam_pack
-from interviu_api.models import (
+from assay_api.agent_refinery import build_agent_spec
+from assay_api.exam_packs import get_exam_pack
+from assay_api.models import (
     CandidateConfig,
     RunEvent,
     RunRecord,
@@ -26,7 +26,7 @@ def _scorecard(
         certified=certified,
         k=3,
         thresholds={"competency": 0.8, "max_transfer_gap": 0.2, "tas": 70},
-        simulator_model="interviu-deterministic-sim-v1",
+        simulator_model="assay-deterministic-sim-v1",
         pass_at_k=pass_at_k,
         competency_scores=held,
         seen_scores=held,

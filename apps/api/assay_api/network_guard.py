@@ -6,7 +6,7 @@ import socket
 from typing import Any
 from urllib.parse import urlsplit
 
-HTTP_CANDIDATE_ALLOW_PRIVATE_ENV = "INTERVIU_HTTP_CANDIDATE_ALLOW_PRIVATE"
+HTTP_CANDIDATE_ALLOW_PRIVATE_ENV = "ASSAY_HTTP_CANDIDATE_ALLOW_PRIVATE"
 
 _BLOCKED_NETWORKS = tuple(
     ipaddress.ip_network(cidr)

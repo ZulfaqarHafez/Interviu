@@ -94,7 +94,7 @@ npm install
 Run the API:
 
 ```powershell
-python -m uvicorn interviu_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port 8000
+python -m uvicorn assay_api.main:app --reload --app-dir apps/api --host 127.0.0.1 --port 8000
 ```
 
 Run the web app:
@@ -127,7 +127,7 @@ pipeline:
 
 ```powershell
 $env:PYTHONPATH="apps/api"
-python -m interviu_api.cli run --agent-md .\agent.md --pack hr-v1 --pass-threshold 0.8
+python -m assay_api.cli run --agent-md .\agent.md --pack hr-v1 --pass-threshold 0.8
 ```
 
 Useful flags: `--k` (trials per seen/held-out item), `--live` (evaluate the agent
@@ -167,7 +167,7 @@ trend, diagnostics, reviewers, and the trace drawer.
   `.env`/`env`; with no key the feature reports `unavailable` and the rest of
   Assay keeps working offline.
 - `GET /runs` lists stored runs from the active database backend;
-  `GET /runs/{run_id}/agent-spec` returns the refined `interviu.agent_spec.v1`
+  `GET /runs/{run_id}/agent-spec` returns the refined `assay.agent_spec.v1`
   definition; `POST /runs/{run_id}/agent-spec/export-files` writes `AGENTS.md` plus
   one `.md` per recommended sub-agent; `GET /runs/{run_id}/proof-bundle` returns
   the portable proof bundle.
@@ -181,7 +181,7 @@ trend, diagnostics, reviewers, and the trace drawer.
   claims.
 - Mock grading is deterministic development mode.
 - Optional semantic judge assistance is disabled by default; set
-  `INTERVIU_LLM_JUDGE_ENABLED=1` server-side to allow bounded LLM paraphrase
+  `ASSAY_LLM_JUDGE_ENABLED=1` server-side to allow bounded LLM paraphrase
   rescue evidence in scorecards.
 - Supabase is supported as the server database when server-only env vars are
   configured; SQLite remains the local fallback.
@@ -195,7 +195,7 @@ The migration lives at `supabase/migrations/20260627031004_interviu_core.sql`.
 Set these server-only env vars to use Supabase:
 
 ```powershell
-$env:INTERVIU_DB_BACKEND="supabase"
+$env:ASSAY_DB_BACKEND="supabase"
 $env:SUPABASE_URL="https://your-project.supabase.co"
 $env:SUPABASE_SERVICE_ROLE_KEY="your-server-only-key"
 ```
@@ -214,5 +214,5 @@ path, and Supabase boundary are in
 ---
 
 > **Note:** the package, API module, and many env vars still use the original
-> `interviu` name internally; **Assay** is the product name. Renaming the code
+> `assay` name internally; **Assay** is the product name. Renaming the code
 > namespace is intentionally deferred to avoid churn.

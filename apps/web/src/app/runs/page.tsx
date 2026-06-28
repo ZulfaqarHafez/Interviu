@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertTriangle, Circle, Loader2, FlaskConical } from "lucide-react";
 import { useRuns, useCandidates } from "@/lib/queries";
 import { VialArt } from "@/components/ui/EmptyArt";
-import type { RunRecord } from "@/types/interviu";
+import type { RunRecord } from "@/types/assay";
 
 /**
  * Experiments — the run history of the workspace. Every run an agent has been

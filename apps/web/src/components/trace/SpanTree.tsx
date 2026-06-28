@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { labelize } from "@/lib/derive";
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 import { actorMeta } from "./spanMeta";
 
 /**

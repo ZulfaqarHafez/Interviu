@@ -1,6 +1,6 @@
-# Interviu Connectors
+# Assay Connectors
 
-Interviu has a small connector registry exposed by `GET /connectors`. The registry is product-facing: it tells the operator what can run today, what is configured, and what is queued next.
+Assay has a small connector registry exposed by `GET /connectors`. The registry is product-facing: it tells the operator what can run today, what is configured, and what is queued next.
 
 `GET /connectors/probe` adds read-only evidence for the same surface. It uses allowlisted checks only: TraceRazor import status, active database health, `hf version` plus auth state, and `agent-browser --help` when that command is available. The web app renders these probes under each connector so an operator can see the proof behind a ready, planned, connected, or warning state.
 
@@ -8,9 +8,9 @@ Interviu has a small connector registry exposed by `GET /connectors`. The regist
 
 - `mock`: deterministic local HR candidate for demos and tests.
 - `http`: black-box candidate endpoint using the same examiner and grading path as the mock agent.
-- `supabase`: active when `INTERVIU_DB_BACKEND=supabase`, `SUPABASE_URL`, and a server-only Supabase key are present. SQLite remains the local default even if Supabase secrets are present.
+- `supabase`: active when `ASSAY_DB_BACKEND=supabase`, `SUPABASE_URL`, and a server-only Supabase key are present. SQLite remains the local default even if Supabase secrets are present.
 - `hugging-face`: marked ready when the `hf` CLI is on PATH. In this workspace `hf version` reports `huggingface_hub 0.36.2`, the account probe reports not logged in, and this installed CLI exposes download/upload/jobs rather than the newer dataset/model search commands.
-  - `POST /exam-packs/{pack_id}/export-files` writes a Hub-ready folder under `exports/exam-packs/{pack_id}` with `README.md`, `data/interviu_exam_rows.jsonl`, and `interviu-exam-pack.json`.
+  - `POST /exam-packs/{pack_id}/export-files` writes a Hub-ready folder under `exports/exam-packs/{pack_id}` with `README.md`, `data/assay_exam_rows.jsonl`, and `assay-exam-pack.json`.
 
 ## Planned
 
@@ -33,7 +33,7 @@ Every active candidate connector must produce:
 }
 ```
 
-Interviu stores the full span timeline, then sends a bounded candidate-only reasoning/tool slice to TraceRazor. Tune the slice and runtime limit with `INTERVIU_TRACERAZOR_MAX_STEPS` and `INTERVIU_TRACERAZOR_TIMEOUT_S`.
+Assay stores the full span timeline, then sends a bounded candidate-only reasoning/tool slice to TraceRazor. Tune the slice and runtime limit with `ASSAY_TRACERAZOR_MAX_STEPS` and `ASSAY_TRACERAZOR_TIMEOUT_S`.
 
 ## Local HTTP Starter
 
@@ -47,7 +47,7 @@ Then register `http://127.0.0.1:8080/ask` in the app. The starter is intentional
 
 ## Proof Bundles
 
-`GET /runs/{run_id}/proof-bundle` packages a persisted run into `interviu.proof_bundle.v1`:
+`GET /runs/{run_id}/proof-bundle` packages a persisted run into `assay.proof_bundle.v1`:
 
 - run config and candidate config
 - scorecard and TraceRazor audit summary

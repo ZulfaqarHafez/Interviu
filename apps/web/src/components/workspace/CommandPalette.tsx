@@ -53,7 +53,7 @@ export function CommandPalette() {
   const toggleTheme = React.useCallback(() => {
     const isDark = document.documentElement.classList.toggle("dark");
     try {
-      localStorage.setItem("interviu-theme", isDark ? "dark" : "light");
+      localStorage.setItem("assay-theme", isDark ? "dark" : "light");
     } catch {
       /* ignore */
     }

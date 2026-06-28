@@ -13,15 +13,15 @@ from .base import CandidateAdapter, CandidateAdapterError
 
 
 def _connect_timeout() -> float:
-    return float(os.environ.get("INTERVIU_HTTP_CANDIDATE_CONNECT_TIMEOUT_S", "10"))
+    return float(os.environ.get("ASSAY_HTTP_CANDIDATE_CONNECT_TIMEOUT_S", "10"))
 
 
 def _read_timeout() -> float:
-    return float(os.environ.get("INTERVIU_HTTP_CANDIDATE_TIMEOUT_S", "30"))
+    return float(os.environ.get("ASSAY_HTTP_CANDIDATE_TIMEOUT_S", "30"))
 
 
 def _max_response_bytes() -> int:
-    return int(os.environ.get("INTERVIU_HTTP_CANDIDATE_MAX_BYTES", str(2 * 1024 * 1024)))
+    return int(os.environ.get("ASSAY_HTTP_CANDIDATE_MAX_BYTES", str(2 * 1024 * 1024)))
 
 
 def _request_timeout() -> httpx.Timeout:

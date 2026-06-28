@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, RotateCcw, PanelRightOpen, LayoutDashboard } from "lucide-react";
 import { deriveVerdict, deriveFixes, deriveCategoryScores, type FixSeverity } from "@/lib/assay";
 import RoleBriefCard from "@/components/assay/RoleBriefCard";
-import type { Scorecard, AgentSpec } from "@/types/interviu";
+import type { Scorecard, AgentSpec } from "@/types/assay";
 
 /**
  * The payoff screen. One verdict, one score, one biggest-problem sentence

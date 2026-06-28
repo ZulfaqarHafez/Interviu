@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from interviu_api.database import SupabaseStore, database_backend_name, reset_store_cache, store
+from assay_api.database import SupabaseStore, database_backend_name, reset_store_cache, store
 
 
 def test_default_database_backend_is_sqlite() -> None:
@@ -21,7 +21,7 @@ def test_supabase_env_without_backend_flag_keeps_sqlite(monkeypatch: pytest.Monk
 
 
 def test_forced_supabase_requires_server_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("INTERVIU_DB_BACKEND", "supabase")
+    monkeypatch.setenv("ASSAY_DB_BACKEND", "supabase")
     reset_store_cache()
 
     with pytest.raises(RuntimeError):
@@ -60,19 +60,19 @@ def test_supabase_store_builds_rows_without_sqlite(monkeypatch: pytest.MonkeyPat
     monkeypatch.setitem(__import__("sys").modules, "supabase", type("FakeSupabase", (), {"create_client": fake_create_client}))
     store_instance = SupabaseStore("https://project.supabase.co", "server-key")
 
-    from interviu_api.models import CandidateConfig
+    from assay_api.models import CandidateConfig
 
     store_instance.save_candidate(CandidateConfig(id="cand_x", name="Demo", adapter_type="mock"))
 
-    assert calls[0][0] == "interviu_candidates"
+    assert calls[0][0] == "assay_candidates"
     assert calls[0][1]["id"] == "cand_x"
     assert calls[0][2] == "id"
     assert store_instance.health()["backend"] == "supabase"
 
 
 def test_sqlite_lessons_round_trip() -> None:
-    from interviu_api.database import get_lesson, init_db, list_lessons_for_candidate, save_lesson
-    from interviu_api.models import DiagnosticLesson
+    from assay_api.database import get_lesson, init_db, list_lessons_for_candidate, save_lesson
+    from assay_api.models import DiagnosticLesson
 
     init_db()
     lesson = DiagnosticLesson(
@@ -101,7 +101,7 @@ def test_sqlite_lessons_round_trip() -> None:
 
 
 def test_sqlite_quarantines_legacy_private_http_candidate() -> None:
-    from interviu_api.database import init_db, list_candidates
+    from assay_api.database import init_db, list_candidates
 
     init_db()
     store_instance = store()
@@ -165,7 +165,7 @@ def test_supabase_store_persists_lessons(monkeypatch: pytest.MonkeyPatch) -> Non
     )
     store_instance = SupabaseStore("https://project.supabase.co", "server-key")
 
-    from interviu_api.models import DiagnosticLesson
+    from assay_api.models import DiagnosticLesson
 
     store_instance.save_lesson(
         DiagnosticLesson(
@@ -178,7 +178,7 @@ def test_supabase_store_persists_lessons(monkeypatch: pytest.MonkeyPatch) -> Non
     )
 
     table, row, on_conflict = calls[0]
-    assert table == "interviu_lessons"
+    assert table == "assay_lessons"
     assert row["candidate_id"] == "cand_x"
     assert row["exam_pack_id"] == "hr-v1"
     assert row["competency"] == "compliance"

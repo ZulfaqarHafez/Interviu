@@ -12,7 +12,7 @@ from .models import CandidateConfig, DiagnosticLesson, RunEvent, RunRecord, Scor
 from .tenancy import current_tenant_id
 
 
-DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "data" / "interviu.db"
+DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "data" / "assay.db"
 
 
 class DataStore(ABC):
@@ -372,11 +372,11 @@ class SupabaseStore(DataStore):
     name = "supabase"
 
     tables = {
-        "candidates": "interviu_candidates",
-        "runs": "interviu_runs",
-        "events": "interviu_events",
-        "scorecards": "interviu_scorecards",
-        "lessons": "interviu_lessons",
+        "candidates": "assay_candidates",
+        "runs": "assay_runs",
+        "events": "assay_events",
+        "scorecards": "assay_scorecards",
+        "lessons": "assay_lessons",
     }
 
     def __init__(self, url: str, key: str):
@@ -582,7 +582,7 @@ class SupabaseStore(DataStore):
 
 
 def db_path() -> Path:
-    return Path(os.environ.get("INTERVIU_DB_PATH", DEFAULT_DB_PATH))
+    return Path(os.environ.get("ASSAY_DB_PATH", DEFAULT_DB_PATH))
 
 
 def database_backend_name() -> str:
@@ -700,8 +700,8 @@ def proof_bundle(run_id: str) -> dict[str, Any] | None:
     tailored_exam_pack = _tailored_pack_payload(run.generated_pack_id)
     qualification_status = scorecard.qualification_status if scorecard else None
     return {
-        "schema": "interviu.proof_bundle.v1",
-        "product": "Interviu",
+        "schema": "assay.proof_bundle.v1",
+        "product": "Assay",
         "tenant_id": run.tenant_id,
         "generated_at": utc_now().isoformat(),
         "run": run.model_dump(mode="json"),
@@ -741,7 +741,7 @@ def _tailored_pack_payload(generated_pack_id: str | None) -> dict[str, Any] | No
 
 @lru_cache(maxsize=1)
 def store() -> DataStore:
-    backend = os.environ.get("INTERVIU_DB_BACKEND", "sqlite").strip().lower() or "sqlite"
+    backend = os.environ.get("ASSAY_DB_BACKEND", "sqlite").strip().lower() or "sqlite"
     supabase_url = os.environ.get("SUPABASE_URL", "").strip()
     supabase_key = (
         os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
@@ -753,7 +753,7 @@ def store() -> DataStore:
             raise RuntimeError("Supabase persistence requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.")
         return SupabaseStore(supabase_url, supabase_key)
     if backend != "sqlite":
-        raise RuntimeError(f"Unsupported INTERVIU_DB_BACKEND {backend!r}; use 'sqlite' or 'supabase'.")
+        raise RuntimeError(f"Unsupported ASSAY_DB_BACKEND {backend!r}; use 'sqlite' or 'supabase'.")
     return SQLiteStore()
 
 

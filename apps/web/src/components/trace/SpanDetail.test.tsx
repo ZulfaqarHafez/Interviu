@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import SpanDetail from "./SpanDetail";
-import type { RunEvent } from "@/types/interviu";
+import type { RunEvent } from "@/types/assay";
 
 function gradedSpan(overrides: Partial<RunEvent["payload"]> = {}): RunEvent {
   return {
