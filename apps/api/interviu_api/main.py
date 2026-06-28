@@ -307,7 +307,21 @@ def candidate_lessons(candidate_id: str, exam_pack_id: str | None = None) -> lis
 
 @app.get("/runs")
 def runs() -> list[dict]:
-    return [run.model_dump(mode="json") for run in list_runs()]
+    # Enrich each run with a lightweight scorecard summary so the Experiments
+    # table renders verdict/score without an N+1 per-row scorecard fetch.
+    items: list[dict] = []
+    for run in list_runs():
+        item = run.model_dump(mode="json")
+        if run.status == "completed":
+            scorecard = get_scorecard(run.id)
+            if scorecard is not None:
+                passes = scorecard.pass_at_k or {}
+                item["certified"] = scorecard.certified
+                item["pass_count"] = sum(1 for v in passes.values() if v)
+                item["total_count"] = len(passes)
+                item["degraded"] = scorecard.degraded
+        items.append(item)
+    return items
 
 
 @app.post("/runs", dependencies=[Depends(rate_limit("create_run"))])

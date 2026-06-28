@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, RotateCcw, PanelRightOpen } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, RotateCcw, PanelRightOpen, LayoutDashboard } from "lucide-react";
 import { deriveVerdict, deriveFixes, deriveCategoryScores, type FixSeverity } from "@/lib/assay";
 import type { Scorecard, AgentSpec } from "@/types/interviu";
 
@@ -85,6 +86,9 @@ export function VerdictPanel({ scorecard, agentSpec, agentName, onViewTrace, onT
         <button type="button" className="assay-run-button slim" onClick={onTestAnother}>
           <RotateCcw size={16} /> Test another agent
         </button>
+        <Link href={`/runs/${scorecard.run_id}`} className="assay-ghost-button">
+          <LayoutDashboard size={16} /> Open in workspace
+        </Link>
         <button type="button" className="assay-ghost-button" onClick={onViewTrace}>
           <PanelRightOpen size={16} /> Open full trace
         </button>

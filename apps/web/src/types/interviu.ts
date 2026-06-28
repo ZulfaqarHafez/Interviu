@@ -106,6 +106,11 @@ export type RunRecord = {
   created_at?: string;
   updated_at?: string;
   job_scope?: JobScope | null;
+  // Optional scorecard summary attached by GET /runs for the Experiments table.
+  certified?: boolean;
+  pass_count?: number;
+  total_count?: number;
+  degraded?: boolean;
 };
 
 export type RunEvent = {

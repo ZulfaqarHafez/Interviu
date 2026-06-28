@@ -27,7 +27,6 @@ import {
 } from "@/lib/queries";
 import { useRunStream } from "@/lib/useRunStream";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import BrandMark from "@/components/ui/BrandMark";
 import {
   buildReviewers,
   buildRoster,
@@ -564,17 +563,6 @@ export default function Home() {
 
   return (
     <main className="assay-shell">
-      <header className="assay-topbar">
-        <div className="assay-brand">
-          <BrandMark size={48} className="assay-brand-mark" title="Assay" />
-          <div>
-            <h1>Assay</h1>
-            <p>Pre-deployment litmus test for AI agents</p>
-          </div>
-        </div>
-        <ThemeToggle />
-      </header>
-
       <div className="assay-stage">
         {phase === "intake" && (
           <>

@@ -389,7 +389,8 @@ afterEach(() => {
 describe("Interviu page", () => {
   it("leads with the Assay agent.md intake as the first screen", async () => {
     renderHome();
-    await screen.findByRole("heading", { name: "Assay" });
+    // Brand now lives in the global TopNav (layout); the page leads with the hero.
+    await screen.findByRole("heading", { name: /find out where it breaks/i });
     expect(screen.getByRole("button", { name: /run the litmus test/i })).toBeDisabled();
     expect(screen.getByText(/find out where it breaks/i)).toBeInTheDocument();
     // A starter template is offered as the fallback.

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/Toaster";
 import { AnnouncerProvider } from "@/components/announcer";
+import { TopNav } from "@/components/workspace/TopNav";
 
 // Self-hosted via next/font (no FOUT, no render-blocking @import). Inter carries
 // the body; Space Grotesk is the "Litmus Lab" display face for headings/wordmark.
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <Providers>
           <AnnouncerProvider>
+            <TopNav />
             {children}
             <Toaster />
           </AnnouncerProvider>
