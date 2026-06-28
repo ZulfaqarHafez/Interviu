@@ -45,10 +45,6 @@ class RunOrchestrator:
         # the very first question. Within-run lessons still accumulate on top.
         lessons, prior_by_comp, prior_run_id = self._load_prior_diagnostics(run, candidate, pack)
         applied_lesson_ids = [lesson.id for group in prior_by_comp.values() for lesson in group]
-        lesson_feedback: dict[str, str] = {}
-        seen_scores: dict[str, list[float]] = defaultdict(list)
-        held_scores: dict[str, list[float]] = defaultdict(list)
-        panel_results: list[dict[str, float]] = []
 
         try:
             self._event(run.id, "system", "run_started", {"candidate": candidate.name, "exam_pack": pack.id})
@@ -76,48 +72,15 @@ class RunOrchestrator:
                     "role_scope_applied",
                     analyze_job_scope(run.job_scope).model_dump(mode="json"),
                 )
-            for item in pack.items:
-                for trial in range(1, run.k + 1):
-                    seen_response = await self._ask_candidate(
-                        run,
-                        adapter,
-                        candidate,
-                        item.competency,
-                        item.prompt,
-                        trial,
-                        "seen",
-                        lessons,
-                    )
-                    seen_grade = self._grade(run, item.id, item.competency, "seen", trial, seen_response, run.competency_threshold)
-                    seen_scores[item.competency].append(seen_grade.score)
-                    panel_results.append(seen_grade.panel_scores)
-                    if not seen_grade.passed:
-                        lesson = f"{item.competency}: {seen_grade.feedback}"
-                        lessons.append(lesson)
-                        lesson_feedback.setdefault(item.competency, seen_grade.feedback)
-                        self._event(run.id, "lesson_library", "lesson_added", {"competency": item.competency, "lesson": lesson})
+            seen_scores, held_scores, panel_results, lesson_feedback = await self._run_items(
+                run,
+                adapter,
+                candidate,
+                pack,
+                lessons,
+            )
 
-                    held_response = await self._ask_candidate(
-                        run,
-                        adapter,
-                        candidate,
-                        item.competency,
-                        item.held_out_prompt,
-                        trial,
-                        "held_out",
-                        lessons,
-                    )
-                    held_grade = self._grade(run, item.id, item.competency, "held_out", trial, held_response, run.competency_threshold)
-                    held_scores[item.competency].append(held_grade.score)
-                    panel_results.append(held_grade.panel_scores)
-                    if not held_grade.passed:
-                        lesson = f"{item.competency}: {held_grade.feedback}"
-                        lessons.append(lesson)
-                        # Held-out feedback is the stronger signal; let it win.
-                        lesson_feedback[item.competency] = held_grade.feedback
-                        self._event(run.id, "lesson_library", "lesson_added", {"competency": item.competency, "lesson": lesson})
-
-            scorecard = self._scorecard(run, candidate, pack.simulator_model, seen_scores, held_scores, panel_results)
+            scorecard = self._assemble_scorecard(run, candidate, pack.simulator_model, seen_scores, held_scores, panel_results)
             scorecard.lessons_applied = applied_lesson_ids
             scorecard.prior_run_id = prior_run_id
             # If the live key was rate-limited, the run answered deterministically;
@@ -322,6 +285,88 @@ class RunOrchestrator:
             )
         return response
 
+    async def _run_items(
+        self,
+        run: RunRecord,
+        adapter: Any,
+        candidate: CandidateConfig,
+        pack: Any,
+        lessons: list[str],
+    ) -> tuple[dict[str, list[float]], dict[str, list[float]], list[dict[str, float]], dict[str, str]]:
+        seen_scores: dict[str, list[float]] = defaultdict(list)
+        held_scores: dict[str, list[float]] = defaultdict(list)
+        panel_results: list[dict[str, float]] = []
+        lesson_feedback: dict[str, str] = {}
+
+        for item in pack.items:
+            for trial in range(1, run.k + 1):
+                seen_response = await self._ask_candidate(
+                    run,
+                    adapter,
+                    candidate,
+                    item.competency,
+                    item.prompt,
+                    trial,
+                    "seen",
+                    lessons,
+                )
+                seen_grade = self._grade(
+                    run,
+                    item.id,
+                    item.competency,
+                    "seen",
+                    trial,
+                    seen_response,
+                    run.competency_threshold,
+                )
+                seen_scores[item.competency].append(seen_grade.score)
+                panel_results.append(seen_grade.panel_scores)
+                if not seen_grade.passed:
+                    lesson = f"{item.competency}: {seen_grade.feedback}"
+                    lessons.append(lesson)
+                    lesson_feedback.setdefault(item.competency, seen_grade.feedback)
+                    self._event(
+                        run.id,
+                        "lesson_library",
+                        "lesson_added",
+                        {"competency": item.competency, "lesson": lesson},
+                    )
+
+                held_response = await self._ask_candidate(
+                    run,
+                    adapter,
+                    candidate,
+                    item.competency,
+                    item.held_out_prompt,
+                    trial,
+                    "held_out",
+                    lessons,
+                )
+                held_grade = self._grade(
+                    run,
+                    item.id,
+                    item.competency,
+                    "held_out",
+                    trial,
+                    held_response,
+                    run.competency_threshold,
+                )
+                held_scores[item.competency].append(held_grade.score)
+                panel_results.append(held_grade.panel_scores)
+                if not held_grade.passed:
+                    lesson = f"{item.competency}: {held_grade.feedback}"
+                    lessons.append(lesson)
+                    # Held-out feedback is the stronger signal; let it win.
+                    lesson_feedback[item.competency] = held_grade.feedback
+                    self._event(
+                        run.id,
+                        "lesson_library",
+                        "lesson_added",
+                        {"competency": item.competency, "lesson": lesson},
+                    )
+
+        return seen_scores, held_scores, panel_results, lesson_feedback
+
     def _grade(
         self,
         run: RunRecord,
@@ -355,7 +400,7 @@ class RunOrchestrator:
         )
         return result
 
-    def _scorecard(
+    def _assemble_scorecard(
         self,
         run: RunRecord,
         candidate: CandidateConfig,

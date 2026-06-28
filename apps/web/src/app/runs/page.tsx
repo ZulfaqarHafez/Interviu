@@ -14,8 +14,8 @@ import type { RunRecord } from "@/types/interviu";
 export default function ExperimentsPage() {
   const runsQuery = useRuns();
   const candidatesQuery = useCandidates();
-  const runs = runsQuery.data ?? [];
-  const candidates = candidatesQuery.data ?? [];
+  const runs = React.useMemo(() => runsQuery.data ?? [], [runsQuery.data]);
+  const candidates = React.useMemo(() => candidatesQuery.data ?? [], [candidatesQuery.data]);
   const nameById = React.useMemo(() => {
     const m: Record<string, string> = {};
     for (const c of candidates) m[c.id] = c.name;

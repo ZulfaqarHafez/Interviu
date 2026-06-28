@@ -1,9 +1,20 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { RunComparison } from "./RunComparison";
 import type { RunComparison as RunComparisonData } from "@/types/interviu";
+
+const useRunComparisonMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/queries")>();
+  return {
+    ...actual,
+    useRunComparison: (...args: Parameters<typeof actual.useRunComparison>) =>
+      useRunComparisonMock(...args)
+  };
+});
 
 function renderWithClient(ui: React.ReactElement) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -47,6 +58,10 @@ function makeComparison(overrides: Partial<RunComparisonData> = {}): RunComparis
 }
 
 describe("RunComparison", () => {
+  afterEach(() => {
+    useRunComparisonMock.mockReset();
+  });
+
   it("shows an empty state when there is no baseline run", () => {
     renderWithClient(
       <RunComparison
@@ -78,5 +93,14 @@ describe("RunComparison", () => {
   it("notes when certification status changed", () => {
     renderWithClient(<RunComparison runId="run_b" comparison={makeComparison({ certified_changed: true })} />);
     expect(screen.getByText(/certification status changed/i)).toBeInTheDocument();
+  });
+
+  it("renders the shared workspace skeleton while loading", () => {
+    useRunComparisonMock.mockReturnValue({ data: undefined, isLoading: true, error: null });
+    const { container } = renderWithClient(<RunComparison runId="run_b" />);
+
+    expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
+    expect(container.querySelector(".ws-skeleton-row")).toHaveStyle({ height: "72px" });
+    expect(screen.queryByText(/loading comparison/i)).not.toBeInTheDocument();
   });
 });

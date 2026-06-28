@@ -70,7 +70,7 @@ export function RunComparison({ runId, baseline, comparison: provided, className
       <Card className={className} aria-busy="true">
         {header}
         <CardBody>
-          <p style={{ color: "var(--color-fg-muted)", fontSize: 13, margin: 0 }}>Loading comparison…</p>
+          <div className="ws-skeleton-row" style={{ height: 72 }} aria-hidden="true" />
         </CardBody>
       </Card>
     );

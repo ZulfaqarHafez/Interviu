@@ -1,16 +1,24 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
+from .network_guard import validate_http_candidate_endpoint
+
 AgentReadiness = Literal["ready", "refine", "needs_subagents"]
 SubAgentPriority = Literal["recommended", "optional"]
 Seniority = Literal["intern", "junior", "mid", "senior", "lead", "executive", "unspecified"]
 
 _MAX_RAW_SCOPE_CHARS = 8000
+_MAX_CANDIDATE_ANSWER_CHARS = 20000
+_MAX_CANDIDATE_REASONING_CHARS = 20000
+_MAX_TOOL_CALLS = 20
+_MAX_TOOL_PARAM_BYTES = 8192
+_MAX_TOOL_TEXT_CHARS = 8000
 
 
 def utc_now() -> datetime:
@@ -23,18 +31,33 @@ LessonOutcome = Literal["pending", "improved", "regressed", "unchanged", "still_
 
 
 class ToolCall(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=120)
     params: dict[str, Any] = Field(default_factory=dict)
-    output: str | None = None
+    output: str | None = Field(default=None, max_length=_MAX_TOOL_TEXT_CHARS)
     success: bool = True
-    error: str | None = None
-    tokens: int = 0
+    error: str | None = Field(default=None, max_length=_MAX_TOOL_TEXT_CHARS)
+    tokens: int = Field(default=0, ge=0)
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("params")
+    @classmethod
+    def _cap_params(cls, value: dict[str, Any]) -> dict[str, Any]:
+        try:
+            encoded = json.dumps(value, default=str, separators=(",", ":")).encode("utf-8")
+        except (TypeError, ValueError):
+            encoded = str(value).encode("utf-8")
+        if len(encoded) > _MAX_TOOL_PARAM_BYTES:
+            raise ValueError(f"tool params exceed {_MAX_TOOL_PARAM_BYTES} byte limit")
+        return value
 
 
 class TokenCounts(BaseModel):
-    input: int = 0
-    output: int = 0
-    total: int = 0
+    input: int = Field(default=0, ge=0)
+    output: int = Field(default=0, ge=0)
+    total: int = Field(default=0, ge=0)
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class CandidateConfig(BaseModel):
@@ -51,13 +74,22 @@ class CandidateConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    @field_validator("endpoint_url")
+    @classmethod
+    def _reject_private_endpoint(cls, value: HttpUrl | None) -> HttpUrl | None:
+        if value is not None:
+            validate_http_candidate_endpoint(value)
+        return value
+
 
 class CandidateResponse(BaseModel):
-    answer: str
-    reasoning: str = ""
-    tool_calls: list[ToolCall] = Field(default_factory=list)
-    latency_ms: int = 0
+    answer: str = Field(max_length=_MAX_CANDIDATE_ANSWER_CHARS)
+    reasoning: str = Field(default="", max_length=_MAX_CANDIDATE_REASONING_CHARS)
+    tool_calls: list[ToolCall] = Field(default_factory=list, max_length=_MAX_TOOL_CALLS)
+    latency_ms: int = Field(default=0, ge=0)
     tokens: TokenCounts = Field(default_factory=TokenCounts)
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class JobScope(BaseModel):
@@ -124,6 +156,8 @@ class RunCreate(BaseModel):
     max_transfer_gap: float = Field(default=0.20, ge=0, le=1)
     tas_threshold: float = Field(default=70, ge=0, le=100)
     job_scope: JobScope | None = None
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class RunRecord(BaseModel):

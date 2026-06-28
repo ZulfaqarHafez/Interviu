@@ -46,8 +46,8 @@ from .logging_config import (
     configure_logging,
     current_request_id,
 )
-from .rate_limit import limiter, rate_limit
-from .security import require_api_key
+from .rate_limit import RATE_LIMIT_ENABLED_ENV, limiter, rate_limit, rate_limiting_enabled
+from .security import API_KEYS_ENV, configured_api_keys, require_api_key
 
 _MAX_ROLE_SCOPE_CHARS = 8000
 _MAX_AGENT_MD_CHARS = 20000
@@ -83,7 +83,9 @@ logger = configure_logging()
 class RoleAnalysisRequest(BaseModel):
     raw_text: str = Field(default="", max_length=_MAX_ROLE_SCOPE_CHARS)
     extract: Literal["keyword", "openai-fast", "openai-deep"] = "keyword"
-    override_pack_id: str | None = None
+    override_pack_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_-]{1,80}$")
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class AgentMarkdownRequest(BaseModel):
@@ -117,6 +119,49 @@ app.add_middleware(
 )
 
 
+def _truthy(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _is_local_host(value: str | None) -> bool:
+    host = (value or "").strip().lower()
+    return not host or host in {"127.0.0.1", "localhost", "::1"}
+
+
+def _deployed_signal_present() -> bool:
+    env = os.environ.get("INTERVIU_ENV", "").strip().lower()
+    if env in {"prod", "production", "staging"}:
+        return True
+    if os.environ.get("PORT") and env not in {"dev", "development", "local", "test"}:
+        return True
+    if not _is_local_host(os.environ.get("INTERVIU_HOST")) and not os.environ.get("INTERVIU_CORS_ORIGINS", "").strip():
+        return True
+    return False
+
+
+def production_hardening_findings() -> list[str]:
+    if not _deployed_signal_present():
+        return []
+    findings: list[str] = []
+    if not configured_api_keys():
+        findings.append(f"{API_KEYS_ENV} is unset")
+    if not os.environ.get("INTERVIU_CORS_ORIGINS", "").strip():
+        findings.append("INTERVIU_CORS_ORIGINS is unset")
+    if not rate_limiting_enabled():
+        findings.append(f"{RATE_LIMIT_ENABLED_ENV} disables rate limiting")
+    return findings
+
+
+def _check_production_hardening() -> None:
+    findings = production_hardening_findings()
+    if not findings:
+        return
+    message = "Production hardening is incomplete: " + "; ".join(findings)
+    if _truthy(os.environ.get("INTERVIU_REQUIRE_HARDENING")):
+        raise RuntimeError(message)
+    logger.warning(message)
+
+
 @app.exception_handler(Exception)
 async def _unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
     """Return a safe envelope for unexpected errors.
@@ -147,6 +192,7 @@ async def _unexpected_error_handler(request: Request, exc: Exception) -> JSONRes
 @app.on_event("startup")
 def startup() -> None:
     load_local_env()
+    _check_production_hardening()
     init_db()
     candidates = list_candidates()
     if not candidates:

@@ -1,10 +1,24 @@
 from __future__ import annotations
 
+import socket
+
 import httpx
 import pytest
 
 from interviu_api.adapters import CandidateAdapterError, HttpCandidateAdapter, MockCandidateAdapter
 from interviu_api.models import CandidateConfig
+
+
+@pytest.fixture(autouse=True)
+def _candidate_test_resolves_publicly(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = socket.getaddrinfo
+
+    def fake_getaddrinfo(host, port, *args, **kwargs):
+        if host == "candidate.test":
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port or 80))]
+        return original(host, port, *args, **kwargs)
+
+    monkeypatch.setattr("interviu_api.network_guard.socket.getaddrinfo", fake_getaddrinfo)
 
 
 @pytest.mark.asyncio
@@ -56,6 +70,22 @@ async def test_http_adapter_reports_http_errors() -> None:
 
     with pytest.raises(CandidateAdapterError):
         await adapter.ask(context="ctx", question="q")
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_http_adapter_rejects_private_endpoint_from_stored_config() -> None:
+    client = httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(200)))
+    config = CandidateConfig.model_construct(
+        id="cand_legacy",
+        name="Legacy HTTP",
+        adapter_type="http",
+        endpoint_url="http://127.0.0.1:9000/ask",
+        metadata={},
+    )
+
+    with pytest.raises(CandidateAdapterError, match="public IP"):
+        HttpCandidateAdapter(config, client=client)
     await client.aclose()
 
 
@@ -126,5 +156,29 @@ async def test_http_adapter_rejects_invalid_response_shape() -> None:
     adapter = HttpCandidateAdapter(config, client=client)
 
     with pytest.raises(CandidateAdapterError):
+        await adapter.ask(context="ctx", question="q")
+    await client.aclose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"answer": "x" * 20001, "reasoning": "ok"},
+        {"answer": "ok", "reasoning": "x" * 20001},
+        {"answer": "ok", "tool_calls": [{"name": f"tool{i}", "params": {}} for i in range(21)]},
+        {"answer": "ok", "tool_calls": [{"name": "lookup", "params": {"blob": "x" * 9000}}]},
+        {"answer": "ok", "tokens": {"total": -1}},
+    ],
+)
+async def test_http_adapter_rejects_unbounded_candidate_payloads(payload: dict) -> None:
+    async def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=payload)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://candidate.test")
+    config = CandidateConfig(name="HTTP", adapter_type="http", endpoint_url="http://candidate.test/ask")
+    adapter = HttpCandidateAdapter(config, client=client)
+
+    with pytest.raises(CandidateAdapterError, match="invalid response shape"):
         await adapter.ask(context="ctx", question="q")
     await client.aclose()

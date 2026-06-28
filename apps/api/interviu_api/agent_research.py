@@ -29,6 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 DEFAULT_FAST_MODEL = os.environ.get("INTERVIU_OPENAI_MODEL", "gpt-4.1")
 DEFAULT_DEEP_MODEL = os.environ.get("INTERVIU_OPENAI_DEEP_MODEL", "o4-mini-deep-research")
+DISABLE_OPENAI_ENV = "INTERVIU_DISABLE_OPENAI"
 
 _RESEARCH_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -244,6 +245,8 @@ def _first_sentence(text: str) -> str:
 
 
 def resolve_openai_key() -> str:
+    if os.environ.get(DISABLE_OPENAI_ENV, "").strip().lower() in {"1", "true", "yes", "on"}:
+        return ""
     load_local_env()
     for name in ("OPENAI_API_KEY", "OPENAI_KEY", "openai_key"):
         value = os.environ.get(name)

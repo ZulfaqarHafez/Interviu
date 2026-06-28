@@ -8,6 +8,7 @@ import httpx
 from pydantic import ValidationError
 
 from ..models import CandidateConfig, CandidateResponse, TokenCounts, ToolCall
+from ..network_guard import validate_http_candidate_endpoint
 from .base import CandidateAdapter, CandidateAdapterError
 
 
@@ -32,6 +33,10 @@ class HttpCandidateAdapter(CandidateAdapter):
     def __init__(self, config: CandidateConfig, client: httpx.AsyncClient | None = None):
         if config.endpoint_url is None:
             raise CandidateAdapterError("HTTP candidate requires endpoint_url")
+        try:
+            validate_http_candidate_endpoint(config.endpoint_url)
+        except ValueError as exc:
+            raise CandidateAdapterError(str(exc)) from exc
         self.config = config
         self._client = client
         self._owns_client = client is None

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import socket
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -97,8 +99,13 @@ def test_cors_origins_honors_env_override(monkeypatch: pytest.MonkeyPatch) -> No
     assert _cors_origins() == ["https://app.interviu.dev", "https://staging.interviu.dev"]
 
 
-def test_rate_limit_disabled_by_default() -> None:
-    """With the flag off, repeated calls are never throttled (test/dev default)."""
+def test_rate_limit_enabled_by_default_and_generous(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Default rate limiting is active, with limits high enough for local use."""
+
+    from interviu_api import rate_limit as rl
+
+    monkeypatch.delenv("INTERVIU_RATE_LIMIT_ENABLED", raising=False)
+    assert rl.rate_limiting_enabled() is True
 
     with TestClient(app) as client:
         candidate_id = _candidate_id(client)
@@ -126,6 +133,107 @@ def test_rate_limit_enforced_when_enabled(monkeypatch: pytest.MonkeyPatch) -> No
     assert statuses[0] != 429
     assert statuses[1] != 429
     assert 429 in statuses[2:]
+
+
+def test_rate_limit_can_be_explicitly_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("INTERVIU_RATE_LIMIT_ENABLED", "0")
+    from interviu_api import rate_limit as rl
+
+    assert rl.rate_limiting_enabled() is False
+
+
+def test_hardening_warning_fires_for_insecure_production_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    from interviu_api.main import _check_production_hardening, production_hardening_findings
+
+    warnings: list[str] = []
+    monkeypatch.setenv("INTERVIU_ENV", "production")
+    monkeypatch.delenv("INTERVIU_API_KEYS", raising=False)
+    monkeypatch.delenv("INTERVIU_CORS_ORIGINS", raising=False)
+    monkeypatch.setenv("INTERVIU_RATE_LIMIT_ENABLED", "0")
+    monkeypatch.delenv("INTERVIU_REQUIRE_HARDENING", raising=False)
+    monkeypatch.setattr("interviu_api.main.logger.warning", lambda message: warnings.append(message))
+
+    findings = production_hardening_findings()
+    _check_production_hardening()
+
+    assert "INTERVIU_API_KEYS is unset" in findings
+    assert "INTERVIU_CORS_ORIGINS is unset" in findings
+    assert "INTERVIU_RATE_LIMIT_ENABLED disables rate limiting" in findings
+    assert warnings and "Production hardening is incomplete" in warnings[0]
+
+
+def test_hardening_can_fail_loudly(monkeypatch: pytest.MonkeyPatch) -> None:
+    from interviu_api.main import _check_production_hardening
+
+    monkeypatch.setenv("INTERVIU_ENV", "production")
+    monkeypatch.delenv("INTERVIU_API_KEYS", raising=False)
+    monkeypatch.delenv("INTERVIU_CORS_ORIGINS", raising=False)
+    monkeypatch.setenv("INTERVIU_REQUIRE_HARDENING", "1")
+
+    with pytest.raises(RuntimeError, match="Production hardening is incomplete"):
+        _check_production_hardening()
+
+
+def test_openai_can_be_disabled_even_when_key_exists(monkeypatch: pytest.MonkeyPatch) -> None:
+    from interviu_api.agent_research import resolve_openai_key
+
+    monkeypatch.setenv("INTERVIU_DISABLE_OPENAI", "1")
+    monkeypatch.setenv("OPENAI_API_KEY", "real-looking-test-key")
+
+    assert resolve_openai_key() == ""
+
+
+@pytest.mark.parametrize(
+    "endpoint_url",
+    [
+        "http://127.0.0.1:9000/ask",
+        "http://169.254.169.254/latest/meta-data",
+        "http://10.0.0.5/ask",
+        "file:///etc/passwd",
+    ],
+)
+def test_create_http_candidate_rejects_ssrf_endpoints(endpoint_url: str) -> None:
+    with TestClient(app) as client:
+        response = client.post(
+            "/candidates",
+            json={"name": "Bad HTTP", "adapter_type": "http", "endpoint_url": endpoint_url},
+        )
+
+    assert response.status_code == 422
+
+
+def test_create_http_candidate_accepts_public_resolved_host(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = socket.getaddrinfo
+
+    def fake_getaddrinfo(host, port, *args, **kwargs):
+        if host == "candidate.example.com":
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port or 80))]
+        return original(host, port, *args, **kwargs)
+
+    monkeypatch.setattr("interviu_api.network_guard.socket.getaddrinfo", fake_getaddrinfo)
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/candidates",
+            json={
+                "name": "Public HTTP",
+                "adapter_type": "http",
+                "endpoint_url": "https://candidate.example.com/ask",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["endpoint_url"] == "https://candidate.example.com/ask"
+
+
+def test_role_analysis_rejects_bad_override_pack_id() -> None:
+    with TestClient(app) as client:
+        response = client.post(
+            "/role-analysis",
+            json={"raw_text": "screen candidates", "override_pack_id": "../bad"},
+        )
+
+    assert response.status_code == 422
 
 
 def test_request_id_header_present_on_responses() -> None:

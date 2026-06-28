@@ -10,18 +10,17 @@ from limits.strategies import MovingWindowRateLimiter
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-# Rate limiting is OPT-IN. By default ``enabled=False`` so the dev app and the
-# existing test-suite never receive 429s. Set INTERVIU_RATE_LIMIT_ENABLED to a
-# truthy value to turn it on in production.
+# Rate limiting is on by default with generous limits. Set
+# INTERVIU_RATE_LIMIT_ENABLED=0/false/off to disable it for local troubleshooting.
 RATE_LIMIT_ENABLED_ENV = "INTERVIU_RATE_LIMIT_ENABLED"
 
 # Per-endpoint limits, each tunable via env. Defaults are generous so normal
 # interactive use is never throttled; they exist to blunt abuse/runaway clients.
 _LIMIT_ENVS: dict[str, tuple[str, str]] = {
-    "create_run": ("INTERVIU_RATE_LIMIT_CREATE_RUN", "60/minute"),
-    "start_run": ("INTERVIU_RATE_LIMIT_START_RUN", "30/minute"),
-    "role_analysis": ("INTERVIU_RATE_LIMIT_ROLE_ANALYSIS", "30/minute"),
-    "agent_research": ("INTERVIU_RATE_LIMIT_AGENT_RESEARCH", "15/minute"),
+    "create_run": ("INTERVIU_RATE_LIMIT_CREATE_RUN", "600/minute"),
+    "start_run": ("INTERVIU_RATE_LIMIT_START_RUN", "300/minute"),
+    "role_analysis": ("INTERVIU_RATE_LIMIT_ROLE_ANALYSIS", "300/minute"),
+    "agent_research": ("INTERVIU_RATE_LIMIT_AGENT_RESEARCH", "120/minute"),
 }
 
 
@@ -29,8 +28,17 @@ def _truthy(value: str | None) -> bool:
     return (value or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _falsy(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"0", "false", "no", "off"}
+
+
 def rate_limiting_enabled() -> bool:
-    return _truthy(os.environ.get(RATE_LIMIT_ENABLED_ENV))
+    raw = os.environ.get(RATE_LIMIT_ENABLED_ENV)
+    if raw is None or not raw.strip():
+        return True
+    if _falsy(raw):
+        return False
+    return _truthy(raw)
 
 
 def limit_for(name: str) -> str:
@@ -65,10 +73,7 @@ def _parsed_limit(name: str) -> RateLimitItem:
 
 
 def rate_limit(name: str) -> Callable[[Request], None]:
-    """Build a FastAPI dependency enforcing the named limit per client address.
-
-    No-op while disabled (env flag off) so tests and local dev never see 429s.
-    """
+    """Build a FastAPI dependency enforcing the named limit per client address."""
 
     def dependency(request: Request) -> None:
         if not rate_limiting_enabled():

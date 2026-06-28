@@ -32,9 +32,9 @@ export function CommandPalette() {
   const runsQuery = useRuns();
   const packsQuery = useExamPacks();
   const candidatesQuery = useCandidates();
-  const runs = runsQuery.data ?? [];
-  const packs = packsQuery.data ?? [];
-  const candidates = candidatesQuery.data ?? [];
+  const runs = React.useMemo(() => runsQuery.data ?? [], [runsQuery.data]);
+  const packs = React.useMemo(() => packsQuery.data ?? [], [packsQuery.data]);
+  const candidates = React.useMemo(() => candidatesQuery.data ?? [], [candidatesQuery.data]);
 
   const nameById = React.useMemo(() => {
     const m: Record<string, string> = {};

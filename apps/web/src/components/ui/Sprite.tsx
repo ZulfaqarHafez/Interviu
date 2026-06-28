@@ -112,9 +112,10 @@ export type SpriteProps = Omit<React.HTMLAttributes<HTMLSpanElement>, "children"
  * Replaces the former pixel-art sprite system while preserving its call API.
  */
 export const Sprite = React.forwardRef<HTMLSpanElement, SpriteProps>(function Sprite(
-  { name, sheet: _sheet, scale = 1, thinking, className, style, ...props },
+  { name, sheet: _sheet = undefined, scale = 1, thinking, className, style, ...props },
   ref
 ) {
+  void _sheet;
   const [Icon, tone] = ICONS[name] ?? [Circle, "accent"];
   const size = Math.round(18 * scale);
   const spin = Boolean(thinking) || name === "run-running";

@@ -15,8 +15,8 @@ import type { RunRecord } from "@/types/interviu";
 export default function AgentsPage() {
   const candidatesQuery = useCandidates();
   const runsQuery = useRuns();
-  const candidates = candidatesQuery.data ?? [];
-  const runs = runsQuery.data ?? [];
+  const candidates = React.useMemo(() => candidatesQuery.data ?? [], [candidatesQuery.data]);
+  const runs = React.useMemo(() => runsQuery.data ?? [], [runsQuery.data]);
 
   const rows = React.useMemo(() => groupAgents(candidates, runs), [candidates, runs]);
 

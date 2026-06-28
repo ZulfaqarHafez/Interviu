@@ -53,21 +53,21 @@ export default function RunDetail({ runId }: { runId: string }) {
   const certified = scorecard?.certified ?? false;
 
   return (
-    <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px", display: "grid", gap: 18 }}>
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ display: "grid", gap: 4 }}>
+    <main className="rd-shell">
+      <header className="rd-header">
+        <div className="rd-title-block">
           <Link
             href="/runs"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-fg-muted)" }}
+            className="rd-back-link"
           >
             <ArrowLeft size={14} /> Experiments
           </Link>
-          <h1 style={{ margin: 0, fontSize: 22, color: "var(--color-fg)" }}>{candidateName}</h1>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--color-fg-muted)" }}>
+          <h1>{candidateName}</h1>
+          <p>
             Run <code>{runId}</code>
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="rd-actions">
           <button
             type="button"
             className="command-button"
@@ -105,7 +105,7 @@ export default function RunDetail({ runId }: { runId: string }) {
           <div className="ws-skeleton-card" />
         </div>
       ) : loadError ? (
-        <p role="alert" style={{ color: "var(--color-fail)", fontSize: 13 }}>
+        <p role="alert" className="rd-error">
           Could not load run {runId}: {errorMessage(loadError)}
         </p>
       ) : (

@@ -248,27 +248,6 @@ select {
   font: inherit;
 }
 
-.app-shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 390px;
-  background: transparent;
-}
-
-.arena-band {
-  min-width: 0;
-  padding: 26px 24px 28px;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 16px;
-  align-content: start;
-}
-
-.workbench {
-  gap: 14px;
-}
-
-.topbar,
 .status-strip,
 .side-panel,
 .drawer {
@@ -278,28 +257,7 @@ select {
   border-radius: 8px;
 }
 
-.topbar {
-  min-height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 16px;
-  backdrop-filter: blur(10px);
-}
-
-.cockpit-grid {
-  display: grid;
-  grid-template-columns: minmax(320px, 1.2fr) minmax(280px, 0.8fr);
-  grid-template-areas:
-    "brief metrics"
-    "evidence evidence"
-    "focus roster";
-  gap: 14px;
-}
-
 .run-brief,
-.metric-deck,
 .evidence-panel,
 .focus-panel {
   border: 1px solid var(--color-border);
@@ -359,47 +317,11 @@ select {
   font-weight: 600;
 }
 
-.metric-deck {
-  grid-area: metrics;
-  padding: 14px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.metric-tile {
-  min-width: 0;
-  min-height: 104px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--color-panel);
-  padding: 14px;
-  display: grid;
-  align-content: space-between;
-}
-
-.metric-tile span,
 .focus-panel span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-}
-
-.metric-tile strong {
-  font-size: clamp(20px, 3vw, 30px);
-  line-height: 1.05;
-  overflow-wrap: anywhere;
-}
-
-.metric-tile.pass {
-  border-color: var(--color-pass);
-  background: var(--pass-bg);
-}
-
-.metric-tile.warn {
-  border-color: var(--color-warn);
-  background: var(--review-bg);
 }
 
 .evidence-panel {
@@ -572,20 +494,6 @@ select {
   }
 }
 
-.arena {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  min-height: 430px;
-  background:
-    linear-gradient(180deg, var(--color-panel) 0%, var(--color-surface) 100%);
-  display: grid;
-  place-items: center;
-  padding: 34px;
-  box-shadow: var(--shadow);
-}
-
 .room-panel {
   width: min(850px, 100%);
   min-height: 360px;
@@ -664,135 +572,11 @@ select {
   overflow-wrap: anywhere;
 }
 
-.arena-inner {
-  width: min(850px, 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .agent-roster {
   border-top: 1px solid var(--line);
   padding-top: 18px;
   display: grid;
   gap: 10px;
-}
-
-.roster-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.workflow-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.workflow-card {
-  min-width: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-panel);
-  padding: 10px;
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-}
-
-.workflow-card.active {
-  border-color: var(--teal);
-  background: var(--color-accent-subtle);
-}
-
-.workflow-card.done {
-  border-color: var(--color-pass);
-  background: var(--pass-bg);
-}
-
-.workflow-card.attention {
-  border-color: var(--color-warn);
-  background: var(--review-bg);
-}
-
-.workflow-card.idle {
-  opacity: 0.64;
-}
-
-.workflow-card strong,
-.workflow-card small {
-  display: block;
-  overflow-wrap: anywhere;
-}
-
-.workflow-card strong {
-  font-size: 12px;
-}
-
-.workflow-card small {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.roster-track {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.agent-roster.evidence-panel .roster-track {
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-}
-
-.roster-agent {
-  min-width: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-panel);
-  padding: 10px 6px;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  text-align: center;
-  transition: border-color 140ms ease, background 140ms ease, opacity 140ms ease;
-}
-
-.roster-agent.idle {
-  opacity: 0.55;
-}
-
-.roster-agent.active {
-  border-color: var(--teal);
-  background: var(--color-accent-subtle);
-}
-
-.roster-agent.done {
-  border-color: var(--color-pass);
-  background: var(--pass-bg);
-}
-
-.roster-name {
-  font-size: 12px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.roster-meta {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
 }
 
 .refinery-verdict {
@@ -1128,25 +912,6 @@ select {
   gap: 12px;
   padding: 13px 14px;
   box-shadow: var(--shadow-soft);
-}
-
-.metric {
-  min-width: 0;
-}
-
-.metric span {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.metric strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 16px;
-  overflow-wrap: anywhere;
 }
 
 .side-panel {
@@ -1785,20 +1550,6 @@ pre {
 }
 
 @media (max-width: 1020px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .cockpit-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "brief"
-      "metrics"
-      "evidence"
-      "focus"
-      "roster";
-  }
-
   .side-panel {
     border-width: 1px 0 0;
     border-radius: 0;
@@ -1830,16 +1581,6 @@ pre {
 }
 
 @media (max-width: 640px) {
-  .arena-band {
-    padding: 10px;
-    grid-template-rows: auto auto auto;
-  }
-
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .toolbar {
     width: 100%;
     justify-content: flex-start;
@@ -1849,24 +1590,10 @@ pre {
     font-size: 24px;
   }
 
-  .arena {
-    padding: 18px;
-  }
-
   .run-brief {
     min-height: auto;
     padding: 22px 16px;
     gap: 18px;
-  }
-
-  .metric-deck {
-    grid-template-columns: 1fr 1fr;
-    padding: 10px;
-  }
-
-  .metric-tile {
-    min-height: 84px;
-    padding: 11px;
   }
 
   .panel-head {
@@ -1889,14 +1616,6 @@ pre {
 
   .bar-row {
     grid-template-columns: minmax(84px, 118px) 1fr 38px;
-  }
-
-  .roster-track {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .workflow-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .subagent-grid {
@@ -2767,20 +2486,6 @@ pre {
 
 .assay-advanced > summary:hover { color: var(--color-accent); }
 
-.assay-advanced .app-shell {
-  min-height: 0;
-  margin-top: 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  /* The hero column is intentionally narrow (720px). The dense cockpit needs
-     room, so it breaks out and re-centers on the viewport instead of being
-     cramped (which clipped the metric tiles). */
-  width: min(1160px, 94vw);
-  margin-left: 50%;
-  transform: translateX(-50%);
-}
-
 /* ---- Animations (respecting reduced motion) ---- */
 
 @keyframes assay-rise {
@@ -2929,11 +2634,6 @@ pre {
 /* Refinement: retire the pixel-art sprites inside the advanced cockpit — they
    clash with the refined chromatography brand. Labels, badges, and the warm
    card chrome carry the meaning instead, giving the whole page one vocabulary. */
-.app-shell .candidate-zone { display: none; }
-.app-shell .run-brief { grid-template-columns: minmax(0, 1fr); }
-.app-shell .roster-agent,
-.app-shell .workflow-card { gap: 0; }
-
 /* ---- Sample report preview (beside the intake) ---- */
 .assay-sample {
   position: relative;
@@ -3166,9 +2866,7 @@ pre {
 /* Scroll-reveal: content fades up as it enters the viewport (Chromium scroll-
    driven animations; unsupported browsers just show it statically). */
 @supports (animation-timeline: view()) {
-  .assay-templates,
-  .app-shell .panel-section,
-  .app-shell .cockpit-grid > * {
+  .assay-templates {
     animation: assay-rise-soft linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 70%;
@@ -3197,10 +2895,7 @@ body,
 .assay-template,
 .assay-judging,
 .assay-verdict-hero,
-.assay-step,
-.app-shell .panel-section,
-.app-shell .run-brief,
-.app-shell .evidence-panel {
+.assay-step {
   transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
 }
 
@@ -3213,65 +2908,14 @@ body,
 
 /* 1) Collapse grid columns that reserved space for a (now-hidden) sprite, so
       pills and labels sit at their natural size instead of stretching. */
-.app-shell .reviewer-row,
-.app-shell .candidate-dock-card,
-.app-shell .subagent-chip,
-.app-shell .subagent-card header,
-.app-shell .ledger-row {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-.app-shell .workflow-card {
-  grid-template-columns: minmax(0, 1fr);
-}
 /* Safety net: a pill never stretches to fill a grid track. */
-.app-shell .pill {
-  justify-self: end;
-  width: max-content;
-  max-width: 100%;
-}
 
 /* 2) Tame the oversized display numbers/labels that created visual chaos. */
-.app-shell .focus-panel strong {
-  font-size: clamp(18px, 2.4vw, 24px);
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
-}
-.app-shell .metric-tile strong {
-  font-size: clamp(15px, 1.8vw, 20px);
-}
-.app-shell .run-brief p {
-  font-size: 13px;
-}
-.app-shell .score-hero span {
-  font-size: 14px;
-}
 
 /* 3) One quiet, flat card chrome everywhere in the cockpit — no competing
       shadows, one border, one radius, calm surface. */
-.app-shell .run-brief,
-.app-shell .metric-deck,
-.app-shell .evidence-panel,
-.app-shell .focus-panel,
-.app-shell .panel-section,
-.app-shell .reviewer-row,
-.app-shell .workflow-card,
-.app-shell .candidate-dock-card,
-.app-shell .subagent-chip,
-.app-shell .metric-tile,
-.app-shell .ledger-row,
-.app-shell .connector-card,
-.app-shell .artifact-card {
-  box-shadow: none;
-}
 
 /* 4) A touch more breathing room between cockpit sections. */
-.app-shell .cockpit-grid {
-  gap: 16px;
-}
-.app-shell .run-brief {
-  min-height: 0;
-  padding: 22px;
-}
 
 /* Universal reduced-motion reset — anyone who prefers reduced motion gets a
    fully static UI (covers every animation/transition above). */
@@ -3987,6 +3631,55 @@ body,
 }
 
 /* Run-detail verdict band — leads the analytics with the result. */
+.rd-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: grid;
+  gap: 18px;
+}
+.rd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rd-title-block {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.rd-title-block h1 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--color-fg);
+  overflow-wrap: anywhere;
+}
+.rd-title-block p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.rd-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+.rd-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rd-error {
+  color: var(--color-fail);
+  font-size: 13px;
+}
 .rd-verdict {
   display: flex;
   align-items: center;
