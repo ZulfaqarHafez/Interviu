@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from collections import defaultdict
 from statistics import mean
@@ -42,6 +43,17 @@ def tailored_exams_enabled() -> bool:
 def qualify_mode() -> str:
     mode = (os.environ.get("ASSAY_QUALIFY_MODE") or "fast").strip().lower()
     return mode if mode in ("fast", "deep") else "fast"
+
+
+def _run_concurrency() -> int:
+    """How many exam (item, trial) units to evaluate at once. Bounded so we don't
+    hammer the model API; 1 restores fully-sequential behavior."""
+    raw = os.environ.get("ASSAY_RUN_CONCURRENCY")
+    try:
+        value = int(raw) if raw else 5
+    except ValueError:
+        value = 5
+    return max(1, min(16, value))
 
 
 class RunOrchestrator:
@@ -393,76 +405,57 @@ class RunOrchestrator:
         lesson_feedback: dict[str, str] = {}
         judge_results: list[dict[str, Any]] = []
 
-        for item in pack.items:
-            for trial in range(1, run.k + 1):
+        # Evaluate (item, trial) units concurrently with a bounded pool. Prior-run
+        # lessons (the seed) apply to every unit; within-run lesson accumulation
+        # across items is intentionally dropped here in favour of parallelism (the
+        # closed learning loop persists cross-run, which is the load-bearing part).
+        seed_lessons = list(lessons)
+        semaphore = asyncio.Semaphore(_run_concurrency())
+
+        async def evaluate(item: Any, trial: int) -> tuple[Any, int, GradeResult, GradeResult]:
+            async with semaphore:
                 seen_response = await self._ask_candidate(
-                    run,
-                    adapter,
-                    candidate,
-                    item.competency,
-                    item.prompt,
-                    trial,
-                    "seen",
-                    lessons,
+                    run, adapter, candidate, item.competency, item.prompt, trial, "seen", seed_lessons
                 )
                 seen_grade = self._grade(
-                    run,
-                    item.id,
-                    item.competency,
-                    "seen",
-                    trial,
-                    seen_response,
-                    run.competency_threshold,
+                    run, item.id, item.competency, "seen", trial, seen_response, run.competency_threshold
                 )
-                seen_scores[item.competency].append(seen_grade.score)
-                panel_results.append(seen_grade.panel_scores)
-                if seen_grade.judge is not None:
-                    judge_results.append(seen_grade.judge)
-                if not seen_grade.passed:
-                    lesson = f"{item.competency}: {seen_grade.feedback}"
-                    lessons.append(lesson)
-                    lesson_feedback.setdefault(item.competency, seen_grade.feedback)
-                    self._event(
-                        run.id,
-                        "lesson_library",
-                        "lesson_added",
-                        {"competency": item.competency, "lesson": lesson},
-                    )
-
                 held_response = await self._ask_candidate(
-                    run,
-                    adapter,
-                    candidate,
-                    item.competency,
-                    item.held_out_prompt,
-                    trial,
-                    "held_out",
-                    lessons,
+                    run, adapter, candidate, item.competency, item.held_out_prompt, trial, "held_out", seed_lessons
                 )
                 held_grade = self._grade(
-                    run,
-                    item.id,
-                    item.competency,
-                    "held_out",
-                    trial,
-                    held_response,
-                    run.competency_threshold,
+                    run, item.id, item.competency, "held_out", trial, held_response, run.competency_threshold
                 )
-                held_scores[item.competency].append(held_grade.score)
-                panel_results.append(held_grade.panel_scores)
-                if held_grade.judge is not None:
-                    judge_results.append(held_grade.judge)
-                if not held_grade.passed:
-                    lesson = f"{item.competency}: {held_grade.feedback}"
-                    lessons.append(lesson)
-                    # Held-out feedback is the stronger signal; let it win.
-                    lesson_feedback[item.competency] = held_grade.feedback
-                    self._event(
-                        run.id,
-                        "lesson_library",
-                        "lesson_added",
-                        {"competency": item.competency, "lesson": lesson},
-                    )
+                return item, trial, seen_grade, held_grade
+
+        units = [(item, trial) for item in pack.items for trial in range(1, run.k + 1)]
+        # gather preserves argument order, so aggregation below is deterministic
+        # regardless of completion order.
+        results = await asyncio.gather(*(evaluate(item, trial) for item, trial in units))
+
+        for item, _trial, seen_grade, held_grade in results:
+            seen_scores[item.competency].append(seen_grade.score)
+            panel_results.append(seen_grade.panel_scores)
+            if seen_grade.judge is not None:
+                judge_results.append(seen_grade.judge)
+            if not seen_grade.passed:
+                lesson = f"{item.competency}: {seen_grade.feedback}"
+                lessons.append(lesson)
+                lesson_feedback.setdefault(item.competency, seen_grade.feedback)
+                self._event(run.id, "lesson_library", "lesson_added",
+                            {"competency": item.competency, "lesson": lesson})
+
+            held_scores[item.competency].append(held_grade.score)
+            panel_results.append(held_grade.panel_scores)
+            if held_grade.judge is not None:
+                judge_results.append(held_grade.judge)
+            if not held_grade.passed:
+                lesson = f"{item.competency}: {held_grade.feedback}"
+                lessons.append(lesson)
+                # Held-out feedback is the stronger signal; let it win.
+                lesson_feedback[item.competency] = held_grade.feedback
+                self._event(run.id, "lesson_library", "lesson_added",
+                            {"competency": item.competency, "lesson": lesson})
 
         return seen_scores, held_scores, panel_results, lesson_feedback, judge_results
 
