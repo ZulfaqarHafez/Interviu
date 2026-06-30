@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Any
 
 from .agent_refinery import _cap_sub_agents, _labelize, _slug, _specialist
@@ -193,10 +194,17 @@ def _contains_protected(text: str) -> dict[str, list[str]]:
     """Return mapping of protected category -> matched phrases present in text."""
     hits: dict[str, list[str]] = {}
     for category, phrases in _PROTECTED_SIGNALS.items():
-        matched = [phrase for phrase in phrases if phrase in text]
+        matched = [phrase for phrase in phrases if _contains_phrase(text, phrase)]
         if matched:
             hits[category] = matched
     return hits
+
+
+def _contains_phrase(text: str, phrase: str) -> bool:
+    if phrase == "pregnan":
+        return re.search(r"\bpregnan\w*\b", text) is not None
+    pattern = re.escape(phrase).replace(r"\ ", r"\s+")
+    return re.search(rf"(?<!\w){pattern}(?!\w)", text) is not None
 
 
 def analyze_job_scope(job_scope: JobScope, override_pack_id: str | None = None) -> RoleAnalysis:
@@ -337,6 +345,12 @@ def analyze_job_scope(job_scope: JobScope, override_pack_id: str | None = None) 
         )
     scoped = job_scope.model_copy(update={"seniority": seniority, "compliance_flags": compliance_flags})
 
+    extraction_status = (
+        job_scope.extraction
+        if job_scope.extraction in {"openai-fast", "openai-deep"}
+        else "keyword"
+    )
+
     return RoleAnalysis(
         job_scope=scoped,
         recommended_exam_pack_id=recommended_pack_id,
@@ -345,7 +359,7 @@ def analyze_job_scope(job_scope: JobScope, override_pack_id: str | None = None) 
         recommended_subagents=sub_agents,
         uncovered_competencies=uncovered,
         compliance_notes=compliance_notes,
-        extraction_status="keyword",
+        extraction_status=extraction_status,
         sources=[],
     )
 

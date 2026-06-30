@@ -222,6 +222,31 @@ def test_role_analysis_keyword_endpoint() -> None:
     assert len(payload["requirements"]) >= 1
 
 
+def test_role_analysis_openai_endpoint_reports_extraction(monkeypatch) -> None:
+    from assay_api.models import JobScope
+
+    def fake_extract(raw_text: str, mode: str = "fast") -> JobScope:
+        return JobScope(
+            raw_text=raw_text,
+            title="Recruiting analyst",
+            responsibilities=["Audit hiring compliance"],
+            extraction="openai-fast",
+        )
+
+    monkeypatch.setattr("assay_api.main.extract_job_scope_openai", fake_extract)
+
+    with TestClient(app) as client:
+        analysis = client.post(
+            "/role-analysis",
+            json={"raw_text": "screen and rank candidates fairly", "extract": "openai-fast"},
+        )
+
+    assert analysis.status_code == 200
+    payload = analysis.json()
+    assert payload["extraction_status"] == "openai-fast"
+    assert payload["job_scope"]["extraction"] == "openai-fast"
+
+
 def test_run_round_trips_job_scope_and_proof_bundle(monkeypatch) -> None:
     monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _RoleFakeAudit)
 

@@ -73,6 +73,28 @@ def test_protected_signals_become_flags_never_requirements() -> None:
     assert _competencies(analysis) == {"compliance", "fairness"}
 
 
+def test_word_fragments_do_not_trigger_protected_flags() -> None:
+    analysis = analyze_job_scope(
+        JobScope(raw_text="evaluate tool usage and summarize candidate evidence")
+    )
+
+    assert "protected:age" not in analysis.job_scope.compliance_flags
+    assert not analysis.compliance_notes
+
+
+def test_openai_extraction_status_survives_mapping() -> None:
+    analysis = analyze_job_scope(
+        JobScope(
+            raw_text="screen candidates fairly",
+            title="Recruiting analyst",
+            responsibilities=["Audit hiring compliance"],
+            extraction="openai-fast",
+        )
+    )
+
+    assert analysis.extraction_status == "openai-fast"
+
+
 def test_recommended_subagent_ids_map_to_templates_or_default() -> None:
     analysis = analyze_job_scope(
         JobScope(
