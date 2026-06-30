@@ -116,7 +116,7 @@ class RunOrchestrator:
                 judge_results,
             )
             scorecard.lessons_applied = applied_lesson_ids
-            scorecard.prior_run_id = prior_run_id
+            scorecard.prior_run_id = run.baseline_run_id or prior_run_id
             scorecard.qualification_status = qualification_status
             if role_brief is not None:
                 scorecard.role_brief_summary = role_brief.role_summary or None

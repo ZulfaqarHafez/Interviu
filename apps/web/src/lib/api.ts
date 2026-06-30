@@ -57,10 +57,20 @@ export const assayApi = {
       method: "POST",
       body: JSON.stringify({ markdown, name: name ?? null })
     }),
-  createRun: (candidateId: string, examPackId = "hr-v1", jobScope: JobScope | null = null) =>
+  createRun: (
+    candidateId: string,
+    examPackId = "hr-v1",
+    jobScope: JobScope | null = null,
+    baselineRunId: string | null = null
+  ) =>
     request<RunRecord>("/runs", {
       method: "POST",
-      body: JSON.stringify({ candidate_id: candidateId, exam_pack_id: examPackId, job_scope: jobScope })
+      body: JSON.stringify({
+        candidate_id: candidateId,
+        exam_pack_id: examPackId,
+        job_scope: jobScope,
+        baseline_run_id: baselineRunId
+      })
     }),
   startRun: (runId: string) =>
     request<Scorecard>(`/runs/${runId}/start`, {

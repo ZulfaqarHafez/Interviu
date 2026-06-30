@@ -109,6 +109,7 @@ export type RunRecord = {
   created_at?: string;
   updated_at?: string;
   job_scope?: JobScope | null;
+  baseline_run_id?: string | null;
   generated_pack_id?: string | null;
   source_pack_id?: string | null;
   // Optional scorecard summary attached by GET /runs for the Experiments table.
@@ -409,10 +410,10 @@ export type CompetencyProgress = {
   competency: string;
   label: string;
   points: CompetencyTrendPoint[];
-  first_score: number;
-  latest_score: number;
-  delta: number;
-  trend: "up" | "down" | "flat";
+  first_score: number | null;
+  latest_score: number | null;
+  delta: number | null;
+  trend: "improving" | "regressing" | "flat" | "insufficient";
   active_lessons: number;
 };
 
@@ -432,12 +433,12 @@ export type ComparisonOutcome = "improved" | "regressed" | "unchanged" | "new" |
 export type CompetencyComparison = {
   competency: string;
   label: string;
-  baseline_score: number;
-  current_score: number;
-  delta: number;
+  baseline_score: number | null;
+  current_score: number | null;
+  delta: number | null;
   outcome: ComparisonOutcome;
-  baseline_passed: boolean;
-  current_passed: boolean;
+  baseline_passed: boolean | null;
+  current_passed: boolean | null;
 };
 
 export type RunComparison = {

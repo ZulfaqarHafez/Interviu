@@ -35,7 +35,7 @@ function makeProgress(overrides: Partial<CandidateProgress> = {}): CandidateProg
         first_score: 0.5,
         latest_score: 0.9,
         delta: 0.4,
-        trend: "up",
+        trend: "improving",
         active_lessons: 1,
         points: [
           { run_id: "run_a", created_at: "2026-06-26T00:00:00Z", held_out_score: 0.5, passed: false, transfer_gap: 0.1, lessons_applied: 0 },
@@ -65,6 +65,6 @@ describe("ProgressTrend", () => {
 
   it("exposes an accessible text summary of each competency trend", () => {
     renderWithClient(<ProgressTrend candidateId="cand_demo" progress={makeProgress()} />);
-    expect(screen.getByText(/Compliance: from 50% to 90% \(up\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Compliance: from 50% to 90% \(improving\)/i)).toBeInTheDocument();
   });
 });

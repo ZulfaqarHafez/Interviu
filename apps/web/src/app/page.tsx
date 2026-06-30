@@ -233,6 +233,7 @@ export default function Home() {
   async function testImproved() {
     const refined = agentSpec?.agent_markdown?.trim();
     if (!refined) return;
+    const baselineRunId = scorecard?.run_id ?? run?.id ?? null;
     setError(null);
     resetRunArtifacts();
     runStream.reset();
@@ -245,7 +246,7 @@ export default function Home() {
       setSelectedCandidateId(created.id);
       void candidatesQuery.refetch();
       const packId = selectedExamPack?.id ?? selectedExamPackId ?? "hr-v1";
-      const createdRun = await assayApi.createRun(created.id, packId, null);
+      const createdRun = await assayApi.createRun(created.id, packId, null, baselineRunId);
       const runPack = examPacks.find((pack) => pack.id === createdRun.exam_pack_id) ?? selectedExamPack;
       setRun(createdRun);
       runStream.start(createdRun.id, { k: createdRun.k, itemCount: runPack?.items.length });

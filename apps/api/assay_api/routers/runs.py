@@ -56,6 +56,11 @@ def runs() -> list[dict]:
 def create_run(payload: RunCreate) -> dict:
     if get_candidate(payload.candidate_id) is None:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    if payload.baseline_run_id is not None:
+        if get_run(payload.baseline_run_id) is None:
+            raise HTTPException(status_code=404, detail="Baseline run not found")
+        if get_scorecard(payload.baseline_run_id) is None:
+            raise HTTPException(status_code=409, detail="Baseline run has no scorecard yet")
     try:
         get_exam_pack(payload.exam_pack_id)
     except KeyError as exc:
@@ -88,6 +93,7 @@ def create_run(payload: RunCreate) -> dict:
         max_transfer_gap=payload.max_transfer_gap,
         tas_threshold=payload.tas_threshold,
         job_scope=payload.job_scope,
+        baseline_run_id=payload.baseline_run_id,
     )
     return save_run(run).model_dump(mode="json")
 

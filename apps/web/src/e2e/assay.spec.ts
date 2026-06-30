@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 // a full run-to-verdict. The legacy cockpit has been removed.
 
 test("intake screen renders the core controls", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   // Brand lives in the persistent top nav; value prop leads the page.
   await expect(page.getByRole("link", { name: /Assay home/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /find out where it breaks/i })).toBeVisible();
@@ -19,7 +19,7 @@ test("intake screen renders the core controls", async ({ page }) => {
 });
 
 test("workspace routes render under the persistent nav", async ({ page }) => {
-  await page.goto("/runs");
+  await page.goto("/runs", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "Experiments", exact: true })).toBeVisible();
 
   // Nav links move between the workspace surfaces.
@@ -33,11 +33,20 @@ test("workspace routes render under the persistent nav", async ({ page }) => {
 });
 
 test("command palette opens and navigates", async ({ page }) => {
-  await page.goto("/runs");
-  // Open via the keyboard shortcut and jump to a route.
-  await page.keyboard.press("Control+k");
+  await page.goto("/runs", { waitUntil: "domcontentloaded" });
+  // Open through the visible trigger; browser-reserved shortcuts such as Ctrl+K
+  // are covered at the component level where the event is not intercepted.
+  const trigger = page.getByRole("button", { name: /open command palette/i });
+  await expect(trigger).toBeVisible();
+  await expect
+    .poll(async () => {
+      await trigger.click();
+      return page.locator(".cmdk-panel").isVisible();
+    })
+    .toBe(true);
   await expect(page.locator(".cmdk-panel")).toBeVisible();
   await page.locator(".cmdk-input").fill("suites");
+  await expect(page.locator(".cmdk-item", { hasText: "Suites" })).toBeVisible();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/suites$/);
 });
@@ -53,7 +62,7 @@ test("runs an agent.md through to a verdict", async ({ page }) => {
     .catch(() => false);
   test.skip(!apiUp, `API not reachable at ${apiBase}; start it with "npm run dev:api"`);
 
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
 
   const input = page.getByRole("textbox", { name: /agent definition/i });

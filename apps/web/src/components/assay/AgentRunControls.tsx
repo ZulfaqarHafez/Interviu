@@ -14,6 +14,8 @@ export type AgentRunControlsProps = {
   candidateId: string | null;
   agentName: string;
   examPackId: string;
+  /** Run to compare an improved-version test against. */
+  baselineRunId?: string | null;
   /** The refined agent.md from the run's agent-spec, if any. */
   refinedMarkdown?: string | null;
   className?: string;
@@ -23,6 +25,7 @@ export function AgentRunControls({
   candidateId,
   agentName,
   examPackId,
+  baselineRunId,
   refinedMarkdown,
   className
 }: AgentRunControlsProps) {
@@ -61,7 +64,7 @@ export function AgentRunControls({
         <button
           type="button"
           className="command-button accent"
-          onClick={() => void testImproved(refinedMarkdown as string, `${agentName} v2`, examPackId)}
+          onClick={() => void testImproved(refinedMarkdown as string, `${agentName} v2`, examPackId, baselineRunId)}
         >
           <Sparkles size={16} /> Test improved version
         </button>

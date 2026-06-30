@@ -132,6 +132,37 @@ def test_progress_tracks_competency_trend(monkeypatch: pytest.MonkeyPatch) -> No
     assert all(lesson["active"] is False for lesson in lessons)
 
 
+def test_explicit_baseline_compares_improved_candidate_to_source_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", _FakeAudit)
+
+    with TestClient(app) as client:
+        candidate_id = client.get("/candidates").json()[0]["id"]
+        baseline_run = client.post("/runs", json={"candidate_id": candidate_id}).json()
+        client.post(f"/runs/{baseline_run['id']}/start")
+
+        improved_candidate = client.post(
+            "/candidates",
+            json={"name": "Improved Candidate", "adapter_type": "mock"},
+        ).json()
+        improved_run = client.post(
+            "/runs",
+            json={
+                "candidate_id": improved_candidate["id"],
+                "baseline_run_id": baseline_run["id"],
+            },
+        ).json()
+        scorecard = client.post(f"/runs/{improved_run['id']}/start").json()
+        comparison = client.get(f"/runs/{improved_run['id']}/comparison").json()
+
+    assert improved_run["baseline_run_id"] == baseline_run["id"]
+    assert scorecard["prior_run_id"] == baseline_run["id"]
+    assert comparison["baseline_run_id"] == baseline_run["id"]
+    assert comparison["candidate_id"] == improved_candidate["id"]
+    assert comparison["competencies"]
+
+
 def test_progress_404_for_unknown_candidate() -> None:
     with TestClient(app) as client:
         assert client.get("/candidates/cand_missing/progress").status_code == 404

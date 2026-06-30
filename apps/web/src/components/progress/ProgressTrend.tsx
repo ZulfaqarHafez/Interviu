@@ -33,7 +33,8 @@ function colorFor(index: number) {
   return SERIES_COLORS[index % SERIES_COLORS.length];
 }
 
-function pct(value: number) {
+function pct(value: number | null | undefined) {
+  if (value == null) return "-";
   return `${Math.round(value * 100)}%`;
 }
 

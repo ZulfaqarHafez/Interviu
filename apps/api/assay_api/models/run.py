@@ -20,6 +20,9 @@ class RunCreate(BaseModel):
     max_transfer_gap: float = Field(default=0.20, ge=0, le=1)
     tas_threshold: float = Field(default=70, ge=0, le=100)
     job_scope: JobScope | None = None
+    # Optional explicit baseline for cross-candidate comparisons, e.g. testing
+    # an auto-refined agent definition against the run that produced it.
+    baseline_run_id: str | None = Field(default=None, max_length=120)
 
     model_config = ConfigDict(extra="forbid")
 
@@ -36,6 +39,7 @@ class RunRecord(BaseModel):
     tas_threshold: float = 70
     error: str | None = None
     job_scope: JobScope | None = None
+    baseline_run_id: str | None = None
     # Set when the run synthesized a tailored exam pack from a role brief; the
     # pack itself lives in the in-process registry and is re-derivable from the
     # persisted ``role_qualified`` event.

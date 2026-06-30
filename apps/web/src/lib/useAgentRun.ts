@@ -70,7 +70,7 @@ export function useAgentRun(options: UseAgentRunOptions = {}) {
 
   /** Register the refined agent.md as a new candidate and test it. */
   const testImproved = React.useCallback(
-    async (refinedMarkdown: string, name: string, examPackId: string) => {
+    async (refinedMarkdown: string, name: string, examPackId: string, baselineRunId?: string | null) => {
       const refined = refinedMarkdown.trim();
       if (!refined) return null;
       setError(null);
@@ -79,7 +79,7 @@ export function useAgentRun(options: UseAgentRunOptions = {}) {
       firedFor.current = null;
       try {
         const intake = await assayApi.candidateFromMarkdown(refined, name);
-        const createdRun = await assayApi.createRun(intake.candidate.id, examPackId, null);
+        const createdRun = await assayApi.createRun(intake.candidate.id, examPackId, null, baselineRunId ?? null);
         runStream.start(createdRun.id, { k: createdRun.k, itemCount: itemCountFor(createdRun.exam_pack_id) });
         return { runId: createdRun.id, candidateId: intake.candidate.id };
       } catch (exc) {

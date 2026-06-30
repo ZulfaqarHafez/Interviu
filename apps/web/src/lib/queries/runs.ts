@@ -129,13 +129,14 @@ export type CreateRunVars = {
   candidateId: string;
   examPackId?: string;
   jobScope?: JobScope | null;
+  baselineRunId?: string | null;
 };
 
 export function useCreateRun(options?: MutationOpts<RunRecord, CreateRunVars>) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ candidateId, examPackId = "hr-v1", jobScope = null }: CreateRunVars) =>
-      assayApi.createRun(candidateId, examPackId, jobScope),
+    mutationFn: ({ candidateId, examPackId = "hr-v1", jobScope = null, baselineRunId = null }: CreateRunVars) =>
+      assayApi.createRun(candidateId, examPackId, jobScope, baselineRunId),
     ...options,
     onSettled: (...args) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.runs() });

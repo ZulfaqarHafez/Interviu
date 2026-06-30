@@ -17,11 +17,13 @@ const DELTA_STYLE: Record<ComparisonOutcome, React.CSSProperties> = {
   unchanged: { background: "transparent", color: "var(--color-fg-muted)" }
 };
 
-function pct(value: number) {
+function pct(value: number | null | undefined) {
+  if (value == null) return "-";
   return `${Math.round(value * 100)}%`;
 }
 
-function signedPct(value: number) {
+function signedPct(value: number | null | undefined) {
+  if (value == null) return "-";
   const rounded = Math.round(value * 100);
   if (rounded > 0) return `+${rounded}%`;
   if (rounded < 0) return `${rounded}%`;
@@ -118,7 +120,7 @@ export function RunComparison({ runId, baseline, comparison: provided, className
     <Card className={className}>
       {header}
       <CardBody>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <table className="comparison-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <caption className="sr-only">
             Competency scores comparing run {comparison.run_id} against baseline {comparison.baseline_run_id}
           </caption>
@@ -182,11 +184,11 @@ function ComparisonRow({ row }: { row: CompetencyComparison }) {
           )}
         </span>
       </th>
-      <td style={{ padding: "8px", textAlign: "right", color: "var(--color-fg-muted)" }}>
+      <td data-label="Baseline" style={{ padding: "8px", textAlign: "right", color: "var(--color-fg-muted)" }}>
         {pct(row.baseline_score)}
       </td>
-      <td style={{ padding: "8px", textAlign: "right", color: "var(--color-fg)" }}>{pct(row.current_score)}</td>
-      <td style={{ padding: "8px", textAlign: "right" }}>
+      <td data-label="Current" style={{ padding: "8px", textAlign: "right", color: "var(--color-fg)" }}>{pct(row.current_score)}</td>
+      <td data-label="Delta" style={{ padding: "8px", textAlign: "right" }}>
         <span
           aria-label={`${labelize(row.outcome)}, ${signedPct(row.delta)}`}
           style={{

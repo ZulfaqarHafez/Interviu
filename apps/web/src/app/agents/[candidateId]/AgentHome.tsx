@@ -60,6 +60,7 @@ export default function AgentHome({ candidateId }: { candidateId: string }) {
           candidateId={candidateId}
           agentName={name}
           examPackId={packId}
+          baselineRunId={latest?.id ?? null}
           refinedMarkdown={refinedMarkdown}
         />
       </header>
@@ -97,11 +98,11 @@ export default function AgentHome({ candidateId }: { candidateId: string }) {
                   const score = scoreLabel(run);
                   return (
                     <tr key={run.id}>
-                      <td>
+                      <td data-label="Run">
                         <Link href={`/runs/${run.id}`} className="ws-cell-strong mono">{run.id}</Link>
                         <div className="ws-cell-sub">{run.created_at?.slice(0, 16).replace("T", " ") ?? ""}</div>
                       </td>
-                      <td>
+                      <td data-label="Verdict">
                         {verdict === "ship" ? (
                           <span className="ws-verdict ship"><CheckCircle2 size={13} /> Ship</span>
                         ) : verdict === "hold" ? (
@@ -110,9 +111,9 @@ export default function AgentHome({ candidateId }: { candidateId: string }) {
                           <span className="ws-verdict idle">—</span>
                         )}
                       </td>
-                      <td className="num">{score}</td>
-                      <td><span className="ws-status done"><Circle size={9} /> {run.status}</span></td>
-                      <td className="num"><Link href={`/runs/${run.id}`} className="ws-row-link">Open →</Link></td>
+                      <td className="num" data-label="Score">{score}</td>
+                      <td data-label="Status"><span className="ws-status done"><Circle size={9} /> {run.status}</span></td>
+                      <td className="num ws-row-action"><Link href={`/runs/${run.id}`} className="ws-row-link">Open →</Link></td>
                     </tr>
                   );
                 })}

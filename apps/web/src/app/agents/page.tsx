@@ -59,7 +59,7 @@ export default function AgentsPage() {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.name}>
-                  <td>
+                  <td data-label="Agent">
                     {r.candidateId ? (
                       <Link href={`/agents/${r.candidateId}`} className="ws-cell-strong">{r.name}</Link>
                     ) : (
@@ -67,9 +67,9 @@ export default function AgentsPage() {
                     )}
                     <div className="ws-cell-sub">{r.adapter}</div>
                   </td>
-                  <td><span className="ws-chip accent">{r.adapter}</span></td>
-                  <td className="num">{r.runCount}</td>
-                  <td>
+                  <td data-label="Adapter"><span className="ws-chip accent">{r.adapter}</span></td>
+                  <td className="num" data-label="Runs">{r.runCount}</td>
+                  <td data-label="Latest verdict">
                     {r.verdict === "ship" ? (
                       <span className="ws-verdict ship"><CheckCircle2 size={13} /> Ship</span>
                     ) : r.verdict === "hold" ? (
@@ -78,8 +78,8 @@ export default function AgentsPage() {
                       <span className="ws-verdict idle">—</span>
                     )}
                   </td>
-                  <td className="num">{r.score ?? "—"}</td>
-                  <td className="num">
+                  <td className="num" data-label="Latest score">{r.score ?? "—"}</td>
+                  <td className="num ws-row-action">
                     {r.candidateId ? <Link href={`/agents/${r.candidateId}`} className="ws-row-link">Open →</Link> : null}
                   </td>
                 </tr>

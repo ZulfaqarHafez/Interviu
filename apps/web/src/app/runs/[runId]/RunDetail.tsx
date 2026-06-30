@@ -76,6 +76,7 @@ export default function RunDetail({ runId }: { runId: string }) {
             candidateId={candidateId}
             agentName={candidateName}
             examPackId={rerunPackId}
+            baselineRunId={runId}
             refinedMarkdown={agentSpec?.agent_markdown}
           />
           <button

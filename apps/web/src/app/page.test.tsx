@@ -192,9 +192,11 @@ const proofBundle = {
 };
 
 let agentSpecOverride: typeof agentSpec | null = null;
+let runCreateBodies: Array<Record<string, unknown>> = [];
 
 beforeEach(() => {
   agentSpecOverride = null;
+  runCreateBodies = [];
   global.fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     if (url.endsWith("/health")) {
@@ -330,7 +332,9 @@ beforeEach(() => {
       return json([runRecord]);
     }
     if (url.endsWith("/runs") && init?.method === "POST") {
-      return json({ ...runRecord, status: "created" });
+      const body = JSON.parse(String(init.body ?? "{}"));
+      runCreateBodies.push(body);
+      return json({ ...runRecord, status: "created", baseline_run_id: body.baseline_run_id ?? null });
     }
     if (url.endsWith("/runs/run_demo/start")) {
       return json(scorecard);
@@ -409,6 +413,26 @@ describe("Assay page", () => {
     await screen.findByText("What to fix");
     expect(screen.getAllByText("Ready to ship").length).toBeGreaterThan(0);
     expect(screen.getByText(/By capability/i)).toBeInTheDocument();
+  });
+
+  it("uses the current run as the baseline when testing the improved version", async () => {
+    const user = userEvent.setup();
+    renderHome();
+    const template = await screen.findByText(/HR screener \(hardened\)/i);
+    await user.click(template);
+    const runButton = screen.getByRole("button", { name: /run the litmus test/i });
+    await waitFor(() => expect(runButton).toBeEnabled());
+    await user.click(runButton);
+    await screen.findByText("What to fix");
+
+    await user.click(screen.getByRole("button", { name: /test improved version/i }));
+
+    await waitFor(() => expect(runCreateBodies).toHaveLength(2));
+    expect(runCreateBodies[1]).toMatchObject({
+      candidate_id: "cand_demo",
+      exam_pack_id: "hr-v1",
+      baseline_run_id: "run_demo"
+    });
   });
 
 });
