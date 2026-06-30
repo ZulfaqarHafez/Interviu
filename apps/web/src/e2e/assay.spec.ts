@@ -72,5 +72,8 @@ test("runs an agent.md through to a verdict", async ({ page }) => {
   const verdict = page.locator(".assay-verdict");
   await expect(verdict).toBeVisible({ timeout: 110_000 });
   await expect(page.locator(".assay-verdict-score")).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByRole("button", { name: /test another agent/i })).toBeVisible({ timeout: 10_000 });
+  // The verdict's iterate controls are present (primary action: rerun the same agent).
+  await expect(
+    page.locator(".assay-verdict-actions").getByRole("button", { name: /rerun same agent/i })
+  ).toBeVisible({ timeout: 10_000 });
 });
