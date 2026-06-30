@@ -1,0 +1,32 @@
+# Vercel FastAPI deployment config for the Assay API.
+#
+# The repo exports `app` from several files (api/index.py, assay_api/main.py, and
+# the test modules that import it), so Vercel's FastAPI auto-detection can't pick
+# one on its own — `[tool.vercel].entrypoint` points it at the serverless app.
+#
+# Vercel installs Python deps with `uv` from this file's `[project.dependencies]`
+# (kept in sync with requirements.txt). `[tool.uv] package = false` marks this a
+# dependency set, not an installable package, so uv doesn't try to build it.
+#
+# Requires the Vercel project's Root Directory = `apps/api` so `assay_api`
+# (imported by api/index.py) is importable.
+[project]
+name = "assay-api"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.30,<1.0",
+    "pydantic>=2.8,<3.0",
+    "httpx>=0.27,<1.0",
+    "slowapi>=0.1.9,<1.0",
+    "supabase>=2.10,<3.0",
+    "openai>=2.2,<3.0",
+    "PyYAML>=6.0,<7.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.vercel]
+entrypoint = "api.index:app"
