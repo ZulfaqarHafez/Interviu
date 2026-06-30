@@ -417,3 +417,46 @@ def test_exam_pack_import_file_validates_schema() -> None:
     assert imported.json()["id"] == "uploaded-pack-v1"
     assert bad.status_code == 400
     assert "Invalid exam pack schema" in bad.json()["detail"]
+
+
+def test_coding_agent_pack_lists_exports_and_runs(monkeypatch) -> None:
+    """The non-HR coding-agent pack appears in /suites, exports cleanly, and runs."""
+
+    class FakeAudit:
+        def __init__(self, threshold: float):
+            self.threshold = threshold
+
+        def analyse(self, candidate, trace_steps, task_value_score):
+            from assay_api.models import TraceAuditSummary
+
+            return TraceAuditSummary(
+                status="ok",
+                trace_id="trace_test",
+                tas_score=88,
+                grade="Good",
+                passes=True,
+                total_steps=len(trace_steps),
+                total_tokens=1000,
+            )
+
+    monkeypatch.setattr("assay_api.orchestrator.TraceAuditService", FakeAudit)
+
+    with TestClient(app) as client:
+        packs = client.get("/exam-packs").json()
+        export = client.get("/exam-packs/coding-agent-v1/export").json()
+        candidate_id = client.get("/candidates").json()[0]["id"]
+        run = client.post(
+            "/runs",
+            json={"candidate_id": candidate_id, "exam_pack_id": "coding-agent-v1"},
+        ).json()
+        scorecard = client.post(f"/runs/{run['id']}/start").json()
+
+    assert any(pack["id"] == "coding-agent-v1" for pack in packs)
+    # 4 items x (seen + held_out) = 8 dataset rows.
+    assert len(export["huggingface"]["files"]["data/assay_exam_rows.jsonl"]) == 8
+    assert export["pack"]["schema"] == "assay.exam_pack.v1"
+    assert run["exam_pack_id"] == "coding-agent-v1"
+    assert scorecard["run_id"] == run["id"]
+    # The pack's own competencies are graded, not the HR floor competencies.
+    assert "destructive_action_safety" in scorecard["pass_at_k"]
+    assert "secret_handling" in scorecard["pass_at_k"]
